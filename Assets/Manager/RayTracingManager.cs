@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -31,7 +32,7 @@ namespace Manager
         private static readonly int ViewParams = Shader.PropertyToID("ViewParams");
         private static readonly int AllMeshInfo = Shader.PropertyToID("AllMeshInfo");
         private static readonly int GroundColor = Shader.PropertyToID("GroundColor");
-        private static readonly int SunIntensity = Shader.PropertyToID("SunIntensity");
+        //private static readonly int SunIntensity = Shader.PropertyToID("SunIntensity");
 
         private static readonly int DivergeStrength = Shader.PropertyToID("DivergeStrength");
         private static readonly int MaxBounceCount = Shader.PropertyToID("MaxBounceCount");
@@ -39,7 +40,7 @@ namespace Manager
         private static readonly int NumRaysPerPixel = Shader.PropertyToID("NumRaysPerPixel");
         private static readonly int SkyColorHorizon = Shader.PropertyToID("SkyColorHorizon");
         private static readonly int NumRenderedFrames = Shader.PropertyToID("NumRenderedFrames");
-        private static readonly int SunLightDirection = Shader.PropertyToID("SunLightDirection");
+        //private static readonly int SunLightDirection = Shader.PropertyToID("SunLightDirection");
         private static readonly int EnvironmentEnabled = Shader.PropertyToID("EnvironmentEnabled");
         private static readonly int CamLocalToWorldMatrix = Shader.PropertyToID("CamLocalToWorldMatrix");
 
@@ -50,11 +51,11 @@ namespace Manager
         [SerializeField, ReadOnly] private int totalAmountOfRaysPerPixel;
         [SerializeField, ReadOnly] private int amountOfPictures;
         [SerializeField] private string folderName;
+        [SerializeField, Min(0)] private int raysPerPixelPerImage;
         [SerializeField] private bool saveImageSequence;
         [SerializeField] private bool saveThisFrame;
         [SerializeField] private bool stopRender;
         [SerializeField] private bool restartRender;
-        [SerializeField] private int raysPerPixelPerImage;
 
         [Space, Header("Ray Tracing Settings"), SerializeField, Range(0, 100)]
         private int maxBounceCount;
@@ -62,7 +63,7 @@ namespace Manager
         [SerializeField, Range(1, 200)] private int numRaysPerPixel;
         [SerializeField, Range(0, 5)] private float divergeStrength;
 
-        [Space, Header("Setup Setting")] [SerializeField]
+        [Space, Header("Setup Settings"),SerializeField]
         private bool useShaderInSceneView;
 
         //[SerializeField] private Light sun;
@@ -74,9 +75,9 @@ namespace Manager
         [SerializeField] private Color skyColorHorizon;
         [SerializeField] private Color skyColorZenith;
         [SerializeField] private Color groundColor;
-        [SerializeField] [Range(0, 10)] private float sunFocus = 1;
+        //[SerializeField,Range(0, 10)] private float sunFocus = 1;
 
-        [Space] [SerializeField] private List<RayTracedMesh> meshes;
+        [Space,SerializeField] private List<MeshObject> meshes;
         [SerializeField] private List<SphereObject> spheres;
         [SerializeField] private List<RectObject> rects;
 
@@ -157,11 +158,15 @@ namespace Manager
 
             if (meshes.Count <= 0) return;
 
+            // Is this a messy way to do this? yes. Does it work? yes
             var list = meshes.Select(m => m.GetInfoAndList());
 
             var valueTuples = list as (MeshInfo, List<Triangle>)[] ?? list.ToArray();
 
-            var triangles = valueTuples.Select(l => l.Item2).SelectMany(x => x).ToArray();
+            var triangles = valueTuples
+                .Select(l => l.Item2)
+                .SelectMany(x => x)
+                .ToArray();
 
             _triangles?.Dispose();
             _triangles = new GraphicsBuffer(GraphicsBuffer.Target.Structured, triangles.Length,
@@ -170,16 +175,16 @@ namespace Manager
             _triangles.SetData(triangles);
             rayTracingMaterial.SetBuffer(Triangles, _triangles);
 
-            var mInfos = valueTuples
+            var meshInfos = valueTuples
                 .Select(l => l.Item1)
                 .Select(l => l)
                 .ToArray();
 
-            var infos = new MeshInfo[mInfos.Length];
-            var verts = 0;
-            for (var i = 0; i < mInfos.Length; i++)
+            var infos = new MeshInfo[meshInfos.Length];
+            
+            for (int i = 0, verts = 0; i < meshInfos.Length; i++)
             {
-                var mi = mInfos[i];
+                var mi = meshInfos[i];
 
                 mi.firstTriangleIndex = verts;
                 verts += mi.numTriangles;
@@ -201,8 +206,7 @@ namespace Manager
         {
             if (saveThisFrame)
             {
-                SaveRenderTexture(_oldRT);
-                saveThisFrame = false;
+                StartCoroutine(SaveScreenShot());
                 return;
             }
 
@@ -217,9 +221,11 @@ namespace Manager
                 return;
             }
 
-            if (totalAmountOfRaysPerPixel < raysPerPixelPerImage || !saveImageSequence || !EditorApplication.isPlaying) return;
+            if (totalAmountOfRaysPerPixel < raysPerPixelPerImage
+                || !saveImageSequence
+                || !EditorApplication.isPlaying) return;
 
-            SaveRenderTexture(_oldRT);
+            StartCoroutine(SaveScreenShot());
             _wasLastFrameRayTraced = false;
             totalAmountOfRaysPerPixel = 0;
             _oldFrameCount = frameCount;
@@ -289,14 +295,15 @@ namespace Manager
             rayTracingMaterial.SetVector(SkyColorHorizon, skyColorHorizon);
             rayTracingMaterial.SetVector(SkyColorZenith, skyColorZenith);
             //rayTracingMaterial.SetVector(SunLightDirection, sun.transform.rotation.eulerAngles.normalized);
-            rayTracingMaterial.SetFloat(SunFocus, sunFocus);
+            //rayTracingMaterial.SetFloat(SunFocus, sunFocus);
             //rayTracingMaterial.SetFloat(SunIntensity, sun.intensity);
             rayTracingMaterial.SetVector(GroundColor, groundColor);
         }
 
-        private void SaveRenderTexture(RenderTexture renderTexture)
+        private IEnumerator SaveScreenShot()
         {
-            var tex = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGBAHalf, false);
+            yield return new WaitForEndOfFrame();
+
             var path = $"images/{folderName}";
 
             if (!Directory.Exists(path))
@@ -316,30 +323,23 @@ namespace Manager
             }
             else
             {
+                saveThisFrame = false;
                 var current = Camera.current;
                 path +=
                     $"/Screenshot_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}_{current.pixelWidth}x{current.pixelHeight}_{totalAmountOfRaysPerPixel}rays_{maxBounceCount}bounces.png";
             }
 
-            AsyncGPUReadback.Request(renderTexture, 0, request =>
+            if (File.Exists(path))
             {
-                tex.SetPixelData(request.GetData<byte>(), 0);
-                tex.Apply();
+                print("File already exists");
+                yield break;
+            }
 
-                var time = _stopwatch.Elapsed;
-                _stopwatch.Restart();
+            ScreenCapture.CaptureScreenshot(path);
+            var time = _stopwatch.Elapsed;
+            _stopwatch.Restart();
 
-                var bytes = tex.EncodeToPNG();
-
-                if (File.Exists(path))
-                {
-                    print("File already exists");
-                    return;
-                }
-
-                File.WriteAllBytes(path, bytes);
-                print($"Saved to {path}\nAnd took {time:g}");
-            });
+            print($"Saved to {path}\nAnd took {time:g}");
         }
 
         private void OnDisable()

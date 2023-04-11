@@ -75,6 +75,12 @@ Shader "Unlit/RayTracer"
                 return o;
             }
 
+            // A quick optimization(maybe) to do here is to use one for-loop
+            // Which runs the highest of all the Num-variables
+            // and then if's that check if the index is below their
+            // respective Num-variable
+            // Will save time if there are multiple arrays that are large
+            // The triangle array will most likely be the biggest anyways
             HitRecord CalculateRayCollision(const Ray ray)
             {
                 float closestSoFar = FLOAT_MAX;
@@ -129,7 +135,7 @@ Shader "Unlit/RayTracer"
 
                 return closestHitRecord;
             }
-
+            
             float3 GetEnvironmentLight(Ray ray)
             {
                 const float skyGradientT = pow(smoothstep(0, 0.4, ray.dir.y), 0.35);
@@ -144,8 +150,8 @@ Shader "Unlit/RayTracer"
 
             float3 Trace(Ray ray)
             {
-                float3 incomingLight = (0);
-                float3 rayColor = (1);
+                float3 incomingLight = 0;
+                float3 rayColor = 1;
 
                 for (int i = 0; i < MaxBounceCount + 1; ++i)
                 {

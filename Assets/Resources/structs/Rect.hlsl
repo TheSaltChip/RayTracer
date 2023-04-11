@@ -28,37 +28,39 @@ struct Rect
 
     HitRecord Hit(const Ray r, const float tMin, const float tMax)
     {
-        Ray translated;
-        switch (orientation)
-        {
-        case ORIENTATION.xy:
-            translated = MakeRay(r.origin - offset, r.dir);
-            break;
-        case ORIENTATION.xz:
-            translated = MakeRay(r.origin - offset, r.dir);
-            break;
-        case ORIENTATION.yz:
-            translated = MakeRay(r.origin - offset, r.dir);
-            break;
-        default:
-            translated = r;
-            break;
-        }
+        Ray translated = MakeRay(r.origin - offset, r.dir);
 
         float3 origin = translated.origin;
         float3 direction = translated.dir;
 
-
         float sinTheta = sinRotation.y;
         float cosTheta = cosRotation.y;
 
-        float3x3 rotY = float3x3(
-            cosTheta, 0, -sinTheta,
-            0, 1, 0,
-            sinTheta, 0, cosTheta);
+        // @formatter:off
+        float3x3 rotX = float3x3(
+            1,     0,        0,
+            0,  cosRotation.x, sinRotation.x,
+            0, -sinRotation.x, cosRotation.x);
 
+        float3x3 rotY = float3x3(
+            cosRotation.y, 0, -sinRotation.y,
+                0,    1,     0,
+            sinRotation.y, 0, cosRotation.y);
+
+        float3x3 rotZ = float3x3(
+             cosRotation.z, sinRotation.z, 0,
+            -sinRotation.z, cosRotation.z, 0,
+                 0,        0,    1);
+        // @formatter:on
+
+        //origin = mul(rotX, origin);
         origin = mul(rotY, origin);
-        direction = mul(rotY, direction);
+        //origin = mul(rotZ, origin);
+
+        //direction = mul(rotX, direction);
+        direction = mul(rotY,direction);
+        //direction = mul(rotZ, direction);
+
         Ray rotated = MakeRay(origin, direction);
 
         float a, b, t;
@@ -110,14 +112,32 @@ struct Rect
 
         float3 p = rotated.PointAtParameter(t);
 
+        // @formatter:off
+        float3x3 rotCounterX = float3x3(
+            1,        0,            0,
+            0,  cosRotation.x, sinRotation.x,
+            0, -sinRotation.x, cosRotation.x);
 
         float3x3 rotCounterY = float3x3(
-            cosTheta, 0, sinTheta,
-            0, 1, 0,
-            -sinTheta, 0, cosTheta);
+            cosRotation.y, 0, -sinRotation.y,
+                  0,       1,       0,
+            sinRotation.y, 0, cosRotation.y);
 
-        rec.hitPoint = mul(rotCounterY,p);
+        float3x3 rotCounterZ = float3x3(
+             cosRotation.z, sinRotation.z, 0,
+            -sinRotation.z, cosRotation.z, 0,
+                   0,             0,       1);
+        // @formatter:on
+
+        //rec.hitPoint = mul(rotCounterZ, );
+        rec.hitPoint = mul(rotCounterY, p);
+        //rec.hitPoint = mul(rotCounterX, rec.hitPoint);
+        
+
+        //normal = mul(rotCounterZ, normal);
         normal = mul(rotCounterY, normal);
+        //normal = mul(rotCounterX, normal);
+        
 
         rec.hitPoint += offset;
         rec.SetFaceNormal(rotated, normal);

@@ -115,17 +115,17 @@ struct Rect
         // @formatter:off
         float3x3 rotCounterX = float3x3(
             1,        0,            0,
-            0,  cosRotation.x, sinRotation.x,
-            0, -sinRotation.x, cosRotation.x);
+            0,  cosRotation.x, -sinRotation.x,
+            0, sinRotation.x, cosRotation.x);
 
         float3x3 rotCounterY = float3x3(
-            cosRotation.y, 0, -sinRotation.y,
+            cosRotation.y, 0, sinRotation.y,
                   0,       1,       0,
-            sinRotation.y, 0, cosRotation.y);
+            -sinRotation.y, 0, cosRotation.y);
 
         float3x3 rotCounterZ = float3x3(
-             cosRotation.z, sinRotation.z, 0,
-            -sinRotation.z, cosRotation.z, 0,
+             cosRotation.z, -sinRotation.z, 0,
+            sinRotation.z, cosRotation.z, 0,
                    0,             0,       1);
         // @formatter:on
 

@@ -4,7 +4,7 @@ using static Structs;
 
 namespace Objects
 {
-    public class RayTracedMesh : BaseObject
+    public class MeshObject : BaseObject
     {
         [SerializeField] private MeshFilter meshFilter;
 

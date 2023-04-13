@@ -25,7 +25,7 @@ namespace Manager
         private static readonly int MainTex = Shader.PropertyToID("MainTex");
         private static readonly int Spheres = Shader.PropertyToID("Spheres");
         private static readonly int NumRects = Shader.PropertyToID("NumRects");
-        private static readonly int SunFocus = Shader.PropertyToID("SunFocus");
+        //private static readonly int SunFocus = Shader.PropertyToID("SunFocus");
         private static readonly int NumMeshes = Shader.PropertyToID("NumMeshes");
         private static readonly int Triangles = Shader.PropertyToID("Triangles");
         private static readonly int MainOldTex = Shader.PropertyToID("MainOldTex");

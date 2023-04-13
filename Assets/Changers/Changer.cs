@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Manager
+namespace Changers
 {
     public abstract class Changer : MonoBehaviour
     {

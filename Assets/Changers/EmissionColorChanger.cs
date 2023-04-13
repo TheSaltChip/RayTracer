@@ -2,7 +2,7 @@
 using UnityEngine;
 using static Structs;
 
-namespace Manager
+namespace Changers
 {
     public class EmissionColorChanger : Changer
     {

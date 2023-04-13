@@ -1,7 +1,7 @@
 ﻿using Attributes;
 using UnityEngine;
 
-namespace Manager
+namespace Changers
 {
     public class YAngleChanger : Changer
     {

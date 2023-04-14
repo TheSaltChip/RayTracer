@@ -15,7 +15,7 @@ Shader "Unlit/RayTracer"
             #include "Assets/Resources/structs/Sphere.hlsl"
             #include "Assets/Resources/structs/Triangle.hlsl"
             #include "Assets/Resources/common/Random.hlsl"
-            #include "Assets/Resources/common/ScatterFunctions.hlsl"
+            //#include "Assets/Resources/common/ScatterFunctions.hlsl"
 
             const static float FLOAT_MAX = 3.402823466e+38F;
 
@@ -81,7 +81,7 @@ Shader "Unlit/RayTracer"
             // respective Num-variable
             // Will save time if there are multiple arrays that are large
             // The triangle array will most likely be the biggest anyways
-            HitRecord CalculateRayCollision(const Ray ray)
+            HitRecord CalculateRayCollision(Ray ray)
             {
                 float closestSoFar = FLOAT_MAX;
                 HitRecord closestHitRecord = (HitRecord)0;
@@ -113,7 +113,7 @@ Shader "Unlit/RayTracer"
                 for (int meshIndex = 0; meshIndex < NumMeshes; ++meshIndex)
                 {
                     const MeshInfo meshInfo = AllMeshInfo[meshIndex];
-                    if (!Intersection(meshInfo.boundsMin, meshInfo.boundsMax, ray, closestSoFar))
+                    if (!ray.Intersection(meshInfo.boundsMin, meshInfo.boundsMax, closestSoFar))
                     {
                         continue;
                     }
@@ -135,7 +135,7 @@ Shader "Unlit/RayTracer"
 
                 return closestHitRecord;
             }
-            
+
             float3 GetEnvironmentLight(Ray ray)
             {
                 const float skyGradientT = pow(smoothstep(0, 0.4, ray.dir.y), 0.35);
@@ -170,7 +170,7 @@ Shader "Unlit/RayTracer"
 
                     incomingLight += emittedLight * rayColor;
 
-                    Scatter(ray, hitRecord, rayColor, ray);
+                    ray.Scatter(hitRecord, rayColor);
                 }
 
                 return incomingLight;
@@ -178,32 +178,34 @@ Shader "Unlit/RayTracer"
 
             float4 Frag(const V2F i) : SV_Target
             {
-                uint2 numPixels = _ScreenParams.xy;
-                uint2 pixelCoord = i.uv * numPixels;
+                const uint2 numPixels = _ScreenParams.xy;
+                const uint2 pixelCoord = i.uv * numPixels;
+
                 const uint pixelIndex = pixelCoord.x + pixelCoord.y * numPixels.x;
                 SetSeed(pixelIndex + Frame * 547103u);
 
-                float3 viewPointLocal = float3(i.uv - 0.5, 1) * ViewParams;
-                const float3 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 1));
+                const float3 viewPointLocal = float3(i.uv - 0.5, 1) * ViewParams;
+                const float3 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 1.0));
                 const float3 camRight = CamLocalToWorldMatrix._m00_m10_m20;
                 const float3 camUp = CamLocalToWorldMatrix._m01_m11_m21;
 
-                const float invNumPixelX = 1.0f / (numPixels.x * 1.f);
+                const float invNumPixelX = 1.0 / (numPixels.x * 1.0);
 
                 float3 totalIncomingLight = 0;
+                Ray ray = (Ray)0;
 
                 for (int j = 0; j < NumRaysPerPixel; ++j)
                 {
-                    float2 jitter = RandomPointInCircle() * DivergeStrength * invNumPixelX;
+                    const float2 jitter = RandomPointInCircle() * DivergeStrength * invNumPixelX;
                     const float3 jitteredViewPoint = viewPoint + camRight * jitter.x + camUp * jitter.y;
 
-                    const Ray ray = MakeRay(_WorldSpaceCameraPos, normalize(jitteredViewPoint - _WorldSpaceCameraPos));
+                    ray.MakeRay(_WorldSpaceCameraPos, normalize(jitteredViewPoint - _WorldSpaceCameraPos));
 
                     totalIncomingLight += Trace(ray);
                 }
 
-                float3 pixelCol = totalIncomingLight / NumRaysPerPixel;
-                return float4((pixelCol), 1);
+                const float3 pixelCol = totalIncomingLight / NumRaysPerPixel;
+                return float4(pixelCol, 1);
                 //return float4(RandomPointInCircle(), 0, 1);
             }
             ENDHLSL

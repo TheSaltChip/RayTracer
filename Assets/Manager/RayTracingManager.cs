@@ -214,7 +214,6 @@ namespace Manager
             if (restartRender)
             {
                 restartRender = false;
-                _wasLastFrameRayTraced = false;
                 stopRender = false;
                 totalAmountOfRaysPerPixel = 0;
                 _oldFrameCount = frameCount;
@@ -227,13 +226,11 @@ namespace Manager
                 || !EditorApplication.isPlaying) return;
 
             StartCoroutine(SaveScreenShot());
-            _wasLastFrameRayTraced = false;
-            totalAmountOfRaysPerPixel = 0;
             _oldFrameCount = frameCount;
 
             if (changer.IsDone) stopRender = true;
 
-            amountOfPictures++;
+            amountOfPictures = changer.NumberOfIterations;
         }
 
         private void OnRenderImage(RenderTexture src, RenderTexture dest)
@@ -263,11 +260,12 @@ namespace Manager
             _newRT ??= new RenderTexture(src.descriptor);
             _newRT.Create();
 
-            if (!_wasLastFrameRayTraced || Camera.current.name == "SceneCamera")
+            if (_startNewRender || !_wasLastFrameRayTraced || Camera.current.name == "SceneCamera")
             {
                 Graphics.Blit(null, _oldRT, rayTracingMaterial);
                 Graphics.Blit(_oldRT, dest);
                 _wasLastFrameRayTraced = true;
+                _startNewRender = false;
                 return;
             }
 
@@ -305,7 +303,7 @@ namespace Manager
         {
             yield return new WaitForEndOfFrame();
 
-            var path = $"images/{folderName}";
+            var path = $"images/{folderName}/";
 
             if (!Directory.Exists(path))
             {
@@ -321,6 +319,9 @@ namespace Manager
                 changer.Increment();
 
                 UpdateParams();
+                
+                _startNewRender = true;
+                totalAmountOfRaysPerPixel = 0;
             }
             else
             {

@@ -4,11 +4,16 @@ namespace Changers
 {
     public abstract class Changer : MonoBehaviour
     {
-        protected int Number = 0;
+        public int NumberOfIterations { get; protected set; }
         public bool IsDone { get; protected set; }
         public abstract void Initialize();
         public abstract void Increment();
 
-        public abstract string FileName();
+        protected abstract string SetFileName();
+
+        public string FileName()
+        {
+            return $"{SetFileName()}.png";
+        }
     }
 }

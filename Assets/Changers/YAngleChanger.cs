@@ -20,9 +20,9 @@ namespace Changers
                 objectToRotate.transform.Rotate(Vector3.up, rotationPerIncrement);
         }
 
-        public override string FileName()
+        protected override string SetFileName()
         {
-            return $"/Screenshot_angle{angle:000_0}.png";
+            return $"Screenshot_angle{angle:000_0}";
         }
 
         public override void Initialize()

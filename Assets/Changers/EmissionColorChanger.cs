@@ -42,17 +42,17 @@ namespace Changers
 
             if (IsDone) return;
             
-            ++Number;
+            ++NumberOfIterations;
             _material.emissionColor = Color.HSVToRGB(_h, _s, _v);
             whatToChangeColorOn.SetMaterial(_material);
         }
 
-        private void SetStepSize() => _stepSize = stepSize % 360f / 360f;
-
-        public override string FileName()
+        protected override string SetFileName()
         {
-            return $"/Screenshot_num{Number:0000}.png";
+            return $"Screenshot_num{NumberOfIterations:0000}";
         }
+
+        private void SetStepSize() => _stepSize = stepSize % 360f / 360f;
 
 
         public override void Initialize()

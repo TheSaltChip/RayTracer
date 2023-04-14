@@ -5,7 +5,6 @@
 #include "HitRecord.hlsl"
 #include "Assets/Resources/common/HelperFunctions.hlsl"
 
-
 struct Sphere
 {
     float3 center;
@@ -51,28 +50,6 @@ struct Sphere
         return rec;
     }
 };
-
-Sphere MakeSphere(const float3 center, const float radius)
-{
-    Sphere s;
-
-    s.center = center;
-    s.radius = radius;
-    s.mat = MakeLambertianMaterial(float4(0, 0, 0, 1));;
-
-    return s;
-}
-
-Sphere MakeSphere(const float3 center, const float radius, const Material mat)
-{
-    Sphere s;
-
-    s.center = center;
-    s.radius = radius;
-    s.mat = mat;
-
-    return s;
-}
 
 
 #endif

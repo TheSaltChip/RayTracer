@@ -28,29 +28,27 @@ struct Rect
 
     HitRecord Hit(const Ray r, const float tMin, const float tMax)
     {
-        Ray translated = MakeRay(r.origin - offset, r.dir);
+        Ray translated = (Ray) 0;
+        translated.MakeRay(r.origin - offset, r.dir);
 
         float3 origin = translated.origin;
         float3 direction = translated.dir;
 
-        float sinTheta = sinRotation.y;
-        float cosTheta = cosRotation.y;
-
         // @formatter:off
         float3x3 rotX = float3x3(
-            1,     0,        0,
+            1,       0,             0,
             0,  cosRotation.x, sinRotation.x,
             0, -sinRotation.x, cosRotation.x);
 
         float3x3 rotY = float3x3(
             cosRotation.y, 0, -sinRotation.y,
-                0,    1,     0,
+                  0,       1,       0,
             sinRotation.y, 0, cosRotation.y);
 
         float3x3 rotZ = float3x3(
              cosRotation.z, sinRotation.z, 0,
             -sinRotation.z, cosRotation.z, 0,
-                 0,        0,    1);
+                   0,             0,       1);
         // @formatter:on
 
         //origin = mul(rotX, origin);
@@ -58,10 +56,11 @@ struct Rect
         //origin = mul(rotZ, origin);
 
         //direction = mul(rotX, direction);
-        direction = mul(rotY,direction);
+        direction = mul(rotY, direction);
         //direction = mul(rotZ, direction);
 
-        Ray rotated = MakeRay(origin, direction);
+        Ray rotated = (Ray) 0;
+        rotated.MakeRay(origin, direction);
 
         float a, b, t;
         float2 p0, p1;
@@ -132,15 +131,16 @@ struct Rect
         //rec.hitPoint = mul(rotCounterZ, );
         rec.hitPoint = mul(rotCounterY, p);
         //rec.hitPoint = mul(rotCounterX, rec.hitPoint);
-        
+
 
         //normal = mul(rotCounterZ, normal);
         normal = mul(rotCounterY, normal);
         //normal = mul(rotCounterX, normal);
-        
+
 
         rec.hitPoint += offset;
-        rec.SetFaceNormal(rotated, normal);
+        rec.SetFaceNormal(translated.dir, normal);
+
 
         /* rec.hitPoint[0] = cosTheta * p[0] + sinTheta * p[2];
          rec.hitPoint[2] = -sinTheta * p[0] + cosTheta * p[2];

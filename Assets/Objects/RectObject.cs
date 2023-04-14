@@ -15,22 +15,22 @@ namespace Objects
             _mesh = meshFilter.sharedMesh;
 
             var vert = new Vector3[_mesh.vertexCount];
-            var normals = new Vector3[_mesh.vertexCount];
 
             var t = transform;
 
             var position = t.position;
             var rotation = t.rotation.eulerAngles;
+
             var q = Quaternion.identity;
 
             switch (rect)
             {
-                case { orientation: 0 }:
+                case {orientation: 0}:
                     break;
-                case { orientation: 1 }:
+                case {orientation: 1}:
                     q.eulerAngles = new Vector3(90, 0, 0);
                     break;
-                case { orientation: 2 }:
+                case {orientation: 2}:
                     q.eulerAngles = new Vector3(0, 90, 0);
                     break;
             }
@@ -43,7 +43,6 @@ namespace Objects
             for (var index = 0; index < _mesh.vertices.Length; index++)
             {
                 vert[index] = t.TransformPoint(_mesh.vertices[index]);
-                normals[index] = t.TransformDirection(_mesh.normals[index]);
                 for (var n = 0; n < 3; n++)
                 {
                     max = Vector3.Max(vert[index], max);

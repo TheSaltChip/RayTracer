@@ -74,3 +74,4 @@ crashlytics-build.properties
 *.png
 */tmp/*.png
 *.gif
+images/1080x1080_color_360images/output_36fps.mp4

@@ -45,7 +45,7 @@ struct Sphere
         rec.didHit = true;
         rec.dist = root;
         rec.hitPoint = r.PointAtParameter(rec.dist);
-        rec.SetFaceNormal(r, (rec.hitPoint - center) / radius);
+        rec.SetFaceNormal(r.dir, (rec.hitPoint - center) / radius);
         rec.material = mat;
         return rec;
     }

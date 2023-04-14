@@ -12,9 +12,9 @@ struct HitRecord
     bool frontFace;
     Material material;
 
-    void SetFaceNormal(const Ray ray, const float3 outwardNormal)
+    void SetFaceNormal(const float3 rayDir, const float3 outwardNormal)
     {
-        frontFace = dot(ray.dir, outwardNormal) < 0;
+        frontFace = dot(rayDir, outwardNormal) < 0;
         normal = frontFace ? outwardNormal : -outwardNormal;
     }
 };

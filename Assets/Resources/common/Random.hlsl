@@ -1,7 +1,7 @@
 ﻿#ifndef RANDOM_HLSL
 #define RANDOM_HLSL
 
-static const float TAU = 2 * 3.14159265359f;
+static const float TAU = 6.28318530718f;
 
 uint RandomState;
 // https://www.pcg-random.org/ & https://www.shadertoy.com/view/XlGcRh

@@ -7,7 +7,7 @@ namespace Changers
     public class EmissionColorChanger : Changer
     {
         [SerializeField] private BaseObject whatToChangeColorOn;
-        [SerializeField, Range(0,359)] private float stepSize;
+        [SerializeField, Range(0, 359)] private float stepSize;
 
         private float _stepSize;
 
@@ -15,10 +15,10 @@ namespace Changers
         private float _s;
         private float _v;
 
-        private float _startH;
-
         private Mat _material;
 
+        private Color _initialColor;
+        
         private void OnValidate()
         {
             SetStepSize();
@@ -38,28 +38,27 @@ namespace Changers
         public override void Increment()
         {
             _h += _stepSize;
-            IsDone = _h >= 1f + _startH;
+            _h = _h >= 1f ? _h - 1f : _h;
 
-            if (IsDone) return;
-            
             ++NumberOfIterations;
             _material.emissionColor = Color.HSVToRGB(_h, _s, _v);
             whatToChangeColorOn.SetMaterial(_material);
         }
-
-        protected override string SetFileName()
-        {
-            return $"Screenshot_num{NumberOfIterations:0000}";
-        }
-
         private void SetStepSize() => _stepSize = stepSize % 360f / 360f;
 
 
         public override void Initialize()
         {
             _material = whatToChangeColorOn.GetMaterial();
+            _initialColor = _material.emissionColor;
             Color.RGBToHSV(_material.emissionColor, out _h, out _s, out _v);
-            _startH = _h;
         }
+
+        public override void ResetValues()
+        {
+            _material.emissionColor = _initialColor;
+            Color.RGBToHSV(_material.emissionColor, out _h, out _s, out _v);
+        }
+
     }
 }

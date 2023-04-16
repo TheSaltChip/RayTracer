@@ -6,11 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Attributes;
-using Changers;
 using Objects;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Rendering;
 using static Structs;
 
 namespace Manager
@@ -70,7 +68,7 @@ namespace Manager
         //[SerializeField] private Light sun;
         [SerializeField] private Material rayTracingMaterial;
         [SerializeField] private Material combiningMaterial;
-        [SerializeField] private Changer changer;
+        [SerializeField] private ChangerManager changer;
 
         [SerializeField] private bool environmentEnabled;
         [SerializeField] private Color skyColorHorizon;
@@ -215,8 +213,10 @@ namespace Manager
             {
                 restartRender = false;
                 stopRender = false;
+                _startNewRender = true;
                 totalAmountOfRaysPerPixel = 0;
                 _oldFrameCount = frameCount;
+                _stopwatch.Restart();
                 UpdateParams();
                 return;
             }
@@ -237,14 +237,14 @@ namespace Manager
         {
             if (Camera.current.name == "SceneCamera" && !useShaderInSceneView)
             {
-                _wasLastFrameRayTraced = false;
+                _startNewRender = true;
                 Graphics.Blit(src, dest);
                 return;
             }
 
             frameCount = Time.frameCount;
 
-            if (totalAmountOfRaysPerPixel >= raysPerPixelPerImage | stopRender)
+            if (totalAmountOfRaysPerPixel >= raysPerPixelPerImage || stopRender)
             {
                 Graphics.Blit(_oldRT, dest);
                 return;
@@ -260,11 +260,10 @@ namespace Manager
             _newRT ??= new RenderTexture(src.descriptor);
             _newRT.Create();
 
-            if (_startNewRender || !_wasLastFrameRayTraced || Camera.current.name == "SceneCamera")
+            if (_startNewRender  || Camera.current.name == "SceneCamera")
             {
                 Graphics.Blit(null, _oldRT, rayTracingMaterial);
                 Graphics.Blit(_oldRT, dest);
-                _wasLastFrameRayTraced = true;
                 _startNewRender = false;
                 return;
             }

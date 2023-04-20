@@ -18,6 +18,7 @@ namespace Manager
     {
         private const float Deg2Rad = Mathf.PI / 180f;
 
+        // @formatter:off
         private static readonly int Frame = Shader.PropertyToID("Frame");
         private static readonly int Rects = Shader.PropertyToID("Rects");
         private static readonly int MainTex = Shader.PropertyToID("MainTex");
@@ -32,7 +33,6 @@ namespace Manager
         private static readonly int AllMeshInfo = Shader.PropertyToID("AllMeshInfo");
         private static readonly int GroundColor = Shader.PropertyToID("GroundColor");
         //private static readonly int SunIntensity = Shader.PropertyToID("SunIntensity");
-
         private static readonly int DivergeStrength = Shader.PropertyToID("DivergeStrength");
         private static readonly int MaxBounceCount = Shader.PropertyToID("MaxBounceCount");
         private static readonly int SkyColorZenith = Shader.PropertyToID("SkyColorZenith");
@@ -42,7 +42,7 @@ namespace Manager
         //private static readonly int SunLightDirection = Shader.PropertyToID("SunLightDirection");
         private static readonly int EnvironmentEnabled = Shader.PropertyToID("EnvironmentEnabled");
         private static readonly int CamLocalToWorldMatrix = Shader.PropertyToID("CamLocalToWorldMatrix");
-
+        // @formatter:on
 
         [Header("Info"), SerializeField, ReadOnly]
         private int frameCount;
@@ -62,7 +62,7 @@ namespace Manager
         [SerializeField, Range(1, 200)] private int numRaysPerPixel;
         [SerializeField, Range(0, 5)] private float divergeStrength;
 
-        [Space, Header("Setup Settings"),SerializeField]
+        [Space, Header("Setup Settings"), SerializeField]
         private bool useShaderInSceneView;
 
         //[SerializeField] private Light sun;
@@ -73,10 +73,11 @@ namespace Manager
         [SerializeField] private bool environmentEnabled;
         [SerializeField] private Color skyColorHorizon;
         [SerializeField] private Color skyColorZenith;
+
         [SerializeField] private Color groundColor;
         //[SerializeField,Range(0, 10)] private float sunFocus = 1;
 
-        [Space,SerializeField] private List<MeshObject> meshes;
+        [Space, SerializeField] private List<MeshObject> meshes;
         [SerializeField] private List<SphereObject> spheres;
         [SerializeField] private List<RectObject> rects;
 
@@ -92,8 +93,8 @@ namespace Manager
 
         private int _oldFrameCount;
 
-
         private Stopwatch _stopwatch;
+        private List<TimeSpan> _renderTimes;
 
         private void OnEnable()
         {
@@ -101,6 +102,7 @@ namespace Manager
             totalAmountOfRaysPerPixel = 0;
             _stopwatch = new Stopwatch();
             _stopwatch.Start();
+            _renderTimes = new List<TimeSpan>();
             UpdateParams();
         }
 
@@ -117,7 +119,7 @@ namespace Manager
             rayTracingMaterial.SetInteger(NumRaysPerPixel, numRaysPerPixel);
             rayTracingMaterial.SetInteger(MaxBounceCount, maxBounceCount);
 
-            UpdateSunParams();
+            UpdateSkyParams();
 
             if (spheres.Count > 0)
             {
@@ -180,7 +182,7 @@ namespace Manager
                 .ToArray();
 
             var infos = new MeshInfo[meshInfos.Length];
-            
+
             for (int i = 0, verts = 0; i < meshInfos.Length; i++)
             {
                 var mi = meshInfos[i];
@@ -205,7 +207,7 @@ namespace Manager
         {
             if (saveThisFrame)
             {
-                StartCoroutine(SaveScreenShot());
+                StartCoroutine(SaveThisFrame());
                 return;
             }
 
@@ -228,9 +230,16 @@ namespace Manager
             StartCoroutine(SaveScreenShot());
             _oldFrameCount = frameCount;
 
-            if (changer.IsDone) stopRender = true;
+            if (!changer.IsDone) return;
 
-            amountOfPictures = changer.NumberOfIterations;
+            if (!stopRender)
+            {
+                var accumulated = _renderTimes.Aggregate(new TimeSpan(), (acc, timeSpan) => acc.Add(timeSpan));
+                print($"Total time: {accumulated:g}" +
+                      $"\nAverage time per frame: {accumulated.Divide(_renderTimes.Count):g}");
+            }
+
+            stopRender = true;
         }
 
         private void OnRenderImage(RenderTexture src, RenderTexture dest)
@@ -242,14 +251,13 @@ namespace Manager
                 return;
             }
 
-            frameCount = Time.frameCount;
-
             if (totalAmountOfRaysPerPixel >= raysPerPixelPerImage || stopRender)
             {
                 Graphics.Blit(_oldRT, dest);
                 return;
             }
 
+            frameCount = Time.frameCount;
             rayTracingMaterial.SetInteger(Frame, frameCount);
 
             totalAmountOfRaysPerPixel += numRaysPerPixel;
@@ -260,7 +268,7 @@ namespace Manager
             _newRT ??= new RenderTexture(src.descriptor);
             _newRT.Create();
 
-            if (_startNewRender  || Camera.current.name == "SceneCamera")
+            if (_startNewRender || Camera.current.name == "SceneCamera")
             {
                 Graphics.Blit(null, _oldRT, rayTracingMaterial);
                 Graphics.Blit(_oldRT, dest);
@@ -287,7 +295,7 @@ namespace Manager
             rayTracingMaterial.SetMatrix(CamLocalToWorldMatrix, cam.transform.localToWorldMatrix);
         }
 
-        private void UpdateSunParams()
+        private void UpdateSkyParams()
         {
             rayTracingMaterial.SetInteger(EnvironmentEnabled, environmentEnabled ? 1 : 0);
             rayTracingMaterial.SetVector(SkyColorHorizon, skyColorHorizon);
@@ -312,23 +320,18 @@ namespace Manager
 /* ffmpeg -v warning -i "input.mp4" -vf "fps=36,scale=1080:-1:flags=lanczos,palettegen" -y "tmp/palette.png"
  * ffmpeg -v warning -i "input.mp4" -i "tmp/palette.png" -lavfi "fps=36,scale=1080:-1:flags=lanczos [x]; [x][1:v] paletteuse" -y "out.gif"
  */
-            if (!saveThisFrame)
-            {
-                path += changer.FileName();
-                changer.Increment();
+            path += changer.FileName();
+            changer.Increment();
+            amountOfPictures = changer.NumberOfImages;
 
-                UpdateParams();
-                
-                _startNewRender = true;
-                totalAmountOfRaysPerPixel = 0;
-            }
-            else
-            {
-                saveThisFrame = false;
-                var current = Camera.current;
-                path +=
-                    $"/Screenshot_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}_{current.pixelWidth}x{current.pixelHeight}_{totalAmountOfRaysPerPixel}rays_{maxBounceCount}bounces.png";
-            }
+            UpdateParams();
+
+            _startNewRender = true;
+            totalAmountOfRaysPerPixel = 0;
+
+            var time = _stopwatch.Elapsed;
+            _stopwatch.Restart();
+            _renderTimes.Add(time);
 
             if (File.Exists(path))
             {
@@ -337,10 +340,38 @@ namespace Manager
             }
 
             ScreenCapture.CaptureScreenshot(path);
-            var time = _stopwatch.Elapsed;
-            _stopwatch.Restart();
 
-            print($"Saved to {path}\nAnd took {time:g}");
+            //print($"Saved to {path}\nAnd took {time:g}");
+        }
+
+        private IEnumerator SaveThisFrame()
+        {
+            yield return new WaitForEndOfFrame();
+
+            var path = $"images/{folderName}/";
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            saveThisFrame = false;
+            var current = Camera.current;
+            path +=
+                $"/Screenshot_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}" +
+                $"_{current.pixelWidth}x{current.pixelHeight}" +
+                $"_{totalAmountOfRaysPerPixel}rays" +
+                $"_{maxBounceCount}bounces.png";
+
+            if (File.Exists(path))
+            {
+                print("File already exists");
+                yield break;
+            }
+
+            ScreenCapture.CaptureScreenshot(path);
+
+            print($"Saved to {path}\n");
         }
 
         private void OnDisable()

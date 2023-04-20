@@ -1,16 +1,18 @@
-﻿using UnityEngine;
+﻿using DataTypes;
+using UnityEngine;
+using Rect = DataTypes.Rect;
 
 namespace Objects
 {
     public class RectObject : BaseObject
     {
-        [SerializeField] private Structs.Rect rect;
+        [SerializeField] private Rect rect;
 
         [SerializeField] private MeshFilter meshFilter;
 
         private Mesh _mesh;
 
-        public Structs.Rect GetRect()
+        public Rect GetRect()
         {
             _mesh = meshFilter.sharedMesh;
 
@@ -86,12 +88,12 @@ namespace Objects
             return rect;
         }
 
-        public override Structs.Mat GetMaterial()
+        public override RayTracingMaterial GetMaterial()
         {
             return rect.material;
         }
 
-        public override void SetMaterial(Structs.Mat material)
+        public override void SetMaterial(RayTracingMaterial material)
         {
             rect.material = material;
         }

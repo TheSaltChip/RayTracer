@@ -1,25 +1,24 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using UnityEngine;
 
-public static class Structs
+namespace DataTypes
 {
-    [StructLayout(LayoutKind.Sequential), Serializable]
+    [Serializable]
     public struct Sphere
     {
         public Vector3 center;
         public float radius;
-        public Mat mat;
+        public RayTracingMaterial rayTracingMaterial;
 
-        public Sphere(Vector3 center, float radius, Mat mat)
+        public Sphere(Vector3 center, float radius, RayTracingMaterial rayTracingMaterial)
         {
             this.center = center;
             this.radius = radius;
-            this.mat = mat;
+            this.rayTracingMaterial = rayTracingMaterial;
         }
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [Serializable]
     public struct Triangle
     {
         public Vector3 posA, posB, posC;
@@ -36,27 +35,27 @@ public static class Structs
         }
     }
 
-    [StructLayout(LayoutKind.Sequential), Serializable]
-    public struct Mat
+    [Serializable]
+    public struct RayTracingMaterial
     {
         [Range(0, 2)] public uint type;
         public Color color;
         [Min(0)] public float fuzz;
-        [Min(0)] public float ref_idx;
+        [Min(0)] public float refIdx;
         public Color emissionColor;
         [Min(0)] public float emissionStrength;
     }
 
-    [StructLayout(LayoutKind.Sequential), Serializable]
+    [Serializable]
     public struct MeshInfo
     {
         [NonSerialized] public int firstTriangleIndex;
         [NonSerialized] public int numTriangles;
         [NonSerialized] public Vector3 boundsMin;
         [NonSerialized] public Vector3 boundsMax;
-        public Mat material;
+        public RayTracingMaterial material;
 
-        public MeshInfo(int firstTriangleIndex, int numTriangles, Vector3 boundsMin, Vector3 boundsMax, Mat material)
+        public MeshInfo(int firstTriangleIndex, int numTriangles, Vector3 boundsMin, Vector3 boundsMax, RayTracingMaterial material)
         {
             this.firstTriangleIndex = firstTriangleIndex;
             this.numTriangles = numTriangles;
@@ -64,15 +63,24 @@ public static class Structs
             this.boundsMax = boundsMax;
             this.material = material;
         }
+    }
 
-        public override string ToString()
+    [Serializable]
+    public struct MeshChunk
+    {
+        public Triangle[] triangles;
+        public Bounds bounds;
+        public int subMeshIndex;
+
+        public MeshChunk(Triangle[] triangles, Bounds bounds, int subMeshIndex)
         {
-            return
-                $"{nameof(firstTriangleIndex)}: {firstTriangleIndex}, {nameof(numTriangles)}: {numTriangles}, {nameof(boundsMin)}: {boundsMin}, {nameof(boundsMax)}: {boundsMax}, {nameof(material)}: {material}";
+            this.triangles = triangles;
+            this.bounds = bounds;
+            this.subMeshIndex = subMeshIndex;
         }
     }
 
-    [StructLayout(LayoutKind.Sequential), Serializable]
+    [Serializable]
     public struct Rect
     {
         [Range(0, 2)] public int orientation;
@@ -83,6 +91,6 @@ public static class Structs
         [NonSerialized] public Vector3 cosRotation;
         [NonSerialized] public Vector3 offset;
         [NonSerialized] public float scale;
-        public Mat material;
+        public RayTracingMaterial material;
     }
 }

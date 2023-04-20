@@ -1,6 +1,6 @@
-﻿using Objects;
+﻿using DataTypes;
+using Objects;
 using UnityEngine;
-using static Structs;
 
 namespace Changers
 {
@@ -15,7 +15,7 @@ namespace Changers
         private float _s;
         private float _v;
 
-        private Mat _material;
+        private RayTracingMaterial _material;
 
         private Color _initialColor;
         

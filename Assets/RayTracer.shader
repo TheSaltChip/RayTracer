@@ -2,7 +2,7 @@ Shader "Unlit/RayTracer"
 {
     SubShader
     {
-
+        Cull Off ZWrite Off ZTest Always
         Pass
         {
             HLSLPROGRAM
@@ -15,7 +15,6 @@ Shader "Unlit/RayTracer"
             #include "Assets/Resources/structs/Sphere.hlsl"
             #include "Assets/Resources/structs/Triangle.hlsl"
             #include "Assets/Resources/common/Random.hlsl"
-            //#include "Assets/Resources/common/ScatterFunctions.hlsl"
 
             const static float FLOAT_MAX = 3.402823466e+38F;
 
@@ -43,7 +42,6 @@ Shader "Unlit/RayTracer"
                 float3 boundsMax;
                 Material material;
             };
-
 
             StructuredBuffer<Sphere> Spheres;
             int NumSpheres;

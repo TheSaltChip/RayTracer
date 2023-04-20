@@ -223,7 +223,7 @@ MonoBehaviour:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 1.2
+      refIdx: 1.3
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
 --- !u!23 &108572415
@@ -328,7 +328,7 @@ MonoBehaviour:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 1.2
+      refIdx: 1.3
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
 --- !u!23 &441751137
@@ -412,7 +412,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fae5f12eaf754545b0d752a1216ac925, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  frameCount: 41
+  frameCount: 0
   totalAmountOfRaysPerPixel: 0
   amountOfPictures: 0
   folderName: 1080x1080_color_spin_xyz_25rays_v3
@@ -421,40 +421,17 @@ MonoBehaviour:
   saveThisFrame: 0
   stopRender: 0
   restartRender: 0
-  maxBounceCount: 25
+  maxBounceCount: 3
   numRaysPerPixel: 25
-  divergeStrength: 0.3
-  useShaderInSceneView: 0
-  rayTracingMaterial: {fileID: 2100000, guid: 6e30e82e3f8782c4895b584ace2e80ad, type: 2}
-  combiningMaterial: {fileID: 2100000, guid: 835b22bfb93396d4b85210ea62340e4d, type: 2}
+  divergeStrength: 0
+  useShaderInSceneView: 1
+  rayTracingShader: {fileID: 4800000, guid: edfdd0279b046b343be4f388b606d350, type: 3}
+  combineShader: {fileID: 4800000, guid: ec839f71fcd548988f58c7849a623233, type: 3}
   changer: {fileID: 930905296}
   environmentEnabled: 0
   skyColorHorizon: {r: 0.9292453, g: 0.982146, b: 1, a: 0}
   skyColorZenith: {r: 0.3254717, g: 0.50365984, b: 1, a: 0}
   groundColor: {r: 0.2924528, g: 0.2924528, b: 0.2924528, a: 0}
-  meshes:
-  - {fileID: 7243516401802820916}
-  - {fileID: 1229097842}
-  - {fileID: 1106592316}
-  - {fileID: 1658482250}
-  - {fileID: 2051958167}
-  - {fileID: 1412085785}
-  - {fileID: 1772342539}
-  - {fileID: 441751136}
-  - {fileID: 526008620}
-  - {fileID: 1175343407}
-  - {fileID: 2095986629}
-  - {fileID: 1531146346}
-  - {fileID: 108572414}
-  - {fileID: 1512030673}
-  - {fileID: 1237546067}
-  spheres: []
-  rects:
-  - {fileID: 1210430342}
-  - {fileID: 2135568950}
-  - {fileID: 1834705342}
-  - {fileID: 992740837}
-  - {fileID: 1503588886}
 --- !u!81 &454065062
 AudioListener:
   m_ObjectHideFlags: 0
@@ -573,7 +550,7 @@ MonoBehaviour:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 1.2
+      refIdx: 1.3
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
 --- !u!23 &526008621
@@ -703,7 +680,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   changers:
   - {fileID: 47789081}
-  numberOfImages: 720
+  maxNumberOfImages: 0
   increment: 0
   reset: 0
   numOfIterations: 0
@@ -753,7 +730,7 @@ Transform:
   m_GameObject: {fileID: 992740832}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 4, y: 0, z: 0}
-  m_LocalScale: {x: 14, y: 8, z: 1}
+  m_LocalScale: {x: 14, y: 9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2005059119}
@@ -841,7 +818,7 @@ MonoBehaviour:
       type: 1
       color: {r: 0.33333334, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 0
+      refIdx: 0
       emissionColor: {r: 1, g: 1, b: 1, a: 0}
       emissionStrength: 0
   meshFilter: {fileID: 992740836}
@@ -942,7 +919,7 @@ MonoBehaviour:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 1.2
+      refIdx: 1.3
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
 --- !u!23 &1106592317
@@ -1047,7 +1024,7 @@ MonoBehaviour:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 1.2
+      refIdx: 1.3
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
 --- !u!23 &1175343408
@@ -1129,7 +1106,7 @@ Transform:
   m_GameObject: {fileID: 1210430337}
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: -0.7071068}
   m_LocalPosition: {x: 0, y: 4, z: 0}
-  m_LocalScale: {x: 8, y: 14, z: 1}
+  m_LocalScale: {x: 9, y: 14, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2005059119}
@@ -1217,7 +1194,7 @@ MonoBehaviour:
       type: 1
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 0
+      refIdx: 0
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
   meshFilter: {fileID: 1210430341}
@@ -1273,7 +1250,7 @@ MonoBehaviour:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 1.2
+      refIdx: 1.3
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
 --- !u!23 &1229097843
@@ -1336,7 +1313,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1237546068}
   - component: {fileID: 1237546067}
-  - component: {fileID: 1237546069}
   - component: {fileID: 1237546066}
   - component: {fileID: 1237546065}
   - component: {fileID: 1237546064}
@@ -1429,7 +1405,7 @@ MonoBehaviour:
       type: 1
       color: {r: 1, g: 0.33333334, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 0
+      refIdx: 0
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
 --- !u!4 &1237546068
@@ -1441,34 +1417,12 @@ Transform:
   m_GameObject: {fileID: 1237546063}
   m_LocalRotation: {x: -0, y: 1, z: -0, w: -0.00000004371139}
   m_LocalPosition: {x: 0, y: 0, z: -2}
-  m_LocalScale: {x: 8, y: 8, z: 1}
+  m_LocalScale: {x: 9, y: 9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2005059119}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
---- !u!114 &1237546069
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1237546063}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6abab961c6924b89b3adbaf6c1a6fd45, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rect:
-    orientation: 0
-    material:
-      type: 1
-      color: {r: 1, g: 0.33333334, b: 1, a: 0}
-      fuzz: 0
-      ref_idx: 0
-      emissionColor: {r: 0, g: 0, b: 0, a: 0}
-      emissionStrength: 0
-  meshFilter: {fileID: 1237546066}
 --- !u!1 &1412085783
 GameObject:
   m_ObjectHideFlags: 0
@@ -1521,7 +1475,7 @@ MonoBehaviour:
       type: 0
       color: {r: 0, g: 0, b: 0, a: 0}
       fuzz: 0
-      ref_idx: 0
+      refIdx: 1.3
       emissionColor: {r: 1, g: 0.17647058, b: 0.58823526, a: 0}
       emissionStrength: 20
 --- !u!23 &1412085786
@@ -1667,7 +1621,7 @@ Transform:
   m_GameObject: {fileID: 1503588880}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 2}
-  m_LocalScale: {x: 8, y: 8, z: 1}
+  m_LocalScale: {x: 9, y: 9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2005059119}
@@ -1691,7 +1645,7 @@ MonoBehaviour:
       type: 1
       color: {r: 0.9976803, g: 1, b: 0.39215684, a: 0}
       fuzz: 0
-      ref_idx: 0
+      refIdx: 0
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
   meshFilter: {fileID: 1503588883}
@@ -1747,7 +1701,7 @@ MonoBehaviour:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 1.2
+      refIdx: 1.3
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
 --- !u!23 &1512030674
@@ -1852,7 +1806,7 @@ MonoBehaviour:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 1.2
+      refIdx: 1.3
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
 --- !u!23 &1531146347
@@ -1957,7 +1911,7 @@ MonoBehaviour:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 1.2
+      refIdx: 1.3
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
 --- !u!23 &1658482251
@@ -2062,7 +2016,7 @@ MonoBehaviour:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 1.2
+      refIdx: 1.3
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
 --- !u!23 &1772342540
@@ -2144,7 +2098,7 @@ Transform:
   m_GameObject: {fileID: 1834705337}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: -0.7071068}
   m_LocalPosition: {x: -4, y: 0, z: 0}
-  m_LocalScale: {x: 14, y: 8, z: 1}
+  m_LocalScale: {x: 14, y: 9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2005059119}
@@ -2232,7 +2186,7 @@ MonoBehaviour:
       type: 1
       color: {r: 0.29411766, g: 1, b: 0.9999998, a: 0}
       fuzz: 0
-      ref_idx: 0
+      refIdx: 0
       emissionColor: {r: 1, g: 1, b: 1, a: 0}
       emissionStrength: 0
   meshFilter: {fileID: 1834705341}
@@ -2326,7 +2280,7 @@ MonoBehaviour:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 1.2
+      refIdx: 1.3
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
 --- !u!23 &2051958168
@@ -2431,7 +2385,7 @@ MonoBehaviour:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 1.2
+      refIdx: 1.3
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
 --- !u!23 &2095986630
@@ -2513,7 +2467,7 @@ Transform:
   m_GameObject: {fileID: 2135568945}
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: -4, z: 0}
-  m_LocalScale: {x: 8, y: 14, z: 1}
+  m_LocalScale: {x: 9, y: 14, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2005059119}
@@ -2601,7 +2555,7 @@ MonoBehaviour:
       type: 1
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 0
+      refIdx: 0
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
   meshFilter: {fileID: 2135568949}
@@ -2707,6 +2661,6 @@ MonoBehaviour:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
       fuzz: 0
-      ref_idx: 1.2
+      refIdx: 1.3
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0

@@ -9,10 +9,12 @@ namespace Manager
     public class ChangerManager : MonoBehaviour
     {
         [SerializeField] private List<Changer> changers;
-        [SerializeField] private int numberOfImages;
+        [SerializeField] private int maxNumberOfImages;
         [SerializeField] private bool increment;
         [SerializeField] private bool reset;
         [SerializeField, ReadOnly] private int numOfIterations;
+
+        public int NumberOfImages => numOfIterations + 1;
 
         private void OnValidate()
         {
@@ -21,27 +23,25 @@ namespace Manager
                 reset = false;
                 ResetValues();
             }
-            
+
             if (!increment) return;
-            
+
             Increment();
             increment = false;
         }
-
-        public int NumberOfIterations { get; private set; }
+        
         public bool IsDone { get; private set; }
 
         public void Initialize()
         {
-            numOfIterations = NumberOfIterations;
+            numOfIterations = 0;
             foreach (var changer in changers) changer.Initialize();
         }
 
         public void Increment()
         {
-            ++NumberOfIterations;
-            numOfIterations = NumberOfIterations;
-            IsDone = NumberOfIterations > numberOfImages-2;
+            ++numOfIterations;
+            IsDone = numOfIterations >= maxNumberOfImages - 1;
 
             if (IsDone) return;
 
@@ -50,15 +50,14 @@ namespace Manager
 
         private void ResetValues()
         {
-            NumberOfIterations = 0;
-            numOfIterations = NumberOfIterations;
-            
+            numOfIterations = 0;
+
             foreach (var changer in changers) changer.ResetValues();
         }
 
         public string FileName()
         {
-            return $"Screenshot_num{NumberOfIterations:0000}.png";
+            return $"Screenshot_num{numOfIterations:0000}.png";
         }
     }
 }

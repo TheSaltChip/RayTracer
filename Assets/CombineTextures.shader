@@ -1,7 +1,12 @@
-﻿Shader "Unlit/CombineTextures"
+﻿Shader "Hidden/Combine"
 {
+    Properties
+    {
+        _MainTex ("Texture", 2D) = "white" {}
+    }
     SubShader
     {
+        Cull Off ZWrite Off ZTest Always
 
         Pass
         {
@@ -24,11 +29,8 @@
             };
 
             uint NumRenderedFrames;
-
-            UNITY_DECLARE_TEX2D(MainTex);
+            UNITY_DECLARE_TEX2D(_MainTex);
             UNITY_DECLARE_TEX2D_NOSAMPLER(MainOldTex);
-
-            SamplerState MyPointClampSampler;
 
             v2f Vert(appdata v)
             {
@@ -41,8 +43,8 @@
             float4 Frag(v2f i) : SV_Target
             {
                 // sample the texture
-                const float4 oldRender = UNITY_SAMPLE_TEX2D_SAMPLER(MainOldTex, MainTex, i.uv);
-                const float4 newRender = UNITY_SAMPLE_TEX2D(MainTex, i.uv);
+                const float4 oldRender = UNITY_SAMPLE_TEX2D_SAMPLER(MainOldTex, _MainTex, i.uv);
+                const float4 newRender = UNITY_SAMPLE_TEX2D(_MainTex, i.uv);
 
                 const float weight = 1.0 / (NumRenderedFrames + 1.0);
 

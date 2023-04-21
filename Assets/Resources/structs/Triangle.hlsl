@@ -35,6 +35,7 @@ struct Triangle
         hitRecord.hitPoint = ray.origin + ray.dir * dist;
         hitRecord.SetFaceNormal(ray.dir, normalize(normalA * w + normalB * u + normalC * v));
         hitRecord.dist = dist;
+
         return hitRecord;
     }
 };

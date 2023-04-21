@@ -16,6 +16,11 @@ namespace Manager
 
         public int NumberOfImages => numOfIterations + 1;
 
+        private void Start()
+        {
+            changers = new List<Changer>();
+        }
+
         private void OnValidate()
         {
             if (reset)

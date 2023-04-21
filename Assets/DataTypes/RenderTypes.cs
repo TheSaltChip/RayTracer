@@ -49,13 +49,14 @@ namespace DataTypes
     [Serializable]
     public struct MeshInfo
     {
-        [NonSerialized] public int firstTriangleIndex;
-        [NonSerialized] public int numTriangles;
-        [NonSerialized] public Vector3 boundsMin;
-        [NonSerialized] public Vector3 boundsMax;
+        [HideInInspector] public int firstTriangleIndex;
+        [HideInInspector] public int numTriangles;
+        [HideInInspector] public Vector3 boundsMin;
+        [HideInInspector] public Vector3 boundsMax;
         public RayTracingMaterial material;
 
-        public MeshInfo(int firstTriangleIndex, int numTriangles, Vector3 boundsMin, Vector3 boundsMax, RayTracingMaterial material)
+        public MeshInfo(int firstTriangleIndex, int numTriangles, Vector3 boundsMin, Vector3 boundsMax,
+            RayTracingMaterial material)
         {
             this.firstTriangleIndex = firstTriangleIndex;
             this.numTriangles = numTriangles;
@@ -83,14 +84,10 @@ namespace DataTypes
     [Serializable]
     public struct Rect
     {
-        [Range(0, 2)] public int orientation;
-        [NonSerialized] public Vector3 pos0;
-        [NonSerialized] public Vector3 pos1;
-        [NonSerialized] public float k;
-        [NonSerialized] public Vector3 sinRotation;
-        [NonSerialized] public Vector3 cosRotation;
-        [NonSerialized] public Vector3 offset;
-        [NonSerialized] public float scale;
+        [HideInInspector] public Vector3 pos0;
+        [HideInInspector] public Vector3 pos1;
+        [HideInInspector] public Matrix4x4 rotation;
+        [HideInInspector] public Vector3 offset;
         public RayTracingMaterial material;
     }
 }

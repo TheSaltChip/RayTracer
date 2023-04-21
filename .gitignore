@@ -71,6 +71,8 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
+.idea/
+
 # Common IntelliJ Platform excludes
 
 # User specific
@@ -93,7 +95,6 @@ crashlytics-build.properties
 **/.idea/**/*.iml
 **/.idea/**/contentModel.xml
 **/.idea/**/modules.xml
-
 *.suo
 *.user
 .vs/
@@ -109,4 +110,4 @@ Desktop.ini
 *.png
 */tmp/*.png
 *.gif
-images/1080x1080_color_360images/output_36fps.mp4
+images/**/output_*.mp4

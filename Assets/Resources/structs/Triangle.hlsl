@@ -9,7 +9,7 @@ struct Triangle
     float3 posA, posB, posC;
     float3 normalA, normalB, normalC;
 
-    HitRecord Hit(Ray ray, float minDist, float maxDist)
+    HitRecord Hit(const Ray ray, const float minDist, float maxDist)
     {
         const float3 edgeAB = posB - posA;
         const float3 edgeAC = posC - posA;

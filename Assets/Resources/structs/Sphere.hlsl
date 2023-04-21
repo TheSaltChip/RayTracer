@@ -11,7 +11,7 @@ struct Sphere
     float radius;
     Material mat;
 
-    HitRecord Hit(Ray r, const float tMin, const float tMax)
+    HitRecord Hit(Ray r, const float minDist, const float maxDist)
     {
         const float3 offsetRayOrigin = r.origin - center;
 
@@ -33,10 +33,10 @@ struct Sphere
 
         float root = (-halfB - sqrtDisc) * invA;
 
-        if (root < tMin || root > tMax)
+        if (root < minDist || root > maxDist)
         {
             root = (-halfB + sqrtDisc) * invA;
-            if (root < tMin || root > tMax)
+            if (root < minDist || root > maxDist)
             {
                 return rec;
             }
@@ -47,6 +47,7 @@ struct Sphere
         rec.hitPoint = r.PointAt(rec.dist);
         rec.SetFaceNormal(r.dir, (rec.hitPoint - center) / radius);
         rec.material = mat;
+        
         return rec;
     }
 };

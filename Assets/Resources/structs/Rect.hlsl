@@ -13,7 +13,7 @@ struct Rect
     float3 offset;
     Material material;
 
-    HitRecord Hit(const Ray r, const float tMin, const float tMax)
+    HitRecord Hit(const Ray r, const float minDist, const float maxDist)
     {
         const float4 translatedOrigin = float4(r.origin - offset, 1);
 
@@ -33,7 +33,7 @@ struct Rect
 
         HitRecord rec = (HitRecord)0;
 
-        if (t < tMin || t > tMax
+        if (t < minDist || t > maxDist
             || a < p0.x || a > p1.x
             || b < p0.y || b > p1.y)
             return rec;

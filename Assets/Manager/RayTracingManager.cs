@@ -20,26 +20,28 @@ namespace Manager
         private const float Deg2Rad = Mathf.PI / 180f;
 
         // @formatter:off
+        private static readonly int Boxes = Shader.PropertyToID("Boxes");
         private static readonly int Frame = Shader.PropertyToID("Frame");
         private static readonly int Rects = Shader.PropertyToID("Rects");
         private static readonly int Spheres = Shader.PropertyToID("Spheres");
         private static readonly int NumRects = Shader.PropertyToID("NumRects");
+        private static readonly int NumBoxes = Shader.PropertyToID("NumBoxes");
         //private static readonly int SunFocus = Shader.PropertyToID("SunFocus");
         private static readonly int NumMeshes = Shader.PropertyToID("NumMeshes");
         private static readonly int Triangles = Shader.PropertyToID("Triangles");
         private static readonly int MainOldTex = Shader.PropertyToID("MainOldTex");
         private static readonly int NumSpheres = Shader.PropertyToID("NumSpheres");
         private static readonly int ViewParams = Shader.PropertyToID("ViewParams");
+        //private static readonly int SunIntensity = Shader.PropertyToID("SunIntensity");
         private static readonly int AllMeshInfo = Shader.PropertyToID("AllMeshInfo");
         private static readonly int GroundColor = Shader.PropertyToID("GroundColor");
-        //private static readonly int SunIntensity = Shader.PropertyToID("SunIntensity");
-        private static readonly int DivergeStrength = Shader.PropertyToID("DivergeStrength");
         private static readonly int MaxBounceCount = Shader.PropertyToID("MaxBounceCount");
         private static readonly int SkyColorZenith = Shader.PropertyToID("SkyColorZenith");
+        private static readonly int DivergeStrength = Shader.PropertyToID("DivergeStrength");
         private static readonly int NumRaysPerPixel = Shader.PropertyToID("NumRaysPerPixel");
         private static readonly int SkyColorHorizon = Shader.PropertyToID("SkyColorHorizon");
-        private static readonly int NumRenderedFrames = Shader.PropertyToID("NumRenderedFrames");
         //private static readonly int SunLightDirection = Shader.PropertyToID("SunLightDirection");
+        private static readonly int NumRenderedFrames = Shader.PropertyToID("NumRenderedFrames");
         private static readonly int EnvironmentEnabled = Shader.PropertyToID("EnvironmentEnabled");
         private static readonly int CamLocalToWorldMatrix = Shader.PropertyToID("CamLocalToWorldMatrix");
         // @formatter:on
@@ -86,9 +88,10 @@ namespace Manager
         private Material _combiningMaterial;
 
         private GraphicsBuffer _sphereBuffer;
+        private GraphicsBuffer _rectBuffer;
+        private GraphicsBuffer _boxBuffer;
         private GraphicsBuffer _triangleBuffer;
         private GraphicsBuffer _meshInfoBuffer;
-        private GraphicsBuffer _rectBuffer;
 
         private RenderTexture _resultTexture;
         private bool _wasLastFrameRayTraced;
@@ -97,7 +100,6 @@ namespace Manager
         private List<Triangle> _allTriangles;
         private List<MeshInfo> _allMeshInfo;
 
-        private int _oldFrameCount;
 
         private Stopwatch _stopwatch;
         private List<TimeSpan> _renderTimes;
@@ -131,7 +133,6 @@ namespace Manager
                 stopRender = false;
                 _startNewRender = true;
                 totalAmountOfRaysPerPixel = 0;
-                _oldFrameCount = frameCount;
                 _stopwatch.Restart();
                 return;
             }
@@ -141,7 +142,6 @@ namespace Manager
                 || !EditorApplication.isPlaying) return;
 
             StartCoroutine(SaveScreenShot());
-            _oldFrameCount = frameCount;
 
             if (!changer.IsDone) return;
 
@@ -216,6 +216,7 @@ namespace Manager
             UpdateCameraParams(Camera.current);
             CreateSpheres();
             CreateRects();
+            CreateBoxes();
             CreateMeshes();
             SetShaderVariables();
         }
@@ -267,17 +268,30 @@ namespace Manager
             _rayTracingMaterial.SetInteger(NumRects, rectObjects.Length);
         }
 
+        private void CreateBoxes()
+        {
+            var boxObjects = FindObjectsOfType<BoxObject>();
+
+            var boxes = new List<Box>(boxObjects.Length);
+
+            boxes.AddRange(boxObjects.Select(t => t.GetBox()));
+
+            ShaderHelper.CreateStructuredBuffer(ref _boxBuffer, boxes);
+            _rayTracingMaterial.SetBuffer(Boxes, _boxBuffer);
+            _rayTracingMaterial.SetInteger(NumBoxes, boxObjects.Length);
+        }
+
         private void CreateMeshes()
         {
             var meshObjects = FindObjectsOfType<MeshObject>();
-            
+
 
             _allTriangles ??= new List<Triangle>();
             _allMeshInfo ??= new List<MeshInfo>();
 
             _allTriangles.Clear();
-            _allMeshInfo.Clear(); 
-            
+            _allMeshInfo.Clear();
+
             foreach (var t in meshObjects)
             {
                 var (meshInfo, triangles) = t.GetInfoAndList();
@@ -334,7 +348,7 @@ namespace Manager
              * TODO Whenever a change has been done by the ChangerManager, it should mark the changed object
              * TODO as needed to be recalculated, otherwise it should fetch cached values
              * Should save processing power, if done correctly
-             */ 
+             */
             changer.Increment();
             amountOfPictures = changer.NumberOfImages;
 
@@ -388,7 +402,7 @@ namespace Manager
 
         private void OnDisable()
         {
-            ShaderHelper.Release(_sphereBuffer, _triangleBuffer, _meshInfoBuffer, _rectBuffer);
+            ShaderHelper.Release(_sphereBuffer, _triangleBuffer, _meshInfoBuffer, _rectBuffer, _boxBuffer);
             ShaderHelper.Release(_resultTexture);
         }
 

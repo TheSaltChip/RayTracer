@@ -10,13 +10,15 @@ Shader "Unlit/RayTracer"
             #pragma fragment Frag
 
             #include "UnityCG.cginc"
+            #include "Assets/Resources/common/Random.hlsl"
+            #include "Assets/Resources/structs/Box.hlsl"
             #include "Assets/Resources/structs/Ray.hlsl"
             #include "Assets/Resources/structs/Rect.hlsl"
             #include "Assets/Resources/structs/Sphere.hlsl"
             #include "Assets/Resources/structs/Triangle.hlsl"
-            #include "Assets/Resources/common/Random.hlsl"
 
             const static float FLOAT_MAX = 3.402823466e+38F;
+            const static float MIN_DIST = 1e-5F;
 
             float3 ViewParams;
             float4x4 CamLocalToWorldMatrix;
@@ -48,6 +50,9 @@ Shader "Unlit/RayTracer"
 
             StructuredBuffer<Rect> Rects;
             int NumRects;
+
+            StructuredBuffer<Box> Boxes;
+            int NumBoxes;
 
             StructuredBuffer<Triangle> Triangles;
             StructuredBuffer<MeshInfo> AllMeshInfo;
@@ -82,45 +87,68 @@ Shader "Unlit/RayTracer"
             HitRecord CalculateRayCollision(Ray ray)
             {
                 float closestSoFar = FLOAT_MAX;
+                const float minDist = MIN_DIST;
                 HitRecord closestHitRecord = (HitRecord)0;
 
-                for (int i = 0; i < NumSpheres; ++i)
-                {
-                    Sphere s = Spheres[i];
-                    const HitRecord tempRecord = s.Hit(ray, 0.0001, closestSoFar);
+                const int maxNum =
+                    max(NumSpheres,
+                        max(NumMeshes,
+                            max(NumRects, NumBoxes)));
 
-                    if (tempRecord.didHit)
+                for (int i = 0; i < maxNum; ++i)
+                {
+                    HitRecord tempRecord = (HitRecord)0;
+                    if (i < NumSpheres)
                     {
-                        closestSoFar = tempRecord.dist;
-                        closestHitRecord = tempRecord;
+                        Sphere s = Spheres[i];
+                        tempRecord = s.Hit(ray, minDist, closestSoFar);
+
+                        if (tempRecord.didHit)
+                        {
+                            closestSoFar = tempRecord.dist;
+                            closestHitRecord = tempRecord;
+                        }
                     }
-                }
 
-                for (int i = 0; i < NumRects; ++i)
-                {
-                    Rect r = Rects[i];
-                    const HitRecord tempRecord = r.Hit(ray, 0.0001, closestSoFar);
-
-                    if (tempRecord.didHit)
+                    if (i < NumRects)
                     {
-                        closestSoFar = tempRecord.dist;
-                        closestHitRecord = tempRecord;
-                    }
-                }
+                        Rect r = Rects[i];
+                        tempRecord = r.Hit(ray, minDist, closestSoFar);
 
-                for (int meshIndex = 0; meshIndex < NumMeshes; ++meshIndex)
-                {
-                    const MeshInfo meshInfo = AllMeshInfo[meshIndex];
+                        if (tempRecord.didHit)
+                        {
+                            closestSoFar = tempRecord.dist;
+                            closestHitRecord = tempRecord;
+                        }
+                    }
+
+                    if (NumBoxes)
+                    {
+                        Box box = Boxes[i];
+
+                        //if (ray.Intersection(box.min, box.max, closestSoFar))
+                        {
+                            tempRecord = box.Hit(ray, minDist, closestSoFar);
+
+                            if (tempRecord.didHit)
+                            {
+                                closestSoFar = tempRecord.dist;
+                                closestHitRecord = tempRecord;
+                            }
+                        }
+                    }
+
+                    if (i >= NumMeshes) continue;
+
+                    const MeshInfo meshInfo = AllMeshInfo[i];
                     if (!ray.Intersection(meshInfo.boundsMin, meshInfo.boundsMax, closestSoFar))
-                    {
                         continue;
-                    }
 
-                    for (int i = 0; i < meshInfo.numTriangles; ++i)
+                    for (int j = 0; j < meshInfo.numTriangles; ++j)
                     {
-                        const int triIndex = meshInfo.firstTriangleIndex + i;
+                        const int triIndex = meshInfo.firstTriangleIndex + j;
                         Triangle tri = Triangles[triIndex];
-                        const HitRecord tempRecord = tri.Hit(ray, 0.0001, closestSoFar);
+                        tempRecord = tri.Hit(ray, minDist, closestSoFar);
 
                         if (tempRecord.didHit)
                         {

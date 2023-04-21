@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace DataTypes
 {
-    [Serializable]
+    [Serializable, StructLayout(LayoutKind.Sequential)]
     public struct Sphere
     {
         public Vector3 center;
@@ -18,7 +19,7 @@ namespace DataTypes
         }
     }
 
-    [Serializable]
+    [Serializable, StructLayout(LayoutKind.Sequential)]
     public struct Triangle
     {
         public Vector3 posA, posB, posC;
@@ -35,7 +36,7 @@ namespace DataTypes
         }
     }
 
-    [Serializable]
+    [Serializable, StructLayout(LayoutKind.Sequential)]
     public struct RayTracingMaterial
     {
         [Range(0, 2)] public uint type;
@@ -46,7 +47,7 @@ namespace DataTypes
         [Min(0)] public float emissionStrength;
     }
 
-    [Serializable]
+    [Serializable, StructLayout(LayoutKind.Sequential)]
     public struct MeshInfo
     {
         [HideInInspector] public int firstTriangleIndex;
@@ -66,7 +67,7 @@ namespace DataTypes
         }
     }
 
-    [Serializable]
+    [Serializable, StructLayout(LayoutKind.Sequential)]
     public struct MeshChunk
     {
         public Triangle[] triangles;
@@ -81,13 +82,27 @@ namespace DataTypes
         }
     }
 
-    [Serializable]
+    [Serializable, StructLayout(LayoutKind.Sequential)]
     public struct Rect
+    {
+        [HideInInspector] public Vector3 minPos;
+        [HideInInspector] public Vector3 maxPos;
+        [HideInInspector] public Matrix4x4 rotation;
+        [HideInInspector] public Vector3 offset;
+        public RayTracingMaterial material;
+    }
+
+    [Serializable, StructLayout(LayoutKind.Sequential)]
+    public struct Box
     {
         [HideInInspector] public Vector3 pos0;
         [HideInInspector] public Vector3 pos1;
-        [HideInInspector] public Matrix4x4 rotation;
-        [HideInInspector] public Vector3 offset;
+        [HideInInspector] public Rect sideX1;
+        [HideInInspector] public Rect sideX2;
+        [HideInInspector] public Rect sideY1;
+        [HideInInspector] public Rect sideY2;
+        [HideInInspector] public Rect sideZ1;
+        [HideInInspector] public Rect sideZ2;
         public RayTracingMaterial material;
     }
 }

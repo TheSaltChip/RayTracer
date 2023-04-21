@@ -17,7 +17,7 @@ struct Ray
         invDir = 1 / direction;
     }
 
-    float3 PointAtParameter(const float t)
+    float3 PointAt(const float t)
     {
         return origin + t * dir;
     }

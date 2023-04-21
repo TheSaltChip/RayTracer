@@ -220,10 +220,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    orientation: 0
     pos0: {x: -0.5, y: -0.5, z: -3.0616168e-17}
     pos1: {x: 0.5, y: 0.5, z: 3.0616168e-17}
-    k: -3.0616168e-17
     rotation:
       e00: 0.12054671
       e01: -0.32761037
@@ -241,25 +239,7 @@ MonoBehaviour:
       e31: 0
       e32: 0
       e33: 1
-    trsMatrix:
-      e00: 0.1205467
-      e01: -0.32761037
-      e02: -0.93709123
-      e03: 0
-      e10: 0.13490254
-      e11: -0.9298121
-      e12: 0.3424193
-      e13: 0
-      e20: -0.9834988
-      e21: -0.16769353
-      e22: -0.067890406
-      e23: 0
-      e30: -0.901
-      e31: 0.979
-      e32: -0.775
-      e33: 1
     offset: {x: -0.901, y: 0.979, z: -0.775}
-    scale: 1
     material:
       type: 1
       color: {r: 0, g: 0.9839082, b: 1, a: 0}
@@ -429,46 +409,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    orientation: 0
-    pos0: {x: -0.5, y: -0.5, z: -3.0616168e-17}
-    pos1: {x: 0.5, y: 0.5, z: 3.0616168e-17}
-    k: -3.0616168e-17
+    pos0: {x: -0.9479557, y: -0.9479555, z: -5.8045547e-17}
+    pos1: {x: 0.9479557, y: 0.9479555, z: 5.8045547e-17}
     rotation:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: -0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: -0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: -0.198
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    trsMatrix:
-      e00: 1
-      e01: 0
-      e02: 0
+      e00: -0.38958487
+      e01: -0.28245574
+      e02: -0.8766086
       e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
+      e10: -0.5869768
+      e11: 0.80960375
+      e12: -0.000000029802322
       e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0.198
+      e20: 0.7097057
+      e21: 0.5145489
+      e22: -0.48120433
+      e23: 0
       e30: 0
       e31: 0
       e32: 0
       e33: 1
-    offset: {x: 0, y: 0, z: 0.198}
-    scale: 1
+    offset: {x: 0.3, y: 0.052, z: -0.85}
     material:
       type: 1
       color: {r: 0, g: 0.9839082, b: 1, a: 0}
@@ -484,14 +444,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 626112873}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.198}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0.26552576, y: 0.8185953, z: 0.15714385, w: 0.48446232}
+  m_LocalPosition: {x: 0.3, y: 0.052, z: -0.85}
+  m_LocalScale: {x: 1.8959109, y: 1.8959109, z: 1.8959109}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -30.967, y: 124.139, z: -19.233}
 --- !u!1 &723383760
 GameObject:
   m_ObjectHideFlags: 0
@@ -706,10 +666,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    orientation: 0
     pos0: {x: -0.5, y: -0.5, z: -3.0616168e-17}
     pos1: {x: 0.5, y: 0.5, z: 3.0616168e-17}
-    k: -3.0616168e-17
     rotation:
       e00: -0.94226134
       e01: -0.3276106
@@ -727,25 +685,7 @@ MonoBehaviour:
       e31: 0
       e32: 0
       e33: 1
-    trsMatrix:
-      e00: -0.94226134
-      e01: -0.3276106
-      e02: 0.06938869
-      e03: 0
-      e10: 0.30850345
-      e11: -0.92981195
-      e12: -0.20068714
-      e13: 0
-      e20: 0.13026567
-      e21: -0.16769308
-      e22: 0.9771949
-      e23: 0
-      e30: 0.28
-      e31: 0.979
-      e32: 0.04
-      e33: 1
     offset: {x: 0.28, y: 0.979, z: 0.04}
-    scale: 0.99999994
     material:
       type: 1
       color: {r: 0, g: 0.9839082, b: 1, a: 0}
@@ -1100,10 +1040,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    orientation: 0
     pos0: {x: -0.5, y: -0.5, z: -3.0616168e-17}
     pos1: {x: 0.5, y: 0.5, z: 3.0616168e-17}
-    k: -3.0616168e-17
     rotation:
       e00: -0.93061393
       e01: -0.3276103
@@ -1121,25 +1059,7 @@ MonoBehaviour:
       e31: 0
       e32: 0
       e33: 1
-    trsMatrix:
-      e00: -0.930614
-      e01: -0.3276103
-      e02: -0.16318515
-      e03: 0
-      e10: 0.34821886
-      e11: -0.92981195
-      e12: -0.119136706
-      e13: 0
-      e20: -0.11270108
-      e21: -0.1676944
-      e22: 0.97937584
-      e23: 0
-      e30: -0.66
-      e31: 0.979
-      e32: -0.06
-      e33: 1
     offset: {x: -0.66, y: 0.979, z: -0.06}
-    scale: 1.0000004
     material:
       type: 1
       color: {r: 0, g: 0.9839082, b: 1, a: 0}

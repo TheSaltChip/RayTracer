@@ -18,6 +18,8 @@ namespace Objects
             
             Vector3 min = _mesh.bounds.min, max = _mesh.bounds.max;
 
+            print($"{min},{max}");
+            
             var t = transform;
             var lossyScale = t.lossyScale;
 
@@ -27,8 +29,8 @@ namespace Objects
             rect.rotation = Matrix4x4.Transpose(Matrix4x4.Rotate(t.rotation));
             rect.offset = t.position;
 
-            rect.pos0 = min;
-            rect.pos1 = max;
+            rect.minPos = min;
+            rect.maxPos = max;
 
             return rect;
         }

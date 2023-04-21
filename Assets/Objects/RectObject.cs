@@ -23,21 +23,7 @@ namespace Objects
             var position = t.position;
             var rotation = t.rotation.eulerAngles;
 
-            var q = Quaternion.identity;
-
-            switch (rect)
-            {
-                case {orientation: 0}:
-                    break;
-                case {orientation: 1}:
-                    q.eulerAngles = new Vector3(90, 0, 0);
-                    break;
-                case {orientation: 2}:
-                    q.eulerAngles = new Vector3(0, 90, 0);
-                    break;
-            }
-
-            t.rotation = q;
+            t.rotation = Quaternion.identity;
             t.position = Vector3.zero;
 
             Vector3 min = Vector3.positiveInfinity, max = Vector3.negativeInfinity;
@@ -55,7 +41,6 @@ namespace Objects
             t.rotation = Quaternion.Euler(rotation);
             t.position = position;
 
-            rotation -= q.eulerAngles;
             rotation *= Mathf.PI / 180f;
 
             rect.sinRotation = new Vector3(Mathf.Sin(rotation.x), Mathf.Sin(rotation.y), Mathf.Sin(rotation.z));
@@ -69,19 +54,19 @@ namespace Objects
                     rect.pos1 = max;
                     rect.k = min.z;
 
-                    rect.scale = t.localScale.x;
+                    rect.scale = t.lossyScale.x;
                     break;
                 case 1:
                     rect.pos0 = min;
                     rect.pos1 = max;
                     rect.k = min.y;
-                    rect.scale = t.localScale.x;
+                    rect.scale = t.lossyScale.x;
                     break;
                 case 2:
                     rect.pos0 = min;
                     rect.pos1 = max;
                     rect.k = min.x;
-                    rect.scale = t.localScale.x;
+                    rect.scale = t.lossyScale.x;
                     break;
             }
 

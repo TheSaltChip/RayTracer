@@ -28,7 +28,7 @@ struct Rect
 
     HitRecord Hit(const Ray r, const float tMin, const float tMax)
     {
-        Ray translated = (Ray) 0;
+        Ray translated = (Ray)0;
         translated.MakeRay(r.origin - offset, r.dir);
 
         float3 origin = translated.origin;
@@ -51,15 +51,17 @@ struct Rect
                    0,             0,       1);
         // @formatter:on
 
+        float3x3 rot = mul(rotZ, mul(rotX, rotY));
+
         //origin = mul(rotX, origin);
-        origin = mul(rotY, origin);
+        origin = mul(rot, origin);
         //origin = mul(rotZ, origin);
 
         //direction = mul(rotX, direction);
-        direction = mul(rotY, direction);
+        direction = mul(rot, direction);
         //direction = mul(rotZ, direction);
 
-        Ray rotated = (Ray) 0;
+        Ray rotated = (Ray)0;
         rotated.MakeRay(origin, direction);
 
         float a, b, t;
@@ -128,13 +130,15 @@ struct Rect
                    0,             0,       1);
         // @formatter:on
 
+        float3x3 revRot = mul(rotCounterY, mul(rotCounterX, rotCounterZ));
+
         //rec.hitPoint = mul(rotCounterZ, );
-        rec.hitPoint = mul(rotCounterY, p);
+        rec.hitPoint = mul(revRot, p);
         //rec.hitPoint = mul(rotCounterX, rec.hitPoint);
 
 
         //normal = mul(rotCounterZ, normal);
-        normal = mul(rotCounterY, normal);
+        normal = mul(revRot, normal);
         //normal = mul(rotCounterX, normal);
 
 

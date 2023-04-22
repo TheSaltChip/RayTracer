@@ -220,8 +220,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    minPos: {x: 0, y: 0, z: 0}
-    maxPos: {x: 0, y: 0, z: 0}
+    minPos: {x: -0.5, y: -0.50000006, z: -3.061617e-17}
+    maxPos: {x: 0.5, y: 0.50000006, z: 3.061617e-17}
     rotation:
       e00: 0.12054671
       e01: -0.32761037
@@ -409,31 +409,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    minPos: {x: -0.94795537, y: -0.94795537, z: -5.804553e-17}
-    maxPos: {x: 0.94795537, y: 0.94795537, z: 5.804553e-17}
+    minPos: {x: -0.94795585, y: -0.9479557, z: -5.8045533e-17}
+    maxPos: {x: 0.94795585, y: 0.9479557, z: 5.8045533e-17}
     rotation:
-      e00: -0.06253147
-      e01: -0.23685145
-      e02: -0.9695314
+      e00: -0.062532
+      e01: -0.75439906
+      e02: -0.6534311
       e03: 0
-      e10: 0.99545527
-      e11: -0.084709615
-      e12: -0.043509305
+      e10: 0.9954554
+      e11: -0.09426004
+      e12: 0.013562113
       e13: 0
-      e20: -0.07182339
-      e21: -0.96784586
-      e22: 0.24107209
+      e20: -0.07182354
+      e21: -0.6496134
+      e22: 0.75686455
       e23: 0
       e30: 0
       e31: 0
       e32: 0
       e33: 1
-    offset: {x: -2.17, y: 0.44, z: -0.62}
+    offset: {x: -3.122, y: 0.44, z: 0.26}
     material:
       type: 1
       color: {r: 0, g: 0.9839082, b: 1, a: 0}
       fuzz: 0
-      refIdx: 0
+      refIdx: 1.27
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
   meshFilter: {fileID: 626112876}
@@ -444,14 +444,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 626112873}
-  m_LocalRotation: {x: 0.44190103, y: 0.42917064, z: -0.5891335, w: 0.5229319}
-  m_LocalPosition: {x: -2.17, y: 0.44, z: -0.62}
+  m_LocalRotation: {x: 0.26213712, y: 0.22989531, z: -0.6916749, w: 0.63247}
+  m_LocalPosition: {x: -3.122, y: 0.44, z: 0.26}
   m_LocalScale: {x: 1.8959109, y: 1.8959109, z: 1.8959109}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 75.431, y: -16.591, z: -109.68}
+  m_LocalEulerAnglesHint: {x: 40.512, y: -5.421, z: -97.122}
 --- !u!1 &723383760
 GameObject:
   m_ObjectHideFlags: 0
@@ -471,7 +471,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!135 &723383761
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -562,9 +562,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 723383760}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.09, y: 0.98, z: -0.86}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: -3.7, y: 0, z: -2.44}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
@@ -658,18 +658,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 764383024}
   box:
-    pos0: {x: -0.5, y: -0.5, z: -0.5}
-    pos1: {x: 0.5, y: 0.5, z: 0.5}
+    pos0: {x: -3.106, y: 0.26, z: -1.867}
+    pos1: {x: -2.106, y: 1.26, z: -0.867}
     sideX1:
-      minPos: {x: -0.49999997, y: -0.49999997, z: 0}
-      maxPos: {x: 0.49999997, y: 0.49999997, z: 0}
+      minPos: {x: -0.5, y: -0.5, z: 0}
+      maxPos: {x: 0.5, y: 0.5, z: 0}
       rotation:
-        e00: 0.99211353
-        e01: -0.12534256
+        e00: 1
+        e01: 0
         e02: 0
         e03: 0
-        e10: 0.12534256
-        e11: 0.99211353
+        e10: 0
+        e11: 1
         e12: 0
         e13: 0
         e20: 0
@@ -680,24 +680,24 @@ MonoBehaviour:
         e31: 0
         e32: 0
         e33: 1
-      offset: {x: 0, y: 0, z: -0.5}
+      offset: {x: -2.606, y: 0.76, z: -1.867}
       material:
         type: 0
-        color: {r: 1, g: 1, b: 1, a: 0}
+        color: {r: 0.57305926, g: 0.9150943, b: 0.12661673, a: 0}
         fuzz: 0
         refIdx: 0
         emissionColor: {r: 1, g: 1, b: 1, a: 0}
         emissionStrength: 0
     sideX2:
-      minPos: {x: -0.49999997, y: -0.49999997, z: 0}
-      maxPos: {x: 0.49999997, y: 0.49999997, z: 0}
+      minPos: {x: -0.5, y: -0.5, z: 0}
+      maxPos: {x: 0.5, y: 0.5, z: 0}
       rotation:
-        e00: 0.99211353
-        e01: -0.12534256
+        e00: 1
+        e01: 0
         e02: 0
         e03: 0
-        e10: 0.12534256
-        e11: 0.99211353
+        e10: 0
+        e11: 1
         e12: 0
         e13: 0
         e20: 0
@@ -708,129 +708,129 @@ MonoBehaviour:
         e31: 0
         e32: 0
         e33: 1
-      offset: {x: 0, y: 0, z: 0}
+      offset: {x: -2.606, y: 0.76, z: -0.867}
       material:
         type: 0
-        color: {r: 1, g: 1, b: 1, a: 0}
+        color: {r: 0.57305926, g: 0.9150943, b: 0.12661673, a: 0}
         fuzz: 0
         refIdx: 0
         emissionColor: {r: 1, g: 1, b: 1, a: 0}
         emissionStrength: 0
     sideY1:
-      minPos: {x: -0.49999997, y: -0.49999997, z: 0}
-      maxPos: {x: 0.49999997, y: 0.49999997, z: 0}
+      minPos: {x: -0.5, y: -0.5, z: 0}
+      maxPos: {x: 0.5, y: 0.5, z: 0}
       rotation:
-        e00: 0.99211353
-        e01: -0.12534256
+        e00: 1
+        e01: 0
         e02: 0
         e03: 0
-        e10: 0.12534256
-        e11: 0.99211353
-        e12: 0
+        e10: 0
+        e11: 0.000000059604645
+        e12: 0.99999994
         e13: 0
         e20: 0
-        e21: 0
-        e22: 1
+        e21: -0.99999994
+        e22: 0.000000059604645
         e23: 0
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      offset: {x: 0, y: 0, z: 0}
+      offset: {x: -2.606, y: 0.26, z: -1.367}
       material:
         type: 0
-        color: {r: 1, g: 1, b: 1, a: 0}
+        color: {r: 0.57305926, g: 0.9150943, b: 0.12661673, a: 0}
         fuzz: 0
         refIdx: 0
         emissionColor: {r: 1, g: 1, b: 1, a: 0}
         emissionStrength: 0
     sideY2:
-      minPos: {x: -0.49999997, y: -0.49999997, z: 0}
-      maxPos: {x: 0.49999997, y: 0.49999997, z: 0}
+      minPos: {x: -0.5, y: -0.5, z: 0}
+      maxPos: {x: 0.5, y: 0.5, z: 0}
       rotation:
-        e00: 0.99211353
-        e01: -0.12534256
+        e00: 1
+        e01: 0
         e02: 0
         e03: 0
-        e10: 0.12534256
-        e11: 0.99211353
-        e12: 0
+        e10: 0
+        e11: 0.000000059604645
+        e12: 0.99999994
         e13: 0
         e20: 0
-        e21: 0
-        e22: 1
+        e21: -0.99999994
+        e22: 0.000000059604645
         e23: 0
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      offset: {x: 0, y: 0, z: 0}
+      offset: {x: -2.606, y: 1.26, z: -1.367}
       material:
         type: 0
-        color: {r: 1, g: 1, b: 1, a: 0}
+        color: {r: 0.57305926, g: 0.9150943, b: 0.12661673, a: 0}
         fuzz: 0
         refIdx: 0
         emissionColor: {r: 1, g: 1, b: 1, a: 0}
         emissionStrength: 0
     sideZ1:
-      minPos: {x: -0.49999997, y: -0.49999997, z: 0}
-      maxPos: {x: 0.49999997, y: 0.49999997, z: 0}
+      minPos: {x: -0.5, y: -0.5, z: 0}
+      maxPos: {x: 0.5, y: 0.5, z: 0}
       rotation:
-        e00: 0.99211353
-        e01: -0.12534256
-        e02: 0
+        e00: 0.000000059604645
+        e01: 0
+        e02: -0.99999994
         e03: 0
-        e10: 0.12534256
-        e11: 0.99211353
+        e10: 0
+        e11: 1
         e12: 0
         e13: 0
-        e20: 0
+        e20: 0.99999994
         e21: 0
-        e22: 1
+        e22: 0.000000059604645
         e23: 0
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      offset: {x: 0, y: 0, z: 0}
+      offset: {x: -3.106, y: 0.76, z: -1.367}
       material:
         type: 0
-        color: {r: 1, g: 1, b: 1, a: 0}
+        color: {r: 0.57305926, g: 0.9150943, b: 0.12661673, a: 0}
         fuzz: 0
         refIdx: 0
         emissionColor: {r: 1, g: 1, b: 1, a: 0}
         emissionStrength: 0
     sideZ2:
-      minPos: {x: -0.49999997, y: -0.49999997, z: 0}
-      maxPos: {x: 0.49999997, y: 0.49999997, z: 0}
+      minPos: {x: -0.5, y: -0.5, z: 0}
+      maxPos: {x: 0.5, y: 0.5, z: 0}
       rotation:
-        e00: 0.99211353
-        e01: -0.12534256
-        e02: 0
+        e00: 0.000000059604645
+        e01: 0
+        e02: -0.99999994
         e03: 0
-        e10: 0.12534256
-        e11: 0.99211353
+        e10: 0
+        e11: 1
         e12: 0
         e13: 0
-        e20: 0
+        e20: 0.99999994
         e21: 0
-        e22: 1
+        e22: 0.000000059604645
         e23: 0
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      offset: {x: 0, y: 0, z: 0}
+      offset: {x: -2.106, y: 0.76, z: -1.367}
       material:
         type: 0
-        color: {r: 1, g: 1, b: 1, a: 0}
+        color: {r: 0.57305926, g: 0.9150943, b: 0.12661673, a: 0}
         fuzz: 0
         refIdx: 0
         emissionColor: {r: 1, g: 1, b: 1, a: 0}
         emissionStrength: 0
     material:
       type: 0
-      color: {r: 1, g: 1, b: 1, a: 0}
+      color: {r: 0.57305926, g: 0.9150943, b: 0.12661673, a: 0}
       fuzz: 0
       refIdx: 0
       emissionColor: {r: 1, g: 1, b: 1, a: 0}
@@ -850,14 +850,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 764383020}
-  m_LocalRotation: {x: -0, y: -0, z: -0.06279517, w: 0.9980265}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.606, y: 0.76, z: -1.367}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 1
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -7.201}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1106796476
 GameObject:
   m_ObjectHideFlags: 0
@@ -1107,7 +1107,7 @@ MonoBehaviour:
   maxBounceCount: 5
   numRaysPerPixel: 10
   divergeStrength: 0
-  useShaderInSceneView: 1
+  useShaderInSceneView: 0
   rayTracingShader: {fileID: 4800000, guid: edfdd0279b046b343be4f388b606d350, type: 3}
   combineShader: {fileID: 4800000, guid: ec839f71fcd548988f58c7849a623233, type: 3}
   changer: {fileID: 468687823}
@@ -1329,8 +1329,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    minPos: {x: 0, y: 0, z: 0}
-    maxPos: {x: 0, y: 0, z: 0}
+    minPos: {x: -0.5000002, y: -0.5000001, z: -3.0616165e-17}
+    maxPos: {x: 0.5000002, y: 0.5000001, z: 3.0616165e-17}
     rotation:
       e00: -0.93061393
       e01: -0.3276103

@@ -18,8 +18,6 @@ namespace Objects
             
             Vector3 min = _mesh.bounds.min, max = _mesh.bounds.max;
 
-            print($"{min},{max}");
-            
             var t = transform;
             var lossyScale = t.lossyScale;
 

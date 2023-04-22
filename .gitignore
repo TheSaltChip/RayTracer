@@ -111,3 +111,5 @@ Desktop.ini
 */tmp/*.png
 *.gif
 images/**/output_*.mp4
+
+!**/example_images/*.png

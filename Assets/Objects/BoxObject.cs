@@ -14,7 +14,6 @@ namespace Objects
         {
             var mesh = meshFilter.sharedMesh;
 
-            var sides = new Rect[6];
 
             var t = transform;
 
@@ -23,56 +22,78 @@ namespace Objects
             var position = t.position;
 
             var bounds = mesh.bounds;
-            var min = bounds.min + new Vector3(0,0,0.5f);
-            var max = bounds.max - new Vector3(0,0,0.5f);
+            var min = bounds.min;
+            var max = bounds.max;
 
             min.Scale(scale);
             max.Scale(scale);
 
-            var halfScaleX = -scale.x * 0.5f;
-            var halfScaleY = -scale.y * 0.5f;
-            var halfScaleZ = -scale.z * 0.5f;
+            var halfScaleX = new Vector3(-scale.x * 0.5f, 0, 0);
+            var halfScaleY = new Vector3(0, -scale.y * 0.5f, 0);
+            var halfScaleZ = new Vector3(0, 0, -scale.z * 0.5f);
+
+            var rotationMatrix = Matrix4x4.Rotate(rotation);
+
+            var sides = new Rect[6];
 
             for (var i = 0; i < sides.Length; i++)
             {
                 var offset = position;
-                var rot = rotation.eulerAngles;
+                var tMin = min;
+                var tMax = max;
+                var rot = rotation;
                 switch (i)
                 {
                     case 0:
-                        offset += new Vector3(0, 0, halfScaleZ);
+                        offset += rotationMatrix.MultiplyPoint3x4(halfScaleZ);
+                        tMin = new Vector3(min.x, min.y, 0);
+                        tMax = new Vector3(max.x, max.y, 0);
                         break;
                     case 1:
+                        offset += rotationMatrix.MultiplyPoint3x4(-halfScaleZ);
+                        tMin = new Vector3(min.x, min.y, 0);
+                        tMax = new Vector3(max.x, max.y, 0);
                         break;
                     case 2:
-                        rot = new Vector3(rot.x,rot.y ,rot.z);
+                        offset += rotationMatrix.MultiplyPoint3x4(halfScaleY);
+                        rot *= Quaternion.Euler(new Vector3(90, 0, 0));
+                        tMin = new Vector3(min.x, min.z, 0);
+                        tMax = new Vector3(max.x, max.z, 0);
                         break;
                     case 3:
-                        //rot += new Vector3(0, 0, -90);
+                        offset += rotationMatrix.MultiplyPoint3x4(-halfScaleY);
+                        rot *= Quaternion.Euler(new Vector3(90, 0, 0));
+                        tMin = new Vector3(min.x, min.z, 0);
+                        tMax = new Vector3(max.x, max.z, 0);
                         break;
                     case 4:
-                        //rot += new Vector3(0, 90, 0);
+                        rot *= Quaternion.Euler(new Vector3(0, 90, 0));
+                        offset += rotationMatrix.MultiplyPoint3x4(halfScaleX);
+                        tMin = new Vector3(min.z, min.y, 0);
+                        tMax = new Vector3(max.z, max.y, 0);
                         break;
                     case 5:
-                        //rot += new Vector3(0, -90, 0);
+                        tMin = new Vector3(min.z, min.y, 0);
+                        tMax = new Vector3(max.z, max.y, 0);
+                        rot *= Quaternion.Euler(new Vector3(0, 90, 0));
+                        offset += rotationMatrix.MultiplyPoint3x4(-halfScaleX);
                         break;
                 }
-                
 
                 var rect = new Rect
                 {
-                    minPos = min,
-                    maxPos = max,
+                    minPos = tMin,
+                    maxPos = tMax,
                     offset = offset,
-                    rotation = Matrix4x4.Transpose(Matrix4x4.Rotate(Quaternion.Euler(rot))),
+                    rotation = Matrix4x4.Transpose(Matrix4x4.Rotate(rot)),
                     material = box.material,
                 };
 
                 sides[i] = rect;
             }
 
-            box.pos0 = bounds.min + position;
-            box.pos1 = bounds.max + position;
+            box.pos0 = min + position;
+            box.pos1 = max + position;
 
             box.sideX1 = sides[0];
             box.sideX2 = sides[1];

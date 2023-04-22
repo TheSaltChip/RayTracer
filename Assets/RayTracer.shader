@@ -122,7 +122,7 @@ Shader "Unlit/RayTracer"
                         }
                     }
 
-                    if (NumBoxes)
+                    if (i < NumBoxes)
                     {
                         Box box = Boxes[i];
 

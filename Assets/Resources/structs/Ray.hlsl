@@ -13,8 +13,8 @@ struct Ray
     void MakeRay(const float3 _origin, const float3 direction)
     {
         origin = _origin;
-        dir = direction;
-        invDir = 1 / direction;
+        dir = UnitVector(direction);
+        invDir = 1 / dir;
     }
 
     float3 PointAt(const float t)
@@ -25,20 +25,21 @@ struct Ray
     // Branchless Ray/Bounding box intersection
     // Rays which just touch a corner, edge, or face of the bounding box will be considered intersecting
     // credit: https://tavianator.com/2022/ray_box_boundary.html
-    bool Intersection(float3 boxMin, float3 boxMax, float t)
+    bool Intersection(const float3 boxMin, const float3 boxMax, const float t)
     {
-        float tmin = 0.0, tmax = t;
+        float tMin = 0.0, tMax = t;
 
+        UNITY_UNROLL
         for (int d = 0; d < 3; ++d)
         {
-            float t1 = (boxMin[d] - origin[d]) * invDir[d];
-            float t2 = (boxMax[d] - origin[d]) * invDir[d];
+            const float t1 = (boxMin[d] - origin[d]) * invDir[d];
+            const float t2 = (boxMax[d] - origin[d]) * invDir[d];
 
-            tmin = min(max(t1, tmin), max(t2, tmin));
-            tmax = max(min(t1, tmax), min(t2, tmax));
+            tMin = min(max(t1, tMin), max(t2, tMin));
+            tMax = max(min(t1, tMax), min(t2, tMax));
         }
 
-        return tmin <= tmax;
+        return tMin <= tMax;
     }
 
     void LambertianScatter(const HitRecord rec, inout float3 attenuation)
@@ -50,48 +51,45 @@ struct Ray
 
     void MetalScatter(const HitRecord rec, inout float3 attenuation)
     {
-        const float3 reflected = reflect(UnitVector(dir), rec.normal);
-        MakeRay(rec.hitPoint, reflected + rec.material.fuzz * RandomDirection());
+        MakeRay(rec.hitPoint, reflect(dir, rec.normal) + rec.material.fuzz * RandomDirection());
+
         attenuation *= rec.material.color;
     }
 
     void DielectricScatter(const HitRecord rec, inout float3 attenuation)
     {
-        float3 outwardNormal;
-        const float3 reflected = reflect(dir, rec.normal);
-        float niOverNt;
-
         attenuation *= float3(1.0, 1.0, 1.0);
-        float3 refracted;
-        float reflectProb = 1.0;
+
         float cosine;
+        float niOverNt;
+        float3 outwardNormal;
+        const float refIdx = rec.material.refIdx;
 
         if (dot(dir, rec.normal) > 0)
         {
             outwardNormal = -rec.normal;
-            niOverNt = rec.material.refIdx;
-            cosine = rec.material.refIdx * dot(dir, rec.normal) / length(dir);
+            niOverNt = refIdx;
+            cosine = refIdx * dot(dir, rec.normal) / length(dir);
         }
         else
         {
             outwardNormal = rec.normal;
-            niOverNt = 1 / rec.material.refIdx;
-            cosine = -rec.material.refIdx * dot(dir, rec.normal) / length(dir);
+            niOverNt = 1 / refIdx;
+            cosine = -refIdx * dot(dir, rec.normal) / length(dir);
         }
+
+        const float3 reflected = reflect(dir, rec.normal);
+
+        float3 refracted;
+        float3 direction = reflected;
 
         if (Refract(dir, outwardNormal, niOverNt, refracted))
         {
-            reflectProb = Schlick(cosine, rec.material.refIdx);
+            const bool shouldReflect = Random() < Schlick(cosine, refIdx);
+            direction = reflected * shouldReflect + refracted * (1 - shouldReflect);
         }
 
-        if (Random() < reflectProb)
-        {
-            MakeRay(rec.hitPoint, reflected);
-        }
-        else
-        {
-            MakeRay(rec.hitPoint, refracted);
-        }
+        MakeRay(rec.hitPoint, direction);
     }
 
     void Scatter(const HitRecord rec, inout float3 attenuation)

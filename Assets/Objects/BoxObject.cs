@@ -1,6 +1,6 @@
-﻿using DataTypes;
+﻿using System.Collections.Generic;
+using DataTypes;
 using UnityEngine;
-using Rect = DataTypes.Rect;
 
 namespace Objects
 {
@@ -8,12 +8,13 @@ namespace Objects
     {
         [SerializeField] private MeshFilter meshFilter;
 
-        [SerializeField] private Box box;
+        [SerializeField] private BoxInfo boxInfo;
 
-        public Box GetBox()
+        private BoxSide[] _sides;
+
+        protected override void UpdateValues()
         {
             var mesh = meshFilter.sharedMesh;
-
 
             var t = transform;
 
@@ -34,9 +35,9 @@ namespace Objects
 
             var rotationMatrix = Matrix4x4.Rotate(rotation);
 
-            var sides = new Rect[6];
+            _sides = new BoxSide[6];
 
-            for (var i = 0; i < sides.Length; i++)
+            for (var i = 0; i < _sides.Length; i++)
             {
                 var offset = position;
                 var tMin = min;
@@ -80,39 +81,74 @@ namespace Objects
                         break;
                 }
 
-                var rect = new Rect
+                var rect = new BoxSide()
                 {
                     minPos = tMin,
                     maxPos = tMax,
                     offset = offset,
-                    rotation = Matrix4x4.Transpose(Matrix4x4.Rotate(rot)),
-                    material = box.material,
+                    rotation = Matrix4x4.Transpose(Matrix4x4.Rotate(rot))
                 };
 
-                sides[i] = rect;
+                _sides[i] = rect;
             }
 
-            box.pos0 = min + position;
-            box.pos1 = max + position;
+            var localToWorldMatrix = Matrix4x4.TRS(position, rotation, scale);
 
-            box.sideX1 = sides[0];
-            box.sideX2 = sides[1];
-            box.sideY1 = sides[2];
-            box.sideY2 = sides[3];
-            box.sideZ1 = sides[4];
-            box.sideZ2 = sides[5];
+            boxInfo.boundsMin = localToWorldMatrix.MultiplyPoint3x4(bounds.min);
+            boxInfo.boundsMax = localToWorldMatrix.MultiplyPoint3x4(bounds.max);
 
-            return box;
+            (boxInfo.boundsMin, boxInfo.boundsMax) = GetTransformedBounds(bounds.min, bounds.max, localToWorldMatrix);
         }
 
-        public override RayTracingMaterial GetMaterial()
+        public BoxInfo GetBoxInfo()
         {
-            throw new System.NotImplementedException();
+            UpdateValues();
+
+            return boxInfo;
         }
+
+        public IEnumerable<BoxSide> GetSides()
+        {
+            UpdateValues();
+
+            return _sides;
+        }
+
+        public override RayTracingMaterial GetMaterial() => boxInfo.material;
+
 
         public override void SetMaterial(RayTracingMaterial material)
         {
-            throw new System.NotImplementedException();
+            boxInfo.material = material;
+        }
+
+        // Compute a new axis-aligned bounding box that will contain whatever the original
+        // bounds did, after an affine transformation. (Note this is a lossy operation)
+        private static (Vector3 min, Vector3 max) GetTransformedBounds(Vector3 oldMin, Vector3 oldMax,
+            Matrix4x4 transformation)
+        {
+            var corners = new Vector3[8];
+
+            corners[0] = oldMin;
+            corners[1] = new Vector3(oldMin.x, oldMin.y, oldMax.z);
+            corners[2] = new Vector3(oldMin.x, oldMax.y, oldMin.z);
+            corners[3] = new Vector3(oldMax.x, oldMin.y, oldMin.z);
+            corners[4] = new Vector3(oldMin.x, oldMax.y, oldMax.z);
+            corners[5] = new Vector3(oldMax.x, oldMin.y, oldMax.z);
+            corners[6] = new Vector3(oldMax.x, oldMax.y, oldMin.z);
+            corners[7] = oldMax;
+
+            var min = Vector3.positiveInfinity;
+            var max = Vector3.negativeInfinity;
+
+            for (var i = 0; i < 8; i++)
+            {
+                var transformed = transformation.MultiplyPoint3x4(corners[i]);
+                min = Vector3.Min(min, transformed);
+                max = Vector3.Max(max, transformed);
+            }
+
+            return (min, max);
         }
     }
 }

@@ -13,7 +13,7 @@ struct Rect
     float3 offset;
     Material material;
 
-    HitRecord Hit(const Ray r, const float minDist, const float maxDist)
+    bool Hit(const Ray r, const float minDist, const float maxDist, out HitRecord rec)
     {
         const float4 translatedOrigin = float4(r.origin - offset, 1);
 
@@ -31,13 +31,13 @@ struct Rect
         float2 p1 = pos1.xy;
         const float4 normal = float4(0, 0, 1, 1);
 
-        HitRecord rec = (HitRecord)0;
+        rec = (HitRecord)0;
 
         if (t < minDist || t > maxDist
             || a < p0.x || a > p1.x
             || b < p0.y || b > p1.y)
-            return rec;
-        
+            return false;
+
         const float4x4 invRot = transpose(rotation);
 
         rec.hitPoint = mul(invRot, float4(rotated.PointAt(t), 1)).xyz + offset;
@@ -47,7 +47,7 @@ struct Rect
         rec.didHit = true;
         rec.dist = t;
         rec.material = material;
-        return rec;
+        return true;
     }
 };
 

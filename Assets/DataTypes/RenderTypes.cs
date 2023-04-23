@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace DataTypes
 {
@@ -93,16 +94,20 @@ namespace DataTypes
     }
 
     [Serializable, StructLayout(LayoutKind.Sequential)]
-    public struct Box
+    public struct BoxInfo
     {
-        [HideInInspector] public Vector3 pos0;
-        [HideInInspector] public Vector3 pos1;
-        [HideInInspector] public Rect sideX1;
-        [HideInInspector] public Rect sideX2;
-        [HideInInspector] public Rect sideY1;
-        [HideInInspector] public Rect sideY2;
-        [HideInInspector] public Rect sideZ1;
-        [HideInInspector] public Rect sideZ2;
+        [HideInInspector] public Vector3 boundsMin;
+        [HideInInspector] public Vector3 boundsMax;
+        [HideInInspector] public int firstSideIndex;
         public RayTracingMaterial material;
+    }
+
+    [Serializable, StructLayout(LayoutKind.Sequential)]
+    public struct BoxSide
+    {
+        [HideInInspector] public Vector3 minPos;
+        [HideInInspector] public Vector3 maxPos;
+        [HideInInspector] public Matrix4x4 rotation;
+        [HideInInspector] public Vector3 offset;
     }
 }

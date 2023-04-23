@@ -55,12 +55,17 @@ namespace Objects
 
         public override RayTracingMaterial GetMaterial()
         {
-            return info.material;
+            throw new System.NotImplementedException();
         }
-        
+
         public override void SetMaterial(RayTracingMaterial material)
         {
-            info.material = material;
+            throw new System.NotImplementedException();
+        }
+
+        protected override void UpdateValues()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

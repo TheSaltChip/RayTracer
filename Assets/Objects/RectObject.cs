@@ -42,5 +42,10 @@ namespace Objects
         {
             rect.material = material;
         }
+
+        protected override void UpdateValues()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

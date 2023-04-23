@@ -26,5 +26,10 @@ namespace Objects
         {
             this.material = material;
         }
+
+        protected override void UpdateValues()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

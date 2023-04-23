@@ -3,7 +3,7 @@ using UnityEngine.Serialization;
 
 namespace Changers
 {
-    public class RotateObject : Changer
+    public class RotateOnAllAxis : Changer
     {
         [SerializeField] private GameObject whatToSpin;
         [SerializeField, Range(0, 360)] private float angleIncrementX;

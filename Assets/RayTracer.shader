@@ -11,10 +11,12 @@ Shader "Unlit/RayTracer"
 
             #include "UnityCG.cginc"
             #include "Assets/Resources/common/Random.hlsl"
-            #include "Assets/Resources/structs/Box.hlsl"
             #include "Assets/Resources/structs/Ray.hlsl"
+            #include "Assets/Resources/structs/BoxInfo.hlsl"
+            #include "Assets/Resources/structs/BoxSide.hlsl"
             #include "Assets/Resources/structs/Rect.hlsl"
             #include "Assets/Resources/structs/Sphere.hlsl"
+            #include "Assets/Resources/structs/MeshInfo.hlsl"
             #include "Assets/Resources/structs/Triangle.hlsl"
 
             const static float FLOAT_MAX = 3.402823466e+38F;
@@ -36,23 +38,17 @@ Shader "Unlit/RayTracer"
             float SunIntensity;
             float3 GroundColor;
 
-            struct MeshInfo
-            {
-                uint firstTriangleIndex;
-                uint numTriangles;
-                float3 boundsMin;
-                float3 boundsMax;
-                Material material;
-            };
-
             StructuredBuffer<Sphere> Spheres;
             int NumSpheres;
 
             StructuredBuffer<Rect> Rects;
             int NumRects;
 
-            StructuredBuffer<Box> Boxes;
-            int NumBoxes;
+            StructuredBuffer<BoxInfo> BoxInfos;
+            int NumBoxInfos;
+
+            StructuredBuffer<BoxSide> BoxSides;
+            int NumBoxSides;
 
             StructuredBuffer<Triangle> Triangles;
             StructuredBuffer<MeshInfo> AllMeshInfo;
@@ -78,13 +74,85 @@ Shader "Unlit/RayTracer"
                 return o;
             }
 
-            // A quick optimization(maybe) to do here is to use one for-loop
-            // Which runs the highest of all the Num-variables
-            // and then if's that check if the index is below their
-            // respective Num-variable
-            // Will save time if there are multiple arrays that are large
-            // The triangle array will most likely be the biggest anyways
-            HitRecord CalculateRayCollision(Ray ray)
+            void CalculateBoxCollision(Ray ray, const int index, inout HitRecord closestHitRecord,
+                                       const float minDist,
+                                       inout float closestSoFar)
+            {
+                const BoxInfo boxInfo = BoxInfos[index];
+
+                if (!ray.Intersection(boxInfo.min, boxInfo.max, closestSoFar))
+                    return;
+
+                HitRecord tempRecord = (HitRecord)0;
+
+                for (int j = 0; j < 6; ++j)
+                {
+                    BoxSide side = BoxSides[boxInfo.firstBoxIndex + j];
+
+                    if (side.Hit(ray, minDist, closestSoFar, tempRecord))
+                    {
+                        closestSoFar = tempRecord.dist;
+                        closestHitRecord = tempRecord;
+                        closestHitRecord.material = boxInfo.material;
+                    }
+                }
+            }
+
+            void CalculateSphereCollision(const Ray ray, const int index, inout HitRecord closestHitRecord,
+                                          const float minDist,
+                                          inout float closestSoFar)
+            {
+                Sphere s = Spheres[index];
+
+                HitRecord tempRecord = (HitRecord)0;
+
+                if (s.Hit(ray, minDist, closestSoFar, tempRecord))
+                {
+                    closestSoFar = tempRecord.dist;
+                    closestHitRecord = tempRecord;
+                }
+            }
+
+            void CalculateRectCollision(const Ray ray, const int index, inout HitRecord closestHitRecord,
+                                        const float minDist,
+                                        inout float closestSoFar)
+            {
+                Rect r = Rects[index];
+
+                HitRecord tempRecord = (HitRecord)0;
+
+                if (r.Hit(ray, minDist, closestSoFar, tempRecord))
+                {
+                    closestSoFar = tempRecord.dist;
+                    closestHitRecord = tempRecord;
+                }
+            }
+
+            void CalculateMeshCollision(Ray ray, const int index, inout HitRecord closestHitRecord,
+                                        const float minDist,
+                                        inout float closestSoFar)
+            {
+                const MeshInfo meshInfo = AllMeshInfo[index];
+
+                if (!ray.Intersection(meshInfo.boundsMin, meshInfo.boundsMax, closestSoFar))
+                    return;
+
+                HitRecord tempRecord = (HitRecord)0;
+
+                for (int j = 0; j < meshInfo.numTriangles; ++j)
+                {
+                    Triangle tri = Triangles[meshInfo.firstTriangleIndex + j];
+
+                    if (tri.Hit(ray, minDist, closestSoFar, tempRecord))
+                    {
+                        closestSoFar = tempRecord.dist;
+                        closestHitRecord = tempRecord;
+                        closestHitRecord.material = meshInfo.material;
+                    }
+                }
+            }
+
+            HitRecord CalculateRayCollision(const Ray ray)
             {
                 float closestSoFar = FLOAT_MAX;
                 const float minDist = MIN_DIST;
@@ -93,70 +161,21 @@ Shader "Unlit/RayTracer"
                 const int maxNum =
                     max(NumSpheres,
                         max(NumMeshes,
-                            max(NumRects, NumBoxes)));
+                            max(NumRects, NumBoxInfos)));
 
                 for (int i = 0; i < maxNum; ++i)
                 {
-                    HitRecord tempRecord = (HitRecord)0;
                     if (i < NumSpheres)
-                    {
-                        Sphere s = Spheres[i];
-                        tempRecord = s.Hit(ray, minDist, closestSoFar);
+                        CalculateSphereCollision(ray, i, closestHitRecord, minDist, closestSoFar);
 
-                        if (tempRecord.didHit)
-                        {
-                            closestSoFar = tempRecord.dist;
-                            closestHitRecord = tempRecord;
-                        }
-                    }
+                    if (i < NumBoxInfos)
+                        CalculateBoxCollision(ray, i, closestHitRecord, minDist, closestSoFar);
 
                     if (i < NumRects)
-                    {
-                        Rect r = Rects[i];
-                        tempRecord = r.Hit(ray, minDist, closestSoFar);
+                        CalculateRectCollision(ray, i, closestHitRecord, minDist, closestSoFar);
 
-                        if (tempRecord.didHit)
-                        {
-                            closestSoFar = tempRecord.dist;
-                            closestHitRecord = tempRecord;
-                        }
-                    }
-
-                    if (i < NumBoxes)
-                    {
-                        Box box = Boxes[i];
-
-                        //if (ray.Intersection(box.min, box.max, closestSoFar))
-                        {
-                            tempRecord = box.Hit(ray, minDist, closestSoFar);
-
-                            if (tempRecord.didHit)
-                            {
-                                closestSoFar = tempRecord.dist;
-                                closestHitRecord = tempRecord;
-                            }
-                        }
-                    }
-
-                    if (i >= NumMeshes) continue;
-
-                    const MeshInfo meshInfo = AllMeshInfo[i];
-                    if (!ray.Intersection(meshInfo.boundsMin, meshInfo.boundsMax, closestSoFar))
-                        continue;
-
-                    for (int j = 0; j < meshInfo.numTriangles; ++j)
-                    {
-                        const int triIndex = meshInfo.firstTriangleIndex + j;
-                        Triangle tri = Triangles[triIndex];
-                        tempRecord = tri.Hit(ray, minDist, closestSoFar);
-
-                        if (tempRecord.didHit)
-                        {
-                            closestSoFar = tempRecord.dist;
-                            closestHitRecord = tempRecord;
-                            closestHitRecord.material = meshInfo.material;
-                        }
-                    }
+                    if (i < NumMeshes)
+                        CalculateMeshCollision(ray, i, closestHitRecord, minDist, closestSoFar);
                 }
 
                 return closestHitRecord;
@@ -232,7 +251,6 @@ Shader "Unlit/RayTracer"
 
                 const float3 pixelCol = totalIncomingLight / NumRaysPerPixel;
                 return float4(pixelCol, 1);
-                //return float4(RandomPointInCircle(), 0, 1);
             }
             ENDHLSL
         }

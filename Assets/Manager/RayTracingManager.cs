@@ -20,12 +20,12 @@ namespace Manager
         private const float Deg2Rad = Mathf.PI / 180f;
 
         // @formatter:off
-        private static readonly int Boxes = Shader.PropertyToID("Boxes");
         private static readonly int Frame = Shader.PropertyToID("Frame");
         private static readonly int Rects = Shader.PropertyToID("Rects");
         private static readonly int Spheres = Shader.PropertyToID("Spheres");
+        private static readonly int BoxInfos = Shader.PropertyToID("BoxInfos");
+        private static readonly int BoxSides = Shader.PropertyToID("BoxSides");
         private static readonly int NumRects = Shader.PropertyToID("NumRects");
-        private static readonly int NumBoxes = Shader.PropertyToID("NumBoxes");
         //private static readonly int SunFocus = Shader.PropertyToID("SunFocus");
         private static readonly int NumMeshes = Shader.PropertyToID("NumMeshes");
         private static readonly int Triangles = Shader.PropertyToID("Triangles");
@@ -35,6 +35,8 @@ namespace Manager
         //private static readonly int SunIntensity = Shader.PropertyToID("SunIntensity");
         private static readonly int AllMeshInfo = Shader.PropertyToID("AllMeshInfo");
         private static readonly int GroundColor = Shader.PropertyToID("GroundColor");
+        private static readonly int NumBoxInfos = Shader.PropertyToID("NumBoxInfos");
+        private static readonly int NumBoxSides = Shader.PropertyToID("NumBoxSides");
         private static readonly int MaxBounceCount = Shader.PropertyToID("MaxBounceCount");
         private static readonly int SkyColorZenith = Shader.PropertyToID("SkyColorZenith");
         private static readonly int DivergeStrength = Shader.PropertyToID("DivergeStrength");
@@ -80,16 +82,13 @@ namespace Manager
         //[SerializeField,Range(1, 10)] private float sunFocus = 1;
         //[SerializeField,Range(0, 10)] private float sunIntensity = 1;
 
-        // [Space, SerializeField] private List<MeshObject> meshes;
-        // [SerializeField] private List<SphereObject> spheres;
-        // [SerializeField] private List<RectObject> rects;
-
         private Material _rayTracingMaterial;
         private Material _combiningMaterial;
 
         private GraphicsBuffer _sphereBuffer;
         private GraphicsBuffer _rectBuffer;
-        private GraphicsBuffer _boxBuffer;
+        private GraphicsBuffer _boxSideBuffer;
+        private GraphicsBuffer _boxInfoBuffer;
         private GraphicsBuffer _triangleBuffer;
         private GraphicsBuffer _meshInfoBuffer;
 
@@ -99,8 +98,9 @@ namespace Manager
 
         private List<Triangle> _allTriangles;
         private List<MeshInfo> _allMeshInfo;
-
-
+        private List<BoxInfo> _boxInfos;
+        private List<BoxSide> _sides;
+        
         private Stopwatch _stopwatch;
         private List<TimeSpan> _renderTimes;
 
@@ -272,19 +272,37 @@ namespace Manager
         {
             var boxObjects = FindObjectsOfType<BoxObject>();
 
-            var boxes = new List<Box>(boxObjects.Length);
+            var boxObjectsLength = boxObjects.Length;
 
-            boxes.AddRange(boxObjects.Select(t => t.GetBox()));
+            _boxInfos ??= new List<BoxInfo>(boxObjectsLength);
+            _sides ??= new List<BoxSide>(boxObjectsLength * 6);
+            
+            _boxInfos.Clear();
+            _sides.Clear();
+            
+            for (var i = 0; i < boxObjectsLength; i++)
+            {
+                var info = boxObjects[i].GetBoxInfo();
+                info.firstSideIndex = _sides.Count;
+                _boxInfos.Add(info);
+                
+                var tempSides = boxObjects[i].GetSides();
 
-            ShaderHelper.CreateStructuredBuffer(ref _boxBuffer, boxes);
-            _rayTracingMaterial.SetBuffer(Boxes, _boxBuffer);
-            _rayTracingMaterial.SetInteger(NumBoxes, boxObjects.Length);
+                _sides.AddRange(tempSides);
+            }
+            
+            ShaderHelper.CreateStructuredBuffer(ref _boxInfoBuffer, _boxInfos);
+            _rayTracingMaterial.SetBuffer(BoxInfos, _boxInfoBuffer);
+            _rayTracingMaterial.SetInteger(NumBoxInfos, boxObjectsLength);
+
+            ShaderHelper.CreateStructuredBuffer(ref _boxSideBuffer, _sides);
+            _rayTracingMaterial.SetBuffer(BoxSides, _boxSideBuffer);
+            _rayTracingMaterial.SetInteger(NumBoxSides, _sides.Count);
         }
 
         private void CreateMeshes()
         {
             var meshObjects = FindObjectsOfType<MeshObject>();
-
 
             _allTriangles ??= new List<Triangle>();
             _allMeshInfo ??= new List<MeshInfo>();
@@ -402,7 +420,8 @@ namespace Manager
 
         private void OnDisable()
         {
-            ShaderHelper.Release(_sphereBuffer, _triangleBuffer, _meshInfoBuffer, _rectBuffer, _boxBuffer);
+            ShaderHelper.Release(_sphereBuffer, _triangleBuffer, _meshInfoBuffer, _rectBuffer, _boxSideBuffer,
+                _boxInfoBuffer);
             ShaderHelper.Release(_resultTexture);
         }
 

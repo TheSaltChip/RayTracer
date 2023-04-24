@@ -33,9 +33,14 @@ float3 RandomUnitCube()
     return float3(Random(), Random(), Random());
 }
 
+float3 RandomUnitSphere()
+{
+    return float3(RandomNormalDistribution(), RandomNormalDistribution(), RandomNormalDistribution());
+}
+
 float3 RandomDirection()
 {
-    return normalize(float3(RandomNormalDistribution(), RandomNormalDistribution(), RandomNormalDistribution()));
+    return normalize(RandomUnitSphere());
 }
 
 float3 RandomHemisphereDirection(const float3 normal)

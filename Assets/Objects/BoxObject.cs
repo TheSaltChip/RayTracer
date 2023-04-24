@@ -40,9 +40,10 @@ namespace Objects
             for (var i = 0; i < _sides.Length; i++)
             {
                 var offset = position;
-                var tMin = min;
-                var tMax = max;
+                var tMin = Vector3.zero;
+                var tMax = Vector3.zero;
                 var rot = rotation;
+
                 switch (i)
                 {
                     case 0:
@@ -68,20 +69,20 @@ namespace Objects
                         tMax = new Vector3(max.x, max.z, 0);
                         break;
                     case 4:
-                        rot *= Quaternion.Euler(new Vector3(0, 90, 0));
                         offset += rotationMatrix.MultiplyPoint3x4(halfScaleX);
+                        rot *= Quaternion.Euler(new Vector3(0, 90, 0));
                         tMin = new Vector3(min.z, min.y, 0);
                         tMax = new Vector3(max.z, max.y, 0);
                         break;
                     case 5:
+                        offset += rotationMatrix.MultiplyPoint3x4(-halfScaleX);
+                        rot *= Quaternion.Euler(new Vector3(0, 90, 0));
                         tMin = new Vector3(min.z, min.y, 0);
                         tMax = new Vector3(max.z, max.y, 0);
-                        rot *= Quaternion.Euler(new Vector3(0, 90, 0));
-                        offset += rotationMatrix.MultiplyPoint3x4(-halfScaleX);
                         break;
                 }
 
-                var rect = new BoxSide()
+                var rect = new BoxSide
                 {
                     minPos = tMin,
                     maxPos = tMax,

@@ -25,10 +25,12 @@ namespace Manager
         private static readonly int Spheres = Shader.PropertyToID("Spheres");
         private static readonly int BoxInfos = Shader.PropertyToID("BoxInfos");
         private static readonly int BoxSides = Shader.PropertyToID("BoxSides");
+        private static readonly int FogBoxes = Shader.PropertyToID("FogBoxes");
         private static readonly int NumRects = Shader.PropertyToID("NumRects");
         //private static readonly int SunFocus = Shader.PropertyToID("SunFocus");
         private static readonly int NumMeshes = Shader.PropertyToID("NumMeshes");
         private static readonly int Triangles = Shader.PropertyToID("Triangles");
+        private static readonly int FogSpheres = Shader.PropertyToID("FogSpheres");
         private static readonly int MainOldTex = Shader.PropertyToID("MainOldTex");
         private static readonly int NumSpheres = Shader.PropertyToID("NumSpheres");
         private static readonly int ViewParams = Shader.PropertyToID("ViewParams");
@@ -37,6 +39,8 @@ namespace Manager
         private static readonly int GroundColor = Shader.PropertyToID("GroundColor");
         private static readonly int NumBoxInfos = Shader.PropertyToID("NumBoxInfos");
         private static readonly int NumBoxSides = Shader.PropertyToID("NumBoxSides");
+        private static readonly int NumFogBoxes = Shader.PropertyToID("NumFogBoxes");
+        private static readonly int NumFogSpheres = Shader.PropertyToID("NumFogSpheres");
         private static readonly int MaxBounceCount = Shader.PropertyToID("MaxBounceCount");
         private static readonly int SkyColorZenith = Shader.PropertyToID("SkyColorZenith");
         private static readonly int DivergeStrength = Shader.PropertyToID("DivergeStrength");
@@ -86,7 +90,9 @@ namespace Manager
         private Material _combiningMaterial;
 
         private GraphicsBuffer _sphereBuffer;
+        private GraphicsBuffer _fogSphereBuffer;
         private GraphicsBuffer _rectBuffer;
+        private GraphicsBuffer _fogBoxBuffer;
         private GraphicsBuffer _boxSideBuffer;
         private GraphicsBuffer _boxInfoBuffer;
         private GraphicsBuffer _triangleBuffer;
@@ -100,7 +106,7 @@ namespace Manager
         private List<MeshInfo> _allMeshInfo;
         private List<BoxInfo> _boxInfos;
         private List<BoxSide> _sides;
-        
+
         private Stopwatch _stopwatch;
         private List<TimeSpan> _renderTimes;
 
@@ -215,8 +221,10 @@ namespace Manager
 
             UpdateCameraParams(Camera.current);
             CreateSpheres();
+            CreateFogSpheres();
             CreateRects();
             CreateBoxes();
+            CreateFogBoxes();
             CreateMeshes();
             SetShaderVariables();
         }
@@ -239,17 +247,28 @@ namespace Manager
 
             for (var i = 0; i < sphereObjects.Length; i++)
             {
-                spheres[i] = new Sphere
-                {
-                    center = sphereObjects[i].transform.position,
-                    radius = sphereObjects[i].transform.lossyScale.x * 0.5f,
-                    rayTracingMaterial = sphereObjects[i].GetMaterial(),
-                };
+                spheres[i] = sphereObjects[i].GetSphere();
             }
 
             ShaderHelper.CreateStructuredBuffer(ref _sphereBuffer, spheres);
             _rayTracingMaterial.SetBuffer(Spheres, _sphereBuffer);
             _rayTracingMaterial.SetInteger(NumSpheres, sphereObjects.Length);
+        }
+
+        private void CreateFogSpheres()
+        {
+            var fogSphereObjects = FindObjectsOfType<FogSphereObject>();
+
+            var fogSpheres = new FogSphere[fogSphereObjects.Length];
+
+            for (var i = 0; i < fogSphereObjects.Length; i++)
+            {
+                fogSpheres[i] = fogSphereObjects[i].GetFogSphere();
+            }
+
+            ShaderHelper.CreateStructuredBuffer(ref _fogSphereBuffer, fogSpheres);
+            _rayTracingMaterial.SetBuffer(FogSpheres, _fogSphereBuffer);
+            _rayTracingMaterial.SetInteger(NumFogSpheres, fogSphereObjects.Length);
         }
 
         private void CreateRects()
@@ -276,21 +295,21 @@ namespace Manager
 
             _boxInfos ??= new List<BoxInfo>(boxObjectsLength);
             _sides ??= new List<BoxSide>(boxObjectsLength * 6);
-            
+
             _boxInfos.Clear();
             _sides.Clear();
-            
+
             for (var i = 0; i < boxObjectsLength; i++)
             {
                 var info = boxObjects[i].GetBoxInfo();
                 info.firstSideIndex = _sides.Count;
                 _boxInfos.Add(info);
-                
+
                 var tempSides = boxObjects[i].GetSides();
 
                 _sides.AddRange(tempSides);
             }
-            
+
             ShaderHelper.CreateStructuredBuffer(ref _boxInfoBuffer, _boxInfos);
             _rayTracingMaterial.SetBuffer(BoxInfos, _boxInfoBuffer);
             _rayTracingMaterial.SetInteger(NumBoxInfos, boxObjectsLength);
@@ -298,6 +317,22 @@ namespace Manager
             ShaderHelper.CreateStructuredBuffer(ref _boxSideBuffer, _sides);
             _rayTracingMaterial.SetBuffer(BoxSides, _boxSideBuffer);
             _rayTracingMaterial.SetInteger(NumBoxSides, _sides.Count);
+        }
+
+        private void CreateFogBoxes()
+        {
+            var fogBoxObjects = FindObjectsOfType<FogBoxObject>();
+
+            var fogBoxes = new FogBox[fogBoxObjects.Length];
+
+            for (var i = 0; i < fogBoxObjects.Length; i++)
+            {
+                fogBoxes[i] = fogBoxObjects[i].GetFogBox();
+            }
+
+            ShaderHelper.CreateStructuredBuffer(ref _fogBoxBuffer, fogBoxes);
+            _rayTracingMaterial.SetBuffer(FogBoxes, _fogBoxBuffer);
+            _rayTracingMaterial.SetInteger(NumFogBoxes, fogBoxObjects.Length);
         }
 
         private void CreateMeshes()
@@ -421,7 +456,7 @@ namespace Manager
         private void OnDisable()
         {
             ShaderHelper.Release(_sphereBuffer, _triangleBuffer, _meshInfoBuffer, _rectBuffer, _boxSideBuffer,
-                _boxInfoBuffer);
+                _boxInfoBuffer, _fogBoxBuffer, _fogSphereBuffer);
             ShaderHelper.Release(_resultTexture);
         }
 

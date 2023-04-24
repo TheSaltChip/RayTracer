@@ -6,10 +6,11 @@ struct MatTypes
     uint lambertian;
     uint metal;
     uint dielectric;
+    uint isotropic;
 };
 
 // "enum" material_types {}
-static const MatTypes MATERIAL_TYPES = {0, 1, 2};
+static const MatTypes MATERIAL_TYPES = {0, 1, 2, 3};
 
 struct Material
 {

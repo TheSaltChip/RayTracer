@@ -1,30 +1,29 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace DataTypes
 {
     [Serializable, StructLayout(LayoutKind.Sequential)]
     public struct Sphere
     {
-        public Vector3 center;
-        public float radius;
-        public RayTracingMaterial rayTracingMaterial;
+        [HideInInspector] public Vector3 center;
+        [HideInInspector] public float radius;
+        public RayTracingMaterial material;
 
-        public Sphere(Vector3 center, float radius, RayTracingMaterial rayTracingMaterial)
+        public Sphere(Vector3 center, float radius, RayTracingMaterial material)
         {
             this.center = center;
             this.radius = radius;
-            this.rayTracingMaterial = rayTracingMaterial;
+            this.material = material;
         }
     }
 
     [Serializable, StructLayout(LayoutKind.Sequential)]
     public struct Triangle
     {
-        public Vector3 posA, posB, posC;
-        public Vector3 normalA, normalB, normalC;
+        [HideInInspector] public Vector3 posA, posB, posC;
+        [HideInInspector] public Vector3 normalA, normalB, normalC;
 
         public Triangle(Vector3 posA, Vector3 posB, Vector3 posC, Vector3 normalA, Vector3 normalB, Vector3 normalC)
         {
@@ -109,5 +108,35 @@ namespace DataTypes
         [HideInInspector] public Vector3 maxPos;
         [HideInInspector] public Matrix4x4 rotation;
         [HideInInspector] public Vector3 offset;
+    }
+
+    [Serializable, StructLayout(LayoutKind.Sequential)]
+    public struct FogBox
+    {
+        [HideInInspector] public Vector3 boundsMin;
+        [HideInInspector] public Vector3 boundsMax;
+        [HideInInspector] public BoxSide sideX1;
+        [HideInInspector] public BoxSide sideX2;
+        [HideInInspector] public BoxSide sideY1;
+        [HideInInspector] public BoxSide sideY2;
+        [HideInInspector] public BoxSide sideZ1;
+        [HideInInspector] public BoxSide sideZ2;
+
+        [Range(0,2)] public float density;
+        [HideInInspector] public float negInvDensity;
+
+        public RayTracingMaterial material;
+    }
+
+    [Serializable, StructLayout(LayoutKind.Sequential)]
+    public struct FogSphere
+    {
+        [HideInInspector] public Vector3 center;
+        [HideInInspector] public float radius;
+
+        [Range(0,2)] public float density;
+        [HideInInspector] public float negInvDensity;
+
+        public RayTracingMaterial material;
     }
 }

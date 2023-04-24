@@ -11,12 +11,14 @@ Shader "Unlit/RayTracer"
 
             #include "UnityCG.cginc"
             #include "Assets/Resources/common/Random.hlsl"
-            #include "Assets/Resources/structs/Ray.hlsl"
             #include "Assets/Resources/structs/BoxInfo.hlsl"
             #include "Assets/Resources/structs/BoxSide.hlsl"
+            #include "Assets/Resources/structs/FogBox.hlsl"
+            #include "Assets/Resources/structs/FogSphere.hlsl"
+            #include "Assets/Resources/structs/MeshInfo.hlsl"
+            #include "Assets/Resources/structs/Ray.hlsl"
             #include "Assets/Resources/structs/Rect.hlsl"
             #include "Assets/Resources/structs/Sphere.hlsl"
-            #include "Assets/Resources/structs/MeshInfo.hlsl"
             #include "Assets/Resources/structs/Triangle.hlsl"
 
             const static float FLOAT_MAX = 3.402823466e+38F;
@@ -40,6 +42,12 @@ Shader "Unlit/RayTracer"
 
             StructuredBuffer<Sphere> Spheres;
             int NumSpheres;
+
+            StructuredBuffer<FogSphere> FogSpheres;
+            int NumFogSpheres;
+
+            StructuredBuffer<FogBox> FogBoxes;
+            int NumFogBoxes;
 
             StructuredBuffer<Rect> Rects;
             int NumRects;
@@ -89,6 +97,21 @@ Shader "Unlit/RayTracer"
                 }
             }
 
+            void CalculateFogSphereCollision(const Ray ray, const int index, inout HitRecord closestHitRecord,
+                                             const float minDist,
+                                             inout float closestSoFar)
+            {
+                FogSphere fs = FogSpheres[index];
+
+                HitRecord tempRecord = (HitRecord)0;
+
+                if (fs.Hit(ray, minDist, closestSoFar, tempRecord))
+                {
+                    closestSoFar = tempRecord.dist;
+                    closestHitRecord = tempRecord;
+                }
+            }
+
             void CalculateRectCollision(const Ray ray, const int index, inout HitRecord closestHitRecord,
                                         const float minDist,
                                         inout float closestSoFar)
@@ -98,6 +121,24 @@ Shader "Unlit/RayTracer"
                 HitRecord tempRecord = (HitRecord)0;
 
                 if (r.Hit(ray, minDist, closestSoFar, tempRecord))
+                {
+                    closestSoFar = tempRecord.dist;
+                    closestHitRecord = tempRecord;
+                }
+            }
+
+            void CalculateFogBoxCollision(Ray ray, const int index, inout HitRecord closestHitRecord,
+                                          const float minDist,
+                                          inout float closestSoFar)
+            {
+                FogBox fg = FogBoxes[index];
+
+                if (!ray.Intersection(fg.min, fg.max, closestSoFar))
+                    return;
+
+                HitRecord tempRecord = (HitRecord)0;
+
+                if (fg.Hit(ray, minDist, closestSoFar, tempRecord))
                 {
                     closestSoFar = tempRecord.dist;
                     closestHitRecord = tempRecord;
@@ -160,19 +201,27 @@ Shader "Unlit/RayTracer"
 
                 const int maxNum =
                     max(NumSpheres,
-                        max(NumMeshes,
-                            max(NumRects, NumBoxInfos)));
+                        max(NumFogSpheres,
+                            max(NumMeshes,
+                                max(NumRects,
+                                    max(NumFogBoxes, NumBoxInfos)))));
 
                 for (int i = 0; i < maxNum; ++i)
                 {
                     if (i < NumSpheres)
                         CalculateSphereCollision(ray, i, closestHitRecord, minDist, closestSoFar);
 
+                    if (i < NumFogSpheres)
+                        CalculateFogSphereCollision(ray, i, closestHitRecord, minDist, closestSoFar);
+
                     if (i < NumRects)
                         CalculateRectCollision(ray, i, closestHitRecord, minDist, closestSoFar);
 
                     if (i < NumBoxInfos)
                         CalculateBoxCollision(ray, i, closestHitRecord, minDist, closestSoFar);
+
+                    if (i < NumFogBoxes)
+                        CalculateFogBoxCollision(ray, i, closestHitRecord, minDist, closestSoFar);
 
                     if (i < NumMeshes)
                         CalculateMeshCollision(ray, i, closestHitRecord, minDist, closestSoFar);

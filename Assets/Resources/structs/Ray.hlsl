@@ -42,6 +42,27 @@ struct Ray
         return tMin <= tMax;
     }
 
+    void Scatter(const HitRecord rec, inout float3 attenuation)
+    {
+        switch (rec.material.type)
+        {
+        case 0:
+            LambertianScatter(rec, attenuation);
+            break;
+        case 1:
+            MetalScatter(rec, attenuation);
+            break;
+        case 2:
+            DielectricScatter(rec, attenuation);
+            break;
+        case 3:
+            IsotropicScatter(rec, attenuation);
+            break;
+        default:
+            break;
+        }
+    }
+
     void LambertianScatter(const HitRecord rec, inout float3 attenuation)
     {
         MakeRay(rec.hitPoint, rec.normal + RandomHemisphereDirection(rec.normal));
@@ -92,22 +113,10 @@ struct Ray
         MakeRay(rec.hitPoint, direction);
     }
 
-    void Scatter(const HitRecord rec, inout float3 attenuation)
+    void IsotropicScatter(const HitRecord rec, inout float3 attenuation)
     {
-        switch (rec.material.type)
-        {
-        case 0:
-            LambertianScatter(rec, attenuation);
-            break;
-        case 1:
-            MetalScatter(rec, attenuation);
-            break;
-        case 2:
-            DielectricScatter(rec, attenuation);
-            break;
-        default:
-            break;
-        }
+        MakeRay(rec.hitPoint, RandomDirection());
+        attenuation += rec.material.color;
     }
 };
 

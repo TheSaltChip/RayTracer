@@ -1,11 +1,21 @@
-﻿using UnityEngine;
-using static Structs;
+﻿using System;
+using DataTypes;
+using UnityEngine;
 
 namespace Objects
 {
     public abstract class BaseObject : MonoBehaviour
     {
-        public abstract Mat GetMaterial();
-        public abstract void SetMaterial(Mat material);
+        public bool ShouldUpdateValues { get; set; }
+        
+        public abstract RayTracingMaterial GetMaterial();
+        public abstract void SetMaterial(RayTracingMaterial material);
+        
+        protected abstract void UpdateValues();
+
+        private void Start()
+        {
+            ShouldUpdateValues = true;
+        }
     }
 }

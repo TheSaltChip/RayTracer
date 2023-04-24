@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using DataTypes;
+using Manager;
 using UnityEngine;
-using static Structs;
 
 namespace Objects
 {
@@ -52,14 +53,19 @@ namespace Objects
             return (info, _triangles);
         }
 
-        public override Mat GetMaterial()
+        public override RayTracingMaterial GetMaterial()
         {
-            return info.material;
+            throw new System.NotImplementedException();
         }
-        
-        public override void SetMaterial(Mat material)
+
+        public override void SetMaterial(RayTracingMaterial material)
         {
-            info.material = material;
+            throw new System.NotImplementedException();
+        }
+
+        protected override void UpdateValues()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

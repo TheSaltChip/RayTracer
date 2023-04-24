@@ -9,7 +9,7 @@ struct Triangle
     float3 posA, posB, posC;
     float3 normalA, normalB, normalC;
 
-    HitRecord Hit(Ray ray, float minDist, float maxDist)
+    bool Hit(const Ray ray, const float minDist, float maxDist, out HitRecord rec)
     {
         const float3 edgeAB = posB - posA;
         const float3 edgeAC = posC - posA;
@@ -27,15 +27,19 @@ struct Triangle
         const float v = -dot(edgeAB, dao) * invDeterminant;
         const float w = 1 - u - v;
 
-        HitRecord hitRecord = (HitRecord)0;
+        rec = (HitRecord)0;
 
-        if (dist < minDist || dist > maxDist) return hitRecord;
+        if (dist < minDist
+            || dist > maxDist
+            || !(determinant >= 1E-6 && dist >= 0 && u >= 0 && v >= 0 && w >= 0))
+            return false;
 
-        hitRecord.didHit = determinant >= 1E-6 && dist >= 0 && u >= 0 && v >= 0 && w >= 0;
-        hitRecord.hitPoint = ray.origin + ray.dir * dist;
-        hitRecord.SetFaceNormal(ray.dir, normalize(normalA * w + normalB * u + normalC * v));
-        hitRecord.dist = dist;
-        return hitRecord;
+        rec.didHit = true;
+        rec.hitPoint = ray.origin + ray.dir * dist;
+        rec.SetFaceNormal(ray.dir, normalize(normalA * w + normalB * u + normalC * v));
+        rec.dist = dist;
+
+        return true;
     }
 };
 

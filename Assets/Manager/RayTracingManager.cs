@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Attributes;
+using DataTypes;
+using Helpers;
 using Objects;
 using UnityEditor;
 using UnityEngine;
-using static Structs;
+using Rect = DataTypes.Rect;
 
 namespace Manager
 {
@@ -21,8 +22,9 @@ namespace Manager
         // @formatter:off
         private static readonly int Frame = Shader.PropertyToID("Frame");
         private static readonly int Rects = Shader.PropertyToID("Rects");
-        private static readonly int MainTex = Shader.PropertyToID("MainTex");
         private static readonly int Spheres = Shader.PropertyToID("Spheres");
+        private static readonly int BoxInfos = Shader.PropertyToID("BoxInfos");
+        private static readonly int BoxSides = Shader.PropertyToID("BoxSides");
         private static readonly int NumRects = Shader.PropertyToID("NumRects");
         //private static readonly int SunFocus = Shader.PropertyToID("SunFocus");
         private static readonly int NumMeshes = Shader.PropertyToID("NumMeshes");
@@ -30,16 +32,18 @@ namespace Manager
         private static readonly int MainOldTex = Shader.PropertyToID("MainOldTex");
         private static readonly int NumSpheres = Shader.PropertyToID("NumSpheres");
         private static readonly int ViewParams = Shader.PropertyToID("ViewParams");
+        //private static readonly int SunIntensity = Shader.PropertyToID("SunIntensity");
         private static readonly int AllMeshInfo = Shader.PropertyToID("AllMeshInfo");
         private static readonly int GroundColor = Shader.PropertyToID("GroundColor");
-        //private static readonly int SunIntensity = Shader.PropertyToID("SunIntensity");
-        private static readonly int DivergeStrength = Shader.PropertyToID("DivergeStrength");
+        private static readonly int NumBoxInfos = Shader.PropertyToID("NumBoxInfos");
+        private static readonly int NumBoxSides = Shader.PropertyToID("NumBoxSides");
         private static readonly int MaxBounceCount = Shader.PropertyToID("MaxBounceCount");
         private static readonly int SkyColorZenith = Shader.PropertyToID("SkyColorZenith");
+        private static readonly int DivergeStrength = Shader.PropertyToID("DivergeStrength");
         private static readonly int NumRaysPerPixel = Shader.PropertyToID("NumRaysPerPixel");
         private static readonly int SkyColorHorizon = Shader.PropertyToID("SkyColorHorizon");
-        private static readonly int NumRenderedFrames = Shader.PropertyToID("NumRenderedFrames");
         //private static readonly int SunLightDirection = Shader.PropertyToID("SunLightDirection");
+        private static readonly int NumRenderedFrames = Shader.PropertyToID("NumRenderedFrames");
         private static readonly int EnvironmentEnabled = Shader.PropertyToID("EnvironmentEnabled");
         private static readonly int CamLocalToWorldMatrix = Shader.PropertyToID("CamLocalToWorldMatrix");
         // @formatter:on
@@ -66,8 +70,8 @@ namespace Manager
         private bool useShaderInSceneView;
 
         //[SerializeField] private Light sun;
-        [SerializeField] private Material rayTracingMaterial;
-        [SerializeField] private Material combiningMaterial;
+        [SerializeField] private Shader rayTracingShader;
+        [SerializeField] private Shader combineShader;
         [SerializeField] private ChangerManager changer;
 
         [SerializeField] private bool environmentEnabled;
@@ -75,132 +79,44 @@ namespace Manager
         [SerializeField] private Color skyColorZenith;
 
         [SerializeField] private Color groundColor;
-        //[SerializeField,Range(0, 10)] private float sunFocus = 1;
+        //[SerializeField,Range(1, 10)] private float sunFocus = 1;
+        //[SerializeField,Range(0, 10)] private float sunIntensity = 1;
 
-        [Space, SerializeField] private List<MeshObject> meshes;
-        [SerializeField] private List<SphereObject> spheres;
-        [SerializeField] private List<RectObject> rects;
+        private Material _rayTracingMaterial;
+        private Material _combiningMaterial;
 
-        private GraphicsBuffer _spheres;
-        private GraphicsBuffer _triangles;
-        private GraphicsBuffer _meshInfos;
-        private GraphicsBuffer _rects;
+        private GraphicsBuffer _sphereBuffer;
+        private GraphicsBuffer _rectBuffer;
+        private GraphicsBuffer _boxSideBuffer;
+        private GraphicsBuffer _boxInfoBuffer;
+        private GraphicsBuffer _triangleBuffer;
+        private GraphicsBuffer _meshInfoBuffer;
 
-        private RenderTexture _oldRT;
-        private RenderTexture _newRT;
+        private RenderTexture _resultTexture;
         private bool _wasLastFrameRayTraced;
         private bool _startNewRender;
 
-        private int _oldFrameCount;
-
+        private List<Triangle> _allTriangles;
+        private List<MeshInfo> _allMeshInfo;
+        private List<BoxInfo> _boxInfos;
+        private List<BoxSide> _sides;
+        
         private Stopwatch _stopwatch;
         private List<TimeSpan> _renderTimes;
 
+        private void Start()
+        {
+            frameCount = 0;
+        }
+
         private void OnEnable()
         {
-            changer.Initialize();
             totalAmountOfRaysPerPixel = 0;
+            changer.Initialize();
+
             _stopwatch = new Stopwatch();
             _stopwatch.Start();
             _renderTimes = new List<TimeSpan>();
-            UpdateParams();
-        }
-
-        private void OnValidate()
-        {
-            if (Application.isPlaying) return;
-
-            OnEnable();
-        }
-
-        private void UpdateParams()
-        {
-            rayTracingMaterial.SetFloat(DivergeStrength, divergeStrength);
-            rayTracingMaterial.SetInteger(NumRaysPerPixel, numRaysPerPixel);
-            rayTracingMaterial.SetInteger(MaxBounceCount, maxBounceCount);
-
-            UpdateSkyParams();
-
-            if (spheres.Count > 0)
-            {
-                _spheres?.Dispose();
-                _spheres = new GraphicsBuffer(GraphicsBuffer.Target.Structured, spheres.Count,
-                    Marshal.SizeOf(typeof(Sphere)));
-
-                var s = new Sphere[spheres.Count];
-
-                for (var i = 0; i < spheres.Count; i++)
-                {
-                    s[i] = spheres[i].Sphere;
-                }
-
-                _spheres.SetData(s);
-                rayTracingMaterial.SetBuffer(Spheres, _spheres);
-                rayTracingMaterial.SetInteger(NumSpheres, spheres.Count);
-            }
-
-            if (rects.Count > 0)
-            {
-                _rects?.Dispose();
-                _rects = new GraphicsBuffer(GraphicsBuffer.Target.Structured, rects.Count,
-                    Marshal.SizeOf(typeof(Structs.Rect)));
-
-                var r = new Structs.Rect[rects.Count];
-
-                for (var i = 0; i < rects.Count; i++)
-                {
-                    r[i] = rects[i].GetRect();
-                }
-
-                _rects.SetData(r);
-                rayTracingMaterial.SetBuffer(Rects, _rects);
-                rayTracingMaterial.SetInteger(NumRects, rects.Count);
-            }
-
-            if (meshes.Count <= 0) return;
-
-            // Is this a messy way to do this? yes. Does it work? yes
-            var list = meshes.Select(m => m.GetInfoAndList());
-
-            var valueTuples = list as (MeshInfo, List<Triangle>)[] ?? list.ToArray();
-
-            var triangles = valueTuples
-                .Select(l => l.Item2)
-                .SelectMany(x => x)
-                .ToArray();
-
-            _triangles?.Dispose();
-            _triangles = new GraphicsBuffer(GraphicsBuffer.Target.Structured, triangles.Length,
-                Marshal.SizeOf(typeof(Triangle)));
-
-            _triangles.SetData(triangles);
-            rayTracingMaterial.SetBuffer(Triangles, _triangles);
-
-            var meshInfos = valueTuples
-                .Select(l => l.Item1)
-                .Select(l => l)
-                .ToArray();
-
-            var infos = new MeshInfo[meshInfos.Length];
-
-            for (int i = 0, verts = 0; i < meshInfos.Length; i++)
-            {
-                var mi = meshInfos[i];
-
-                mi.firstTriangleIndex = verts;
-                verts += mi.numTriangles;
-
-                infos[i] = mi;
-            }
-
-            _meshInfos?.Dispose();
-            _meshInfos = new GraphicsBuffer(GraphicsBuffer.Target.Structured, infos.Length,
-                Marshal.SizeOf(typeof(MeshInfo)));
-
-            _meshInfos.SetData(infos);
-            rayTracingMaterial.SetBuffer(AllMeshInfo, _meshInfos);
-
-            rayTracingMaterial.SetInteger(NumMeshes, infos.Length);
         }
 
         private void Update()
@@ -217,9 +133,7 @@ namespace Manager
                 stopRender = false;
                 _startNewRender = true;
                 totalAmountOfRaysPerPixel = 0;
-                _oldFrameCount = frameCount;
                 _stopwatch.Restart();
-                UpdateParams();
                 return;
             }
 
@@ -228,7 +142,6 @@ namespace Manager
                 || !EditorApplication.isPlaying) return;
 
             StartCoroutine(SaveScreenShot());
-            _oldFrameCount = frameCount;
 
             if (!changer.IsDone) return;
 
@@ -253,57 +166,185 @@ namespace Manager
 
             if (totalAmountOfRaysPerPixel >= raysPerPixelPerImage || stopRender)
             {
-                Graphics.Blit(_oldRT, dest);
+                Graphics.Blit(_resultTexture, dest);
                 return;
             }
 
-            frameCount = Time.frameCount;
-            rayTracingMaterial.SetInteger(Frame, frameCount);
+            InitFrame();
+
+            if (_startNewRender)
+            {
+                Graphics.Blit(null, _resultTexture, _rayTracingMaterial);
+                Graphics.Blit(_resultTexture, dest);
+                _startNewRender = false;
+                totalAmountOfRaysPerPixel = 0;
+                frameCount = Application.isPlaying ? 1 : 0;
+                return;
+            }
+
+            var prevFrameCopy = RenderTexture.GetTemporary(src.width, src.height, 0, ShaderHelper.RGBA_SFloat);
+            Graphics.Blit(_resultTexture, prevFrameCopy);
+
+            _rayTracingMaterial.SetInteger(Frame, frameCount);
+
+            var currentFrame = RenderTexture.GetTemporary(src.width, src.height, 0, ShaderHelper.RGBA_SFloat);
+            Graphics.Blit(null, currentFrame, _rayTracingMaterial);
 
             totalAmountOfRaysPerPixel += numRaysPerPixel;
-            UpdateCameraParams(Camera.current);
 
-            _oldRT ??= new RenderTexture(src.descriptor);
-            _oldRT.Create();
-            _newRT ??= new RenderTexture(src.descriptor);
-            _newRT.Create();
+            _combiningMaterial.SetInteger(NumRenderedFrames, frameCount);
+            _combiningMaterial.SetTexture(MainOldTex, prevFrameCopy);
 
-            if (_startNewRender || Camera.current.name == "SceneCamera")
-            {
-                Graphics.Blit(null, _oldRT, rayTracingMaterial);
-                Graphics.Blit(_oldRT, dest);
-                _startNewRender = false;
-                return;
-            }
+            Graphics.Blit(currentFrame, _resultTexture, _combiningMaterial);
 
-            Graphics.Blit(null, _newRT, rayTracingMaterial);
+            Graphics.Blit(_resultTexture, dest);
 
-            combiningMaterial.SetTexture(MainOldTex, _oldRT);
-            combiningMaterial.SetTexture(MainTex, _newRT);
-            combiningMaterial.SetInteger(NumRenderedFrames, frameCount - _oldFrameCount);
+            RenderTexture.ReleaseTemporary(currentFrame);
+            RenderTexture.ReleaseTemporary(prevFrameCopy);
 
-            Graphics.Blit(null, _oldRT, combiningMaterial);
-            Graphics.Blit(_oldRT, dest);
+            frameCount += Application.isPlaying ? 1 : 0;
         }
+
+        private void InitFrame()
+        {
+            ShaderHelper.InitMaterial(rayTracingShader, ref _rayTracingMaterial);
+            ShaderHelper.InitMaterial(combineShader, ref _combiningMaterial);
+
+            ShaderHelper.CreateRenderTexture(ref _resultTexture, Screen.width, Screen.height, FilterMode.Bilinear,
+                ShaderHelper.RGBA_SFloat, "Result");
+
+            UpdateCameraParams(Camera.current);
+            CreateSpheres();
+            CreateRects();
+            CreateBoxes();
+            CreateMeshes();
+            SetShaderVariables();
+        }
+
 
         private void UpdateCameraParams(Camera cam)
         {
             var planeHeight = cam.nearClipPlane * Mathf.Tan(cam.fieldOfView * 0.5f * Deg2Rad) * 2;
             var planeWidth = planeHeight * cam.aspect;
 
-            rayTracingMaterial.SetVector(ViewParams, new Vector4(planeWidth, planeHeight, cam.nearClipPlane, 0));
-            rayTracingMaterial.SetMatrix(CamLocalToWorldMatrix, cam.transform.localToWorldMatrix);
+            _rayTracingMaterial.SetVector(ViewParams, new Vector4(planeWidth, planeHeight, cam.nearClipPlane, 0));
+            _rayTracingMaterial.SetMatrix(CamLocalToWorldMatrix, cam.transform.localToWorldMatrix);
         }
 
-        private void UpdateSkyParams()
+        private void CreateSpheres()
         {
-            rayTracingMaterial.SetInteger(EnvironmentEnabled, environmentEnabled ? 1 : 0);
-            rayTracingMaterial.SetVector(SkyColorHorizon, skyColorHorizon);
-            rayTracingMaterial.SetVector(SkyColorZenith, skyColorZenith);
+            var sphereObjects = FindObjectsOfType<SphereObject>();
+
+            var spheres = new Sphere[sphereObjects.Length];
+
+            for (var i = 0; i < sphereObjects.Length; i++)
+            {
+                spheres[i] = new Sphere
+                {
+                    center = sphereObjects[i].transform.position,
+                    radius = sphereObjects[i].transform.lossyScale.x * 0.5f,
+                    rayTracingMaterial = sphereObjects[i].GetMaterial(),
+                };
+            }
+
+            ShaderHelper.CreateStructuredBuffer(ref _sphereBuffer, spheres);
+            _rayTracingMaterial.SetBuffer(Spheres, _sphereBuffer);
+            _rayTracingMaterial.SetInteger(NumSpheres, sphereObjects.Length);
+        }
+
+        private void CreateRects()
+        {
+            var rectObjects = FindObjectsOfType<RectObject>();
+
+            var rects = new Rect[rectObjects.Length];
+
+            for (var i = 0; i < rectObjects.Length; i++)
+            {
+                rects[i] = rectObjects[i].GetRect();
+            }
+
+            ShaderHelper.CreateStructuredBuffer(ref _rectBuffer, rects);
+            _rayTracingMaterial.SetBuffer(Rects, _rectBuffer);
+            _rayTracingMaterial.SetInteger(NumRects, rectObjects.Length);
+        }
+
+        private void CreateBoxes()
+        {
+            var boxObjects = FindObjectsOfType<BoxObject>();
+
+            var boxObjectsLength = boxObjects.Length;
+
+            _boxInfos ??= new List<BoxInfo>(boxObjectsLength);
+            _sides ??= new List<BoxSide>(boxObjectsLength * 6);
+            
+            _boxInfos.Clear();
+            _sides.Clear();
+            
+            for (var i = 0; i < boxObjectsLength; i++)
+            {
+                var info = boxObjects[i].GetBoxInfo();
+                info.firstSideIndex = _sides.Count;
+                _boxInfos.Add(info);
+                
+                var tempSides = boxObjects[i].GetSides();
+
+                _sides.AddRange(tempSides);
+            }
+            
+            ShaderHelper.CreateStructuredBuffer(ref _boxInfoBuffer, _boxInfos);
+            _rayTracingMaterial.SetBuffer(BoxInfos, _boxInfoBuffer);
+            _rayTracingMaterial.SetInteger(NumBoxInfos, boxObjectsLength);
+
+            ShaderHelper.CreateStructuredBuffer(ref _boxSideBuffer, _sides);
+            _rayTracingMaterial.SetBuffer(BoxSides, _boxSideBuffer);
+            _rayTracingMaterial.SetInteger(NumBoxSides, _sides.Count);
+        }
+
+        private void CreateMeshes()
+        {
+            var meshObjects = FindObjectsOfType<MeshObject>();
+
+            _allTriangles ??= new List<Triangle>();
+            _allMeshInfo ??= new List<MeshInfo>();
+
+            _allTriangles.Clear();
+            _allMeshInfo.Clear();
+
+            foreach (var t in meshObjects)
+            {
+                var (meshInfo, triangles) = t.GetInfoAndList();
+
+                meshInfo.firstTriangleIndex = _allTriangles.Count;
+                _allTriangles.AddRange(triangles);
+                _allMeshInfo.Add(meshInfo);
+            }
+
+            ShaderHelper.CreateStructuredBuffer(ref _triangleBuffer, _allTriangles);
+            ShaderHelper.CreateStructuredBuffer(ref _meshInfoBuffer, _allMeshInfo);
+
+            _rayTracingMaterial.SetBuffer(Triangles, _triangleBuffer);
+            _rayTracingMaterial.SetBuffer(AllMeshInfo, _meshInfoBuffer);
+            _rayTracingMaterial.SetInteger(NumMeshes, _allMeshInfo.Count);
+        }
+
+        private void SetShaderVariables()
+        {
+            SetSkyParams();
+
+            _rayTracingMaterial.SetFloat(DivergeStrength, divergeStrength);
+            _rayTracingMaterial.SetInteger(NumRaysPerPixel, numRaysPerPixel);
+            _rayTracingMaterial.SetInteger(MaxBounceCount, maxBounceCount);
+        }
+
+        private void SetSkyParams()
+        {
+            _rayTracingMaterial.SetInteger(EnvironmentEnabled, environmentEnabled ? 1 : 0);
+            _rayTracingMaterial.SetVector(SkyColorHorizon, skyColorHorizon);
+            _rayTracingMaterial.SetVector(SkyColorZenith, skyColorZenith);
             //rayTracingMaterial.SetVector(SunLightDirection, sun.transform.rotation.eulerAngles.normalized);
             //rayTracingMaterial.SetFloat(SunFocus, sunFocus);
             //rayTracingMaterial.SetFloat(SunIntensity, sun.intensity);
-            rayTracingMaterial.SetVector(GroundColor, groundColor);
+            _rayTracingMaterial.SetVector(GroundColor, groundColor);
         }
 
         private IEnumerator SaveScreenShot()
@@ -321,10 +362,13 @@ namespace Manager
  * ffmpeg -v warning -i "input.mp4" -i "tmp/palette.png" -lavfi "fps=36,scale=1080:-1:flags=lanczos [x]; [x][1:v] paletteuse" -y "out.gif"
  */
             path += changer.FileName();
+            /*
+             * TODO Whenever a change has been done by the ChangerManager, it should mark the changed object
+             * TODO as needed to be recalculated, otherwise it should fetch cached values
+             * Should save processing power, if done correctly
+             */
             changer.Increment();
             amountOfPictures = changer.NumberOfImages;
-
-            UpdateParams();
 
             _startNewRender = true;
             totalAmountOfRaysPerPixel = 0;
@@ -376,14 +420,16 @@ namespace Manager
 
         private void OnDisable()
         {
-            _spheres?.Dispose();
-            _spheres = null;
-            _triangles?.Dispose();
-            _triangles = null;
-            _meshInfos?.Dispose();
-            _meshInfos = null;
-            _rects?.Dispose();
-            _rects = null;
+            ShaderHelper.Release(_sphereBuffer, _triangleBuffer, _meshInfoBuffer, _rectBuffer, _boxSideBuffer,
+                _boxInfoBuffer);
+            ShaderHelper.Release(_resultTexture);
+        }
+
+        private void OnValidate()
+        {
+            if (Application.isPlaying) return;
+
+            OnEnable();
         }
     }
 }

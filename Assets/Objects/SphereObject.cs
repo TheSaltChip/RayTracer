@@ -1,12 +1,12 @@
+using DataTypes;
 using UnityEngine;
-using static Structs;
 
 
 namespace Objects
 {
     public class SphereObject : BaseObject
     {
-        [SerializeField] private Mat material;
+        [SerializeField] private RayTracingMaterial material;
 
         public Sphere Sphere
         {
@@ -17,14 +17,19 @@ namespace Objects
             }
         }
 
-        public override Mat GetMaterial()
+        public override RayTracingMaterial GetMaterial()
         {
             return material;
         }
 
-        public override void SetMaterial(Mat material)
+        public override void SetMaterial(RayTracingMaterial material)
         {
             this.material = material;
+        }
+
+        protected override void UpdateValues()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

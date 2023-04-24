@@ -15,7 +15,7 @@ namespace Objects
         public Rect GetRect()
         {
             _mesh = meshFilter.sharedMesh;
-            
+
             Vector3 min = _mesh.bounds.min, max = _mesh.bounds.max;
 
             var t = transform;
@@ -23,7 +23,7 @@ namespace Objects
 
             min.Scale(lossyScale);
             max.Scale(lossyScale);
-            
+
             rect.rotation = Matrix4x4.Transpose(Matrix4x4.Rotate(t.rotation));
             rect.offset = t.position;
 
@@ -31,6 +31,11 @@ namespace Objects
             rect.maxPos = max;
 
             return rect;
+        }
+
+        protected override void UpdateValues()
+        {
+            throw new System.NotImplementedException();
         }
 
         public override RayTracingMaterial GetMaterial()
@@ -41,11 +46,6 @@ namespace Objects
         public override void SetMaterial(RayTracingMaterial material)
         {
             rect.material = material;
-        }
-
-        protected override void UpdateValues()
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

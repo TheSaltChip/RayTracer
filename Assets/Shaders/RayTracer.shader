@@ -74,30 +74,6 @@ Shader "Unlit/RayTracer"
                 return o;
             }
 
-            void CalculateBoxCollision(Ray ray, const int index, inout HitRecord closestHitRecord,
-                                       const float minDist,
-                                       inout float closestSoFar)
-            {
-                const BoxInfo boxInfo = BoxInfos[index];
-
-                if (!ray.Intersection(boxInfo.min, boxInfo.max, closestSoFar))
-                    return;
-
-                HitRecord tempRecord = (HitRecord)0;
-
-                for (int j = 0; j < 6; ++j)
-                {
-                    BoxSide side = BoxSides[boxInfo.firstBoxIndex + j];
-
-                    if (side.Hit(ray, minDist, closestSoFar, tempRecord))
-                    {
-                        closestSoFar = tempRecord.dist;
-                        closestHitRecord = tempRecord;
-                        closestHitRecord.material = boxInfo.material;
-                    }
-                }
-            }
-
             void CalculateSphereCollision(const Ray ray, const int index, inout HitRecord closestHitRecord,
                                           const float minDist,
                                           inout float closestSoFar)
@@ -125,6 +101,30 @@ Shader "Unlit/RayTracer"
                 {
                     closestSoFar = tempRecord.dist;
                     closestHitRecord = tempRecord;
+                }
+            }
+
+            void CalculateBoxCollision(Ray ray, const int index, inout HitRecord closestHitRecord,
+                                       const float minDist,
+                                       inout float closestSoFar)
+            {
+                const BoxInfo boxInfo = BoxInfos[index];
+
+                if (!ray.Intersection(boxInfo.min, boxInfo.max, closestSoFar))
+                    return;
+
+                HitRecord tempRecord = (HitRecord)0;
+
+                for (int j = 0; j < 6; ++j)
+                {
+                    BoxSide side = BoxSides[boxInfo.firstBoxIndex + j];
+
+                    if (side.Hit(ray, minDist, closestSoFar, tempRecord))
+                    {
+                        closestSoFar = tempRecord.dist;
+                        closestHitRecord = tempRecord;
+                        closestHitRecord.material = boxInfo.material;
+                    }
                 }
             }
 
@@ -168,11 +168,11 @@ Shader "Unlit/RayTracer"
                     if (i < NumSpheres)
                         CalculateSphereCollision(ray, i, closestHitRecord, minDist, closestSoFar);
 
-                    if (i < NumBoxInfos)
-                        CalculateBoxCollision(ray, i, closestHitRecord, minDist, closestSoFar);
-
                     if (i < NumRects)
                         CalculateRectCollision(ray, i, closestHitRecord, minDist, closestSoFar);
+
+                    if (i < NumBoxInfos)
+                        CalculateBoxCollision(ray, i, closestHitRecord, minDist, closestSoFar);
 
                     if (i < NumMeshes)
                         CalculateMeshCollision(ray, i, closestHitRecord, minDist, closestSoFar);

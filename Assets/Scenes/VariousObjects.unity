@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731713, g: 0.13414736, b: 0.12107852, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2472,7 +2472,7 @@ MonoBehaviour:
   rayTracingShader: {fileID: 4800000, guid: edfdd0279b046b343be4f388b606d350, type: 3}
   combineShader: {fileID: 4800000, guid: ec839f71fcd548988f58c7849a623233, type: 3}
   changer: {fileID: 1836331782}
-  environmentEnabled: 1
+  environmentEnabled: 0
   skyColorHorizon: {r: 0.7122642, g: 1, b: 0.97679454, a: 0}
   skyColorZenith: {r: 1, g: 1, b: 1, a: 0}
   groundColor: {r: 0.3773585, g: 0.3773585, b: 0.3773585, a: 0}

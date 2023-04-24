@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using DataTypes;
 using UnityEngine;
+using Debug = System.Diagnostics.Debug;
 
 namespace Objects
 {
@@ -114,9 +115,11 @@ namespace Objects
 
             return _sides;
         }
-
-        public override RayTracingMaterial GetMaterial() => boxInfo.material;
-
+        
+        public override RayTracingMaterial GetMaterial()
+        {
+            return boxInfo.material;
+        }
 
         public override void SetMaterial(RayTracingMaterial material)
         {

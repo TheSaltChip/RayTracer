@@ -52,15 +52,15 @@ namespace Objects
             
             return (info, _triangles);
         }
-
+        
         public override RayTracingMaterial GetMaterial()
         {
-            throw new System.NotImplementedException();
+            return info.material;
         }
 
         public override void SetMaterial(RayTracingMaterial material)
         {
-            throw new System.NotImplementedException();
+            info.material = material;
         }
 
         protected override void UpdateValues()

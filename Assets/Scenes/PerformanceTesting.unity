@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731713, g: 0.13414736, b: 0.12107852, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -262,14 +262,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 995367383}
-  m_LocalRotation: {x: -0.11946285, y: -0.8478987, z: -0.2727897, w: -0.438614}
+  m_LocalRotation: {x: -0.29734632, y: -0.7739739, z: -0.016456898, w: 0.5588192}
   m_LocalPosition: {x: -0.3200002, y: -0.222, z: 1.3299999}
   m_LocalScale: {x: 8.330177, y: 1.7126193, z: 2.4104}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: -20.965, y: -240.035, z: 28.243}
+  m_LocalEulerAnglesHint: {x: -20.965, y: -113.671, z: 28.243}
 --- !u!114 &995367389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -284,8 +284,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 995367387}
   boxInfo:
-    boundsMin: {x: -3.7700467, y: -3.1981301, z: -2.5445077}
-    boundsMax: {x: 3.1300461, y: 2.7541304, z: 5.204508}
+    boundsMin: {x: -2.5878606, y: -3.1981308, z: -3.0282512}
+    boundsMax: {x: 1.9478601, y: 2.7541308, z: 5.688251}
     firstSideIndex: 0
     material:
       type: 0

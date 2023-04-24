@@ -116,7 +116,7 @@ struct Ray
     void IsotropicScatter(const HitRecord rec, inout float3 attenuation)
     {
         MakeRay(rec.hitPoint, RandomDirection());
-        attenuation += rec.material.color;
+        attenuation *= rec.material.color;
     }
 };
 

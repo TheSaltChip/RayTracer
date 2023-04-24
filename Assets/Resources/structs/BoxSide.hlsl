@@ -1,6 +1,8 @@
 #ifndef BOX_SIDE_HLSL
 #define BOX_SIDE_HLSL
 
+#include "Ray.hlsl"
+
 struct BoxSide
 {
     float3 pos0;

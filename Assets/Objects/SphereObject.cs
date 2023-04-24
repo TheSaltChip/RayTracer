@@ -6,30 +6,30 @@ namespace Objects
 {
     public class SphereObject : BaseObject
     {
-        [SerializeField] private RayTracingMaterial material;
+        [SerializeField] private Sphere sphere;
 
-        public Sphere Sphere
+        public Sphere GetSphere()
         {
-            get
-            {
-                var o = gameObject;
-                return new Sphere(o.transform.position, o.transform.lossyScale.x / 2, material);
-            }
-        }
+            UpdateValues();
 
-        public override RayTracingMaterial GetMaterial()
-        {
-            return material;
-        }
-
-        public override void SetMaterial(RayTracingMaterial material)
-        {
-            this.material = material;
+            return sphere;
         }
 
         protected override void UpdateValues()
         {
-            throw new System.NotImplementedException();
+            var t = transform;
+            sphere.center = t.position;
+            sphere.radius = t.lossyScale.x / 2;
+        }
+        
+        public override RayTracingMaterial GetMaterial()
+        {
+            return sphere.material;
+        }
+
+        public override void SetMaterial(RayTracingMaterial material)
+        {
+            sphere.material = material;
         }
     }
 }

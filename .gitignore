@@ -112,4 +112,4 @@ Desktop.ini
 *.gif
 images/**/output_*.mp4
 
-!**/example_images/*.png
+!**/example_images/**/*.png

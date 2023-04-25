@@ -16,10 +16,10 @@ namespace Objects
             return sphere;
         }
 
-        protected override void UpdateValues()
+        private void UpdateValues()
         {
-            if (!ShouldUpdateValues) return;
-            ShouldUpdateValues = false;
+            if (!shouldUpdateValues) return;
+            shouldUpdateValues = false;
             
             var t = transform;
             sphere.center = t.position;

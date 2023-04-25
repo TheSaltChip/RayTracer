@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using DataTypes;
-using Manager;
 using UnityEngine;
 
 namespace Objects
-{[ExecuteAlways]
+{
+    [ExecuteAlways]
     public class MeshObject : BaseObject
     {
         [SerializeField] private MeshFilter meshFilter;
@@ -14,19 +14,19 @@ namespace Objects
         private Mesh _mesh;
         private List<Triangle> _triangles;
 
-        
+
         public (MeshInfo, List<Triangle>) GetInfoAndList()
         {
             UpdateValues();
-            
+
             return (info, _triangles);
         }
 
-        protected override void UpdateValues()
+        private void UpdateValues()
         {
-            if (!ShouldUpdateValues) return;
-            ShouldUpdateValues = false;
-            
+            if (!shouldUpdateValues) return;
+            shouldUpdateValues = false;
+
             _mesh = meshFilter.sharedMesh;
 
             _triangles = new List<Triangle>();
@@ -56,13 +56,12 @@ namespace Objects
                     normals[triIndex[i1]], normals[triIndex[i2]], normals[triIndex[i3]]);
                 _triangles.Add(tri);
             }
-            
+
             info.boundsMax = max;
             info.boundsMin = min;
             info.numTriangles = _triangles.Count;
-            
         }
-        
+
         public override RayTracingMaterial GetMaterial()
         {
             return info.material;

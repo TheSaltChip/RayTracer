@@ -1,36 +1,54 @@
-﻿using System;
-using DataTypes;
+﻿using DataTypes;
 using UnityEngine;
+using Matrix4x4 = UnityEngine.Matrix4x4;
 
 namespace Objects
 {
+    [ExecuteAlways]
     public abstract class BaseObject : MonoBehaviour
     {
-        public bool ShouldUpdateValues { get; set; }
-        protected Transform oldTransform;
-        protected abstract void UpdateValues();
+        private Matrix4x4 _oldMatrix;
+        protected bool shouldUpdateValues;
+
+        public void ShouldUpdateValues()
+        {
+            shouldUpdateValues = true;
+        }
 
         public abstract RayTracingMaterial GetMaterial();
         public abstract void SetMaterial(RayTracingMaterial material);
 
         private void Start()
         {
-            ShouldUpdateValues = true;
-            oldTransform = transform;
+            shouldUpdateValues = true;
+            _oldMatrix = transform.localToWorldMatrix;
         }
 
         private void Update()
         {
-            
-            if (transform == oldTransform) return;
+            if (CheckIfMatricesAreEqual(_oldMatrix, transform.localToWorldMatrix)) return;
 
-            oldTransform = transform;
-            ShouldUpdateValues = true;
+            _oldMatrix = transform.localToWorldMatrix;
+            shouldUpdateValues = true;
         }
 
         private void OnValidate()
         {
-            ShouldUpdateValues = true;
+            shouldUpdateValues = true;
+        }
+
+        private bool CheckIfMatricesAreEqual(Matrix4x4 a, Matrix4x4 b)
+        {
+            for (var i = 0; i < 4; i++)
+            {
+                for (var j = 0; j < 4; j++)
+                {
+                    if (a[i, j] - b[i, j] != 0f)
+                        return false;
+                }
+            }
+
+            return true;
         }
     }
 }

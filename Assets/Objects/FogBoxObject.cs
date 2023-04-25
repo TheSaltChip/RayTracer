@@ -17,11 +17,12 @@ namespace Objects
             return fogBox;
         }
 
-        protected override void UpdateValues()
+        private void UpdateValues()
         {
-            if (!ShouldUpdateValues) return;
-            ShouldUpdateValues = false;
+            if (!shouldUpdateValues) return;
+            shouldUpdateValues = false;
 
+            print("HELLO");
             var mesh = meshFilter.sharedMesh;
 
             var t = transform;

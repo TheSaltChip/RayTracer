@@ -19,10 +19,10 @@ namespace Objects
             return rect;
         }
 
-        protected override void UpdateValues()
+        private void UpdateValues()
         {
-            if (!ShouldUpdateValues) return;
-            ShouldUpdateValues = false;
+            if (!shouldUpdateValues) return;
+            shouldUpdateValues = false;
             
             _mesh = meshFilter.sharedMesh;
 

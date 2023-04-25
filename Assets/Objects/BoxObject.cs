@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using DataTypes;
 using UnityEngine;
-using Debug = System.Diagnostics.Debug;
 
 namespace Objects
 {[ExecuteAlways]
@@ -13,10 +12,10 @@ namespace Objects
 
         private BoxSide[] _sides;
 
-        protected override void UpdateValues()
+        private void UpdateValues()
         {
-            if (!ShouldUpdateValues) return;
-            ShouldUpdateValues = false;
+            if (!shouldUpdateValues) return;
+            shouldUpdateValues = false;
             
             var mesh = meshFilter.sharedMesh;
 

@@ -1,7 +1,5 @@
-using System;
 using DataTypes;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Objects
 {[ExecuteAlways]
@@ -16,10 +14,10 @@ namespace Objects
             return fogSphere;
         }
 
-        protected override void UpdateValues()
+        private void UpdateValues()
         {
-            if (!ShouldUpdateValues) return;
-            ShouldUpdateValues = false;
+            if (!shouldUpdateValues) return;
+            shouldUpdateValues = false;
             
             var t = transform;
             fogSphere.center = t.position;

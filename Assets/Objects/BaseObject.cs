@@ -9,7 +9,7 @@ namespace Objects
         public bool ShouldUpdateValues { get; set; }
         protected Transform oldTransform;
         protected abstract void UpdateValues();
-        
+
         public abstract RayTracingMaterial GetMaterial();
         public abstract void SetMaterial(RayTracingMaterial material);
 
@@ -17,6 +17,20 @@ namespace Objects
         {
             ShouldUpdateValues = true;
             oldTransform = transform;
+        }
+
+        private void Update()
+        {
+            
+            if (transform == oldTransform) return;
+
+            oldTransform = transform;
+            ShouldUpdateValues = true;
+        }
+
+        private void OnValidate()
+        {
+            ShouldUpdateValues = true;
         }
     }
 }

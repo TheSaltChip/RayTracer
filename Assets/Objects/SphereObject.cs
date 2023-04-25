@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Objects
 {
+    [ExecuteAlways]
     public class SphereObject : BaseObject
     {
         [SerializeField] private Sphere sphere;

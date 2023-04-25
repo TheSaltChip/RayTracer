@@ -3,7 +3,7 @@ using UnityEngine;
 using Rect = DataTypes.Rect;
 
 namespace Objects
-{
+{[ExecuteAlways]
     public class RectObject : BaseObject
     {
         [SerializeField] private Rect rect;

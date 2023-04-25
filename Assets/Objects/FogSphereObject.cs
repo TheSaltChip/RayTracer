@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace Objects
-{
+{[ExecuteAlways]
     public class FogSphereObject : BaseObject
     {
         [SerializeField] private FogSphere fogSphere;

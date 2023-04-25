@@ -4,7 +4,7 @@ using UnityEngine;
 using Debug = System.Diagnostics.Debug;
 
 namespace Objects
-{
+{[ExecuteAlways]
     public class BoxObject : BaseObject
     {
         [SerializeField] private MeshFilter meshFilter;

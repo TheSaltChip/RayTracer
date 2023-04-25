@@ -51,9 +51,19 @@ float3 RandomHemisphereDirection(const float3 normal)
 
 float2 RandomPointInCircle()
 {
-    //return float2(RandomNormalDistribution(), RandomNormalDistribution());
     const float angle = Random() * TAU;
     return float2(cos(angle), sin(angle)) * sqrt(Random());
+}
+
+float3 RandomCosineDirection()
+{
+    const float r1 = Random();
+    const float r2 = Random();
+    const float z = sqrt(1 - r2);
+
+    const float phi = TAU * r1;
+
+    return float3(cos(phi) * sqrt(r2), sin(phi) * sqrt(r2), z);
 }
 
 void SetSeed(const uint value)

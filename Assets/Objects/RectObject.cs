@@ -14,6 +14,16 @@ namespace Objects
 
         public Rect GetRect()
         {
+            UpdateValues();
+            
+            return rect;
+        }
+
+        protected override void UpdateValues()
+        {
+            if (!ShouldUpdateValues) return;
+            ShouldUpdateValues = false;
+            
             _mesh = meshFilter.sharedMesh;
 
             Vector3 min = _mesh.bounds.min, max = _mesh.bounds.max;
@@ -29,13 +39,6 @@ namespace Objects
 
             rect.minPos = min;
             rect.maxPos = max;
-
-            return rect;
-        }
-
-        protected override void UpdateValues()
-        {
-            throw new System.NotImplementedException();
         }
 
         public override RayTracingMaterial GetMaterial()

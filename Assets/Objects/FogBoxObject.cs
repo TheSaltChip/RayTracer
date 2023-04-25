@@ -18,6 +18,9 @@ namespace Objects
 
         protected override void UpdateValues()
         {
+            if (!ShouldUpdateValues) return;
+            ShouldUpdateValues = false;
+            
             var mesh = meshFilter.sharedMesh;
 
             var t = transform;
@@ -151,6 +154,23 @@ namespace Objects
             }
 
             return (min, max);
+        }
+        
+        private void Update()
+        {
+            print(transform);
+            print(oldTransform);
+            if (transform.position == oldTransform.position
+                || transform.rotation == oldTransform.rotation
+                || transform.lossyScale == oldTransform.lossyScale) return;
+            
+            oldTransform = transform;
+            ShouldUpdateValues = true;
+        }
+        
+        private void OnValidate()
+        {
+            ShouldUpdateValues = true;
         }
     }
 }

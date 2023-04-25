@@ -17,6 +17,9 @@ namespace Objects
 
         protected override void UpdateValues()
         {
+            if (!ShouldUpdateValues) return;
+            ShouldUpdateValues = false;
+            
             var t = transform;
             sphere.center = t.position;
             sphere.radius = t.lossyScale.x / 2;

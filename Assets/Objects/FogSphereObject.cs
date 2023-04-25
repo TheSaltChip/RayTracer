@@ -1,3 +1,4 @@
+using System;
 using DataTypes;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -17,6 +18,9 @@ namespace Objects
 
         protected override void UpdateValues()
         {
+            if (!ShouldUpdateValues) return;
+            ShouldUpdateValues = false;
+            
             var t = transform;
             fogSphere.center = t.position;
             fogSphere.radius = t.lossyScale.x / 2;

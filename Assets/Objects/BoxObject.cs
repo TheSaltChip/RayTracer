@@ -15,6 +15,9 @@ namespace Objects
 
         protected override void UpdateValues()
         {
+            if (!ShouldUpdateValues) return;
+            ShouldUpdateValues = false;
+            
             var mesh = meshFilter.sharedMesh;
 
             var t = transform;
@@ -115,7 +118,7 @@ namespace Objects
 
             return _sides;
         }
-        
+
         public override RayTracingMaterial GetMaterial()
         {
             return boxInfo.material;

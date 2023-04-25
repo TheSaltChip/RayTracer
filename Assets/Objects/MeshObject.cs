@@ -16,6 +16,25 @@ namespace Objects
 
         public (MeshInfo, List<Triangle>) GetInfoAndList()
         {
+            UpdateValues();
+            
+            return (info, _triangles);
+        }
+        
+        public override RayTracingMaterial GetMaterial()
+        {
+            return info.material;
+        }
+
+        public override void SetMaterial(RayTracingMaterial material)
+        {
+            info.material = material;
+        }
+
+        protected override void UpdateValues()
+        {
+            if (!ShouldUpdateValues) return;
+            ShouldUpdateValues = false;
             _mesh = meshFilter.sharedMesh;
 
             _triangles = new List<Triangle>();
@@ -50,22 +69,6 @@ namespace Objects
             info.boundsMin = min;
             info.numTriangles = _triangles.Count;
             
-            return (info, _triangles);
-        }
-        
-        public override RayTracingMaterial GetMaterial()
-        {
-            return info.material;
-        }
-
-        public override void SetMaterial(RayTracingMaterial material)
-        {
-            info.material = material;
-        }
-
-        protected override void UpdateValues()
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

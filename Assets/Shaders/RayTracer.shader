@@ -232,6 +232,8 @@ Shader "Unlit/RayTracer"
 
             float3 GetEnvironmentLight(Ray ray)
             {
+                if (!EnvironmentEnabled) return 0;
+
                 const float skyGradientT = pow(smoothstep(0, 0.4, ray.dir.y), 0.35);
                 const float3 skyGradient = lerp(SkyColorHorizon, SkyColorZenith, skyGradientT);
                 // Doesnt work yet
@@ -253,8 +255,7 @@ Shader "Unlit/RayTracer"
 
                     if (!hitRecord.didHit)
                     {
-                        if (EnvironmentEnabled)
-                            incomingLight += GetEnvironmentLight(ray) * rayColor;
+                        incomingLight += GetEnvironmentLight(ray) * rayColor;
                         break;
                     }
 
@@ -299,6 +300,7 @@ Shader "Unlit/RayTracer"
                 }
 
                 const float3 pixelCol = totalIncomingLight / NumRaysPerPixel;
+
                 return float4(pixelCol, 1);
             }
             ENDHLSL

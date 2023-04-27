@@ -1136,8 +1136,8 @@ MonoBehaviour:
   info:
     firstTriangleIndex: 0
     numTriangles: 80
-    boundsMin: {x: -3.713142, y: -0.5163366, z: -1.3500004}
-    boundsMax: {x: -1.6048579, y: 1.6173365, z: -0.35000014}
+    boundsMin: {x: -3.5127552, y: -0.52719396, z: -1.3500004}
+    boundsMax: {x: -1.7772447, y: 1.7071939, z: -0.35000014}
     material:
       type: 0
       color: {r: 0.8666667, g: 0.109803915, b: 0.19831291, a: 0}
@@ -1450,8 +1450,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 684694191}
   boxInfo:
-    boundsMin: {x: -4.675177, y: -0.5, z: -3.321176}
-    boundsMax: {x: -3.4688249, y: 0.5, z: -2.1148238}
+    boundsMin: {x: -4.675177, y: -0.5, z: -3.3211763}
+    boundsMax: {x: -3.4688246, y: 0.5, z: -2.1148236}
     firstSideIndex: 0
     material:
       type: 0
@@ -1727,8 +1727,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 740812406}
   boxInfo:
-    boundsMin: {x: 3.7017217, y: 0.5, z: -3.16428}
-    boundsMax: {x: 5.0342813, y: 1.5, z: -1.8317204}
+    boundsMin: {x: 3.701722, y: 0.5, z: -3.1642797}
+    boundsMax: {x: 5.0342813, y: 1.5, z: -1.8317205}
     firstSideIndex: 0
     material:
       type: 1
@@ -2574,14 +2574,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 876239399}
-  m_LocalRotation: {x: 0.005743478, y: 0.19408283, z: 0.0011363375, w: 0.9809677}
-  m_LocalPosition: {x: -0.81, y: 0.15, z: -4.36}
+  m_LocalRotation: {x: 0.318304, y: 0.020754162, z: -0.0069704363, w: 0.9477359}
+  m_LocalPosition: {x: -0.48, y: 4.88, z: -6.41}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0.62, y: 22.384, z: 0.255}
+  m_LocalEulerAnglesHint: {x: 37.13, y: 2.509, z: 0}
 --- !u!114 &876239403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2606,7 +2606,8 @@ MonoBehaviour:
   maxBounceCount: 15
   numRaysPerPixel: 10
   divergeStrength: 0.3
-  useShaderInSceneView: 0
+  useShaderInSceneView: 1
+  drawBvh: 1
   rayTracingShader: {fileID: 4800000, guid: edfdd0279b046b343be4f388b606d350, type: 3}
   combineShader: {fileID: 4800000, guid: ec839f71fcd548988f58c7849a623233, type: 3}
   changer: {fileID: 1836331782}
@@ -2797,7 +2798,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &957126999
 Transform:
   m_ObjectHideFlags: 0
@@ -2827,136 +2828,136 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 957127003}
   fogBox:
-    boundsMin: {x: -10, y: -0.5, z: -10}
-    boundsMax: {x: 10, y: 0.5, z: 10}
+    boundsMin: {x: -10.004131, y: -0.5148696, z: -10.003614}
+    boundsMax: {x: 10.004131, y: 0.5148696, z: 10.003614}
     sideX1:
       minPos: {x: -10, y: -0.5, z: 0}
       maxPos: {x: 10, y: 0.5, z: 0}
       rotation:
-        e00: 1
-        e01: 0
-        e02: 0
+        e00: 0.99999917
+        e01: 0.0012652981
+        e02: 0.0003504597
         e03: 0
-        e10: 0
-        e11: 1
-        e12: 0
+        e10: -0.0012652203
+        e11: 0.99999917
+        e12: -0.0002221448
         e13: 0
-        e20: 0
-        e21: 0
-        e22: 1
+        e20: -0.0003507405
+        e21: 0.0002217012
+        e22: 0.99999994
         e23: 0
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      offset: {x: 0, y: 0, z: -10}
+      offset: {x: 0.003507405, y: -0.002217012, z: -9.999999}
     sideX2:
       minPos: {x: -10, y: -0.5, z: 0}
       maxPos: {x: 10, y: 0.5, z: 0}
       rotation:
-        e00: 1
-        e01: 0
-        e02: 0
+        e00: 0.99999917
+        e01: 0.0012652981
+        e02: 0.0003504597
         e03: 0
-        e10: 0
-        e11: 1
-        e12: 0
+        e10: -0.0012652203
+        e11: 0.99999917
+        e12: -0.0002221448
         e13: 0
-        e20: 0
-        e21: 0
-        e22: 1
+        e20: -0.0003507405
+        e21: 0.0002217012
+        e22: 0.99999994
         e23: 0
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      offset: {x: 0, y: 0, z: 10}
+      offset: {x: -0.003507405, y: 0.002217012, z: 9.999999}
     sideY1:
       minPos: {x: -10, y: -10, z: 0}
       maxPos: {x: 10, y: 10, z: 0}
       rotation:
-        e00: 1
-        e01: 0
-        e02: 0
+        e00: 0.99999917
+        e01: 0.0012652982
+        e02: 0.00035045968
         e03: 0
-        e10: 0
-        e11: 0.000000059604645
-        e12: 0.99999994
+        e10: -0.00035074053
+        e11: 0.00022173217
+        e12: 0.9999999
         e13: 0
-        e20: 0
-        e21: -0.99999994
-        e22: 0.000000059604645
+        e20: 0.0012652203
+        e21: -0.99999917
+        e22: 0.00022217577
         e23: 0
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      offset: {x: 0, y: -0.5, z: 0}
+      offset: {x: 0.0006326102, y: -0.49999958, z: 0.0001110724}
     sideY2:
       minPos: {x: -10, y: -10, z: 0}
       maxPos: {x: 10, y: 10, z: 0}
       rotation:
-        e00: 1
-        e01: 0
-        e02: 0
+        e00: 0.99999917
+        e01: 0.0012652982
+        e02: 0.00035045968
         e03: 0
-        e10: 0
-        e11: 0.000000059604645
-        e12: 0.99999994
+        e10: -0.00035074053
+        e11: 0.00022173217
+        e12: 0.9999999
         e13: 0
-        e20: 0
-        e21: -0.99999994
-        e22: 0.000000059604645
+        e20: 0.0012652203
+        e21: -0.99999917
+        e22: 0.00022217577
         e23: 0
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      offset: {x: 0, y: 0.5, z: 0}
+      offset: {x: -0.0006326102, y: 0.49999958, z: -0.0001110724}
     sideZ1:
       minPos: {x: -10, y: -0.5, z: 0}
       maxPos: {x: 10, y: 0.5, z: 0}
       rotation:
-        e00: 0.000000059604645
-        e01: 0
+        e00: 0.0003507396
+        e01: -0.00022170128
         e02: -0.99999994
         e03: 0
-        e10: 0
-        e11: 1
-        e12: 0
+        e10: -0.0012652203
+        e11: 0.99999917
+        e12: -0.00022214482
         e13: 0
-        e20: 0.99999994
-        e21: 0
-        e22: 0.000000059604645
+        e20: 0.9999991
+        e21: 0.0012652981
+        e22: 0.00035045884
         e23: 0
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      offset: {x: -10, y: 0, z: 0}
+      offset: {x: -9.999991, y: -0.012652981, z: -0.003504597}
     sideZ2:
       minPos: {x: -10, y: -0.5, z: 0}
       maxPos: {x: 10, y: 0.5, z: 0}
       rotation:
-        e00: 0.000000059604645
-        e01: 0
+        e00: 0.0003507396
+        e01: -0.00022170128
         e02: -0.99999994
         e03: 0
-        e10: 0
-        e11: 1
-        e12: 0
+        e10: -0.0012652203
+        e11: 0.99999917
+        e12: -0.00022214482
         e13: 0
-        e20: 0.99999994
-        e21: 0
-        e22: 0.000000059604645
+        e20: 0.9999991
+        e21: 0.0012652981
+        e22: 0.00035045884
         e23: 0
         e30: 0
         e31: 0
         e32: 0
         e33: 1
-      offset: {x: 10, y: 0, z: 0}
+      offset: {x: 9.999991, y: 0.012652981, z: 0.003504597}
     density: 0.4
-    negInvDensity: -3.3333333
+    negInvDensity: -2.5
     material:
       type: 3
       color: {r: 0.9, g: 0.9, b: 0.9, a: 0}
@@ -4376,7 +4377,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sphere:
-    center: {x: 0.38000017, y: 0, z: -3.25}
+    center: {x: 0.3, y: 0, z: -3.25}
     radius: 0.5
     material:
       type: 0
@@ -4552,8 +4553,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 1721302703}
   boxInfo:
-    boundsMin: {x: 0.7856887, y: -0.500651, z: -4.208934}
-    boundsMax: {x: 2.1443114, y: 0.500651, z: -2.8510664}
+    boundsMin: {x: 0.7677617, y: -0.5006552, z: -4.226861}
+    boundsMax: {x: 2.1622384, y: 0.5006552, z: -2.8331394}
     firstSideIndex: 0
     material:
       type: 2

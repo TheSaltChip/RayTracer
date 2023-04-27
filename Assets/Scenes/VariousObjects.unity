@@ -436,7 +436,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1094095257}
-  m_RootOrder: 22
+  m_RootOrder: 21
   m_LocalEulerAnglesHint: {x: 0, y: -103.634, z: 0}
 --- !u!65 &88178143
 BoxCollider:
@@ -507,8 +507,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 88178146}
   boxInfo:
-    boundsMin: {x: -4.675177, y: -0.5, z: -3.321176}
-    boundsMax: {x: -3.4688249, y: 0.5, z: -2.1148238}
+    boundsMin: {x: -4.6757727, y: 0.5, z: -3.3217716}
+    boundsMax: {x: -3.4682293, y: 1.5, z: -2.1142282}
     firstSideIndex: 0
     material:
       type: 1
@@ -802,7 +802,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1094095257}
-  m_RootOrder: 18
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &271869148
 MonoBehaviour:
@@ -1056,14 +1056,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 329790497}
-  m_LocalRotation: {x: -0, y: -0, z: -0.37437454, w: 0.92727757}
-  m_LocalPosition: {x: -5.318, y: 1.101, z: -6.82}
+  m_LocalRotation: {x: -0, y: -0, z: -0.21084544, w: 0.97751945}
+  m_LocalPosition: {x: -5.29, y: 1.18, z: -6.82}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1094095257}
-  m_RootOrder: 19
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -43.971}
+  m_RootOrder: 18
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -24.344}
 --- !u!136 &329790499
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1483,126 +1483,6 @@ Transform:
   m_Father: {fileID: 1094095257}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 13.542, z: 0}
---- !u!1 &720947612
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 720947617}
-  - component: {fileID: 720947616}
-  - component: {fileID: 720947615}
-  - component: {fileID: 720947614}
-  - component: {fileID: 720947613}
-  m_Layer: 0
-  m_Name: Sphere (1)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &720947613
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 720947612}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f1c89d7ffa122840a100db194628ef5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sphere:
-    center: {x: -2.1800003, y: 0, z: -4.1}
-    radius: 0.5
-    material:
-      type: 1
-      color: {r: 0.57778895, g: 0.8018868, b: 0.44255075, a: 0}
-      fuzz: 0.59
-      refIdx: 0
-      emissionColor: {r: 0, g: 0, b: 0, a: 0}
-      emissionStrength: 0
---- !u!135 &720947614
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 720947612}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!23 &720947615
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 720947612}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &720947616
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 720947612}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!4 &720947617
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 720947612}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.3600006, y: 0, z: -13.32}
-  m_LocalScale: {x: 2, y: 2, z: 2}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1094095257}
-  m_RootOrder: 14
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &733466154
 GameObject:
   m_ObjectHideFlags: 0
@@ -1776,7 +1656,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1094095257}
-  m_RootOrder: 21
+  m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: -25.435, z: 0}
 --- !u!65 &740812403
 BoxCollider:
@@ -1847,8 +1727,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 740812406}
   boxInfo:
-    boundsMin: {x: 3.8680015, y: -0.5, z: -2.9980001}
-    boundsMax: {x: 4.8680015, y: 0.5, z: -1.9980001}
+    boundsMin: {x: 3.7017217, y: 0.5, z: -3.16428}
+    boundsMax: {x: 5.0342813, y: 1.5, z: -1.8317204}
     firstSideIndex: 0
     material:
       type: 1
@@ -1898,7 +1778,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1094095257}
-  m_RootOrder: 17
+  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &746671438
 MonoBehaviour:
@@ -2020,8 +1900,8 @@ MonoBehaviour:
   info:
     firstTriangleIndex: 0
     numTriangles: 8
-    boundsMin: {x: -0.95365447, y: -0.40133473, z: 5.5331793}
-    boundsMax: {x: 1.0336549, y: 1.021335, z: 6.9468217}
+    boundsMin: {x: -0.95365447, y: -0.40133473, z: 4.428179}
+    boundsMax: {x: 1.0336549, y: 1.021335, z: 5.841821}
     material:
       type: 0
       color: {r: 0, g: 0, b: 0, a: 0}
@@ -2092,7 +1972,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1094095257}
-  m_RootOrder: 16
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 83.542, z: -44.656}
 --- !u!1 &795985912
 GameObject:
@@ -2212,7 +2092,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1094095257}
-  m_RootOrder: 15
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &822672651
 GameObject:
@@ -2443,8 +2323,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    minPos: {x: -10, y: -3.25, z: -3.0616168e-17}
-    maxPos: {x: 10, y: 3.25, z: 3.0616168e-17}
+    minPos: {x: -10, y: -5, z: -3.0616168e-17}
+    maxPos: {x: 10, y: 5, z: 3.0616168e-17}
     rotation:
       e00: 1
       e01: 0
@@ -2462,7 +2342,7 @@ MonoBehaviour:
       e31: 0
       e32: 0
       e33: 1
-    offset: {x: 0, y: 2.75, z: 10}
+    offset: {x: 0, y: 2.75, z: 6.23}
     material:
       type: 0
       color: {r: 0.21698111, g: 0.21698111, b: 0.21698111, a: 0}
@@ -2584,8 +2464,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 847664504}
   boxInfo:
-    boundsMin: {x: 0.25000012, y: -0.5, z: 3.2700005}
-    boundsMax: {x: 1.2500001, y: 0.5, z: 4.2700005}
+    boundsMin: {x: 1.4186571, y: -0.5, z: 1.6286571}
+    boundsMax: {x: 2.8013427, y: 0.5, z: 3.0113428}
     firstSideIndex: 0
     material:
       type: 0
@@ -2694,14 +2574,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 876239399}
-  m_LocalRotation: {x: 0.076468036, y: -0, z: -0, w: 0.9970721}
-  m_LocalPosition: {x: 0, y: 1.64, z: -8.262}
+  m_LocalRotation: {x: 0.005743478, y: 0.19408283, z: 0.0011363375, w: 0.9809677}
+  m_LocalPosition: {x: -0.81, y: 0.15, z: -4.36}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 8.771, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0.62, y: 22.384, z: 0.255}
 --- !u!114 &876239403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2718,12 +2598,12 @@ MonoBehaviour:
   totalAmountOfRaysPerPixel: 0
   amountOfPictures: 0
   folderName: ray_tracing_example_scene
-  raysPerPixelPerImage: 150000
+  raysPerPixelPerImage: 10000
   saveImageSequence: 0
   saveThisFrame: 0
   stopRender: 0
   restartRender: 0
-  maxBounceCount: 20
+  maxBounceCount: 15
   numRaysPerPixel: 10
   divergeStrength: 0.3
   useShaderInSceneView: 0
@@ -2925,14 +2805,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 957126998}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: -0.000110961526, y: -0.0001753001, z: 0.0006326298, w: 0.99999976}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 20, y: 1, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 483324536}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -0.013, y: -0.02, z: 0.072}
 --- !u!114 &957127000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2947,11 +2827,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 957127003}
   fogBox:
-    boundsMin: {x: -10, y: -0.075, z: -10}
-    boundsMax: {x: 10, y: 0.075, z: 10}
+    boundsMin: {x: -10, y: -0.5, z: -10}
+    boundsMax: {x: 10, y: 0.5, z: 10}
     sideX1:
-      minPos: {x: -10, y: -0.075, z: 0}
-      maxPos: {x: 10, y: 0.075, z: 0}
+      minPos: {x: -10, y: -0.5, z: 0}
+      maxPos: {x: 10, y: 0.5, z: 0}
       rotation:
         e00: 1
         e01: 0
@@ -2971,8 +2851,8 @@ MonoBehaviour:
         e33: 1
       offset: {x: 0, y: 0, z: -10}
     sideX2:
-      minPos: {x: -10, y: -0.075, z: 0}
-      maxPos: {x: 10, y: 0.075, z: 0}
+      minPos: {x: -10, y: -0.5, z: 0}
+      maxPos: {x: 10, y: 0.5, z: 0}
       rotation:
         e00: 1
         e01: 0
@@ -3011,7 +2891,7 @@ MonoBehaviour:
         e31: 0
         e32: 0
         e33: 1
-      offset: {x: 0, y: -0.075, z: 0}
+      offset: {x: 0, y: -0.5, z: 0}
     sideY2:
       minPos: {x: -10, y: -10, z: 0}
       maxPos: {x: 10, y: 10, z: 0}
@@ -3032,10 +2912,10 @@ MonoBehaviour:
         e31: 0
         e32: 0
         e33: 1
-      offset: {x: 0, y: 0.075, z: 0}
+      offset: {x: 0, y: 0.5, z: 0}
     sideZ1:
-      minPos: {x: -10, y: -0.075, z: 0}
-      maxPos: {x: 10, y: 0.075, z: 0}
+      minPos: {x: -10, y: -0.5, z: 0}
+      maxPos: {x: 10, y: 0.5, z: 0}
       rotation:
         e00: 0.000000059604645
         e01: 0
@@ -3055,8 +2935,8 @@ MonoBehaviour:
         e33: 1
       offset: {x: -10, y: 0, z: 0}
     sideZ2:
-      minPos: {x: -10, y: -0.075, z: 0}
-      maxPos: {x: 10, y: 0.075, z: 0}
+      minPos: {x: -10, y: -0.5, z: 0}
+      maxPos: {x: 10, y: 0.5, z: 0}
       rotation:
         e00: 0.000000059604645
         e01: 0
@@ -3075,11 +2955,11 @@ MonoBehaviour:
         e32: 0
         e33: 1
       offset: {x: 10, y: 0, z: 0}
-    density: 0.3
-    negInvDensity: -1.6666666
+    density: 0.4
+    negInvDensity: -3.3333333
     material:
       type: 3
-      color: {r: 0.764151, g: 0.764151, b: 0.764151, a: 0}
+      color: {r: 0.9, g: 0.9, b: 0.9, a: 0}
       fuzz: 0
       refIdx: 0
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
@@ -3424,7 +3304,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1094095257}
-  m_RootOrder: 20
+  m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 38.259, z: 0}
 --- !u!65 &1062933111
 BoxCollider:
@@ -3695,7 +3575,6 @@ Transform:
   - {fileID: 1618633793}
   - {fileID: 1578206941}
   - {fileID: 1608118026}
-  - {fileID: 720947617}
   - {fileID: 795985917}
   - {fileID: 767200625}
   - {fileID: 746671437}
@@ -3796,8 +3675,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    minPos: {x: -10.000001, y: -3.25, z: -3.0616175e-17}
-    maxPos: {x: 10.000001, y: 3.25, z: 3.0616175e-17}
+    minPos: {x: -15.284001, y: -3.25, z: -3.0616175e-17}
+    maxPos: {x: 15.284001, y: 3.25, z: 3.0616175e-17}
     rotation:
       e00: -0.00000011920929
       e01: -0
@@ -3815,7 +3694,7 @@ MonoBehaviour:
       e31: 0
       e32: 0
       e33: 1
-    offset: {x: 10, y: 2.75, z: 0}
+    offset: {x: 6, y: 2.75, z: 0}
     material:
       type: 1
       color: {r: 0.8666667, g: 0.8666667, b: 0.8666667, a: 0}
@@ -4390,8 +4269,8 @@ MonoBehaviour:
   info:
     firstTriangleIndex: 0
     numTriangles: 8
-    boundsMin: {x: 1.8954232, y: -0.40133542, z: -3.2600307}
-    boundsMax: {x: 3.464578, y: 1.0213342, z: -2.019969}
+    boundsMin: {x: 1.8954232, y: -0.5008348, z: -3.2600307}
+    boundsMax: {x: 3.464578, y: 0.9218348, z: -2.019969}
     material:
       type: 0
       color: {r: 0, g: 0, b: 0, a: 0}
@@ -4577,7 +4456,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1618633788}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.76000035, y: 0, z: -11.62}
+  m_LocalPosition: {x: 0.6, y: 0, z: -11.62}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4680,7 +4559,7 @@ MonoBehaviour:
       type: 2
       color: {r: 0, g: 0, b: 0, a: 0}
       fuzz: 0
-      refIdx: 1.33
+      refIdx: 1.45
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
       emissionStrength: 0
 --- !u!33 &1721302703
@@ -4698,14 +4577,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1721302699}
-  m_LocalRotation: {x: -0.00018968598, y: 0.24826045, z: 0.00042280898, w: 0.9686932}
+  m_LocalRotation: {x: 0.0001402261, y: -0.4602245, z: 0.00044168407, w: 0.8878025}
   m_LocalPosition: {x: 2.93, y: 0, z: -12.18}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1094095257}
   m_RootOrder: 10
-  m_LocalEulerAnglesHint: {x: -0.033, y: 28.749, z: 0.042}
+  m_LocalEulerAnglesHint: {x: 0.038, y: -54.803, z: 0.038}
 --- !u!1 &1761921084
 GameObject:
   m_ObjectHideFlags: 0
@@ -4740,8 +4619,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 1761921088}
   boxInfo:
-    boundsMin: {x: -1.868517, y: -0.34000012, z: 3.420483}
-    boundsMax: {x: -0.80548304, y: 0.6599999, z: 4.483517}
+    boundsMin: {x: -0.33651698, y: -0.5, z: -0.09651703}
+    boundsMax: {x: 0.72651696, y: 0.5, z: 0.9665169}
     firstSideIndex: 0
     material:
       type: 0
@@ -5132,8 +5011,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    minPos: {x: -10.000001, y: -3.25, z: -3.0616175e-17}
-    maxPos: {x: 10.000001, y: 3.25, z: 3.0616175e-17}
+    minPos: {x: -12.901334, y: -3.25, z: -3.0616175e-17}
+    maxPos: {x: 12.901334, y: 3.25, z: 3.0616175e-17}
     rotation:
       e00: -0.00000011920929
       e01: 0
@@ -5151,7 +5030,7 @@ MonoBehaviour:
       e31: 0
       e32: 0
       e33: 1
-    offset: {x: -10, y: 2.75, z: 0}
+    offset: {x: -6, y: 2.75, z: 0}
     material:
       type: 1
       color: {r: 0.8666667, g: 0.8666667, b: 0.8666667, a: 0}
@@ -5272,8 +5151,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    minPos: {x: -10, y: -10.000001, z: -3.0616175e-17}
-    maxPos: {x: 10, y: 10.000001, z: 3.0616175e-17}
+    minPos: {x: -10, y: -15.294003, z: -3.0616175e-17}
+    maxPos: {x: 10, y: 15.294003, z: 3.0616175e-17}
     rotation:
       e00: 1
       e01: 0

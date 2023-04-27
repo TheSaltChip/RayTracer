@@ -219,6 +219,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 108572416}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 8
+    boundsMin: {x: 0.66666, y: -1.99998, z: -0.66666}
+    boundsMax: {x: 1.99998, y: -0.66666, z: 0.66666}
     material:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -324,6 +328,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 441751138}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 8
+    boundsMin: {x: -1.33332, y: 0, z: -0.66666}
+    boundsMax: {x: 0, y: 1.33332, z: 0.66666}
     material:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -421,8 +429,8 @@ MonoBehaviour:
   saveThisFrame: 0
   stopRender: 0
   restartRender: 0
-  maxBounceCount: 3
-  numRaysPerPixel: 25
+  maxBounceCount: 15
+  numRaysPerPixel: 15
   divergeStrength: 0
   useShaderInSceneView: 1
   rayTracingShader: {fileID: 4800000, guid: edfdd0279b046b343be4f388b606d350, type: 3}
@@ -546,6 +554,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 526008622}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 8
+    boundsMin: {x: -1.33332, y: -1.33332, z: -0.66666}
+    boundsMax: {x: 0, y: 0, z: 0.66666}
     material:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -813,7 +825,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    orientation: 2
+    minPos: {x: -7.000002, y: -4.5, z: -3.0616175e-17}
+    maxPos: {x: 7.000002, y: 4.5, z: 3.0616175e-17}
+    rotation:
+      e00: -0.00000011920929
+      e01: -0
+      e02: -1.0000001
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: -0
+      e13: 0
+      e20: 1.0000001
+      e21: 0
+      e22: -0.00000011920929
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    offset: {x: 4, y: 0, z: 0}
     material:
       type: 1
       color: {r: 0.33333334, g: 1, b: 1, a: 0}
@@ -915,6 +946,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 1106592318}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 8
+    boundsMin: {x: -0.66666, y: 0.66666, z: -0.66666}
+    boundsMax: {x: 0.66666, y: 1.99998, z: 0.66666}
     material:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -1020,6 +1055,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 1175343409}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 8
+    boundsMin: {x: 0, y: -1.33332, z: -0.66666}
+    boundsMax: {x: 1.33332, y: 0, z: 0.66666}
     material:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -1189,7 +1228,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    orientation: 1
+    minPos: {x: -4.5, y: -7.000002, z: -3.0616175e-17}
+    maxPos: {x: 4.5, y: 7.000002, z: 3.0616175e-17}
+    rotation:
+      e00: 1
+      e01: 0
+      e02: -0
+      e03: 0
+      e10: -0
+      e11: -0.00000011920929
+      e12: -1.0000001
+      e13: 0
+      e20: 0
+      e21: 1.0000001
+      e22: -0.00000011920929
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    offset: {x: 0, y: 4, z: 0}
     material:
       type: 1
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -1246,6 +1304,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 1229097844}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 8
+    boundsMin: {x: -0.66666, y: -1.99998, z: -0.66666}
+    boundsMax: {x: 0.66666, y: -0.66666, z: 0.66666}
     material:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -1401,6 +1463,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 1237546066}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 2
+    boundsMin: {x: -4.5, y: -4.5, z: -2.0000005}
+    boundsMax: {x: 4.5, y: 4.5, z: -1.9999996}
     material:
       type: 1
       color: {r: 1, g: 0.33333334, b: 1, a: 0}
@@ -1471,6 +1537,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 1412085787}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 8
+    boundsMin: {x: -0.199998, y: -0.199998, z: -0.199998}
+    boundsMax: {x: 0.199998, y: 0.199998, z: 0.199998}
     material:
       type: 0
       color: {r: 0, g: 0, b: 0, a: 0}
@@ -1640,7 +1710,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    orientation: 0
+    minPos: {x: -4.5, y: -4.5, z: -3.0616168e-17}
+    maxPos: {x: 4.5, y: 4.5, z: 3.0616168e-17}
+    rotation:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    offset: {x: 0, y: 0, z: 2}
     material:
       type: 1
       color: {r: 0.9976803, g: 1, b: 0.39215684, a: 0}
@@ -1697,6 +1786,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 1512030675}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 8
+    boundsMin: {x: -1.99998, y: -1.99998, z: -0.66666}
+    boundsMax: {x: -0.66666, y: -0.66666, z: 0.66666}
     material:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -1802,6 +1895,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 1531146348}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 8
+    boundsMin: {x: 0.66666, y: 0.66666, z: -0.66666}
+    boundsMax: {x: 1.99998, y: 1.99998, z: 0.66666}
     material:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -1907,6 +2004,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 1658482252}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 8
+    boundsMin: {x: -1.99998, y: -0.66666, z: -0.66666}
+    boundsMax: {x: -0.66666, y: 0.66666, z: 0.66666}
     material:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -2012,6 +2113,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 1772342541}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 8
+    boundsMin: {x: 0, y: 0, z: -0.66666}
+    boundsMax: {x: 1.33332, y: 1.33332, z: 0.66666}
     material:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -2181,7 +2286,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    orientation: 2
+    minPos: {x: -7.000002, y: -4.5, z: -3.0616175e-17}
+    maxPos: {x: 7.000002, y: 4.5, z: 3.0616175e-17}
+    rotation:
+      e00: -0.00000011920929
+      e01: 0
+      e02: 1.0000001
+      e03: 0
+      e10: -0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: -1.0000001
+      e21: -0
+      e22: -0.00000011920929
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    offset: {x: -4, y: 0, z: 0}
     material:
       type: 1
       color: {r: 0.29411766, g: 1, b: 0.9999998, a: 0}
@@ -2276,6 +2400,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 2051958169}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 8
+    boundsMin: {x: 0.66666, y: -0.66666, z: -0.66666}
+    boundsMax: {x: 1.99998, y: 0.66666, z: 0.66666}
     material:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -2381,6 +2509,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 2095986631}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 8
+    boundsMin: {x: -1.99998, y: 0.66666, z: -0.66666}
+    boundsMax: {x: -0.66666, y: 1.99998, z: 0.66666}
     material:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -2550,7 +2682,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rect:
-    orientation: 1
+    minPos: {x: -4.5, y: -7.000002, z: -3.0616175e-17}
+    maxPos: {x: 4.5, y: 7.000002, z: 3.0616175e-17}
+    rotation:
+      e00: 1
+      e01: -0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: -0.00000011920929
+      e12: 1.0000001
+      e13: 0
+      e20: -0
+      e21: -1.0000001
+      e22: -0.00000011920929
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    offset: {x: 0, y: -4, z: 0}
     material:
       type: 1
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -2657,6 +2808,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshFilter: {fileID: 7243516401802820915}
   info:
+    firstTriangleIndex: 0
+    numTriangles: 8
+    boundsMin: {x: -0.66666, y: -0.66666, z: -0.66666}
+    boundsMax: {x: 0.66666, y: 0.66666, z: 0.66666}
     material:
       type: 2
       color: {r: 1, g: 1, b: 1, a: 0}

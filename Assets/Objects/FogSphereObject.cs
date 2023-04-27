@@ -1,9 +1,8 @@
 using DataTypes;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Objects
-{
+{[ExecuteAlways]
     public class FogSphereObject : BaseObject
     {
         [SerializeField] private FogSphere fogSphere;
@@ -15,8 +14,11 @@ namespace Objects
             return fogSphere;
         }
 
-        protected override void UpdateValues()
+        private void UpdateValues()
         {
+            if (!shouldUpdateValues) return;
+            shouldUpdateValues = false;
+            
             var t = transform;
             fogSphere.center = t.position;
             fogSphere.radius = t.lossyScale.x / 2;

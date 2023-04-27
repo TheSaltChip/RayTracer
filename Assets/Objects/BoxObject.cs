@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using DataTypes;
 using UnityEngine;
-using Debug = System.Diagnostics.Debug;
 
 namespace Objects
-{
+{[ExecuteAlways]
     public class BoxObject : BaseObject
     {
         [SerializeField] private MeshFilter meshFilter;
@@ -13,8 +12,11 @@ namespace Objects
 
         private BoxSide[] _sides;
 
-        protected override void UpdateValues()
+        private void UpdateValues()
         {
+            if (!shouldUpdateValues) return;
+            shouldUpdateValues = false;
+            
             var mesh = meshFilter.sharedMesh;
 
             var t = transform;
@@ -115,7 +117,7 @@ namespace Objects
 
             return _sides;
         }
-        
+
         public override RayTracingMaterial GetMaterial()
         {
             return boxInfo.material;

@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Objects
 {
+    [ExecuteAlways]
     public class FogBoxObject : BaseObject
     {
         [SerializeField] private MeshFilter meshFilter;
@@ -16,8 +17,12 @@ namespace Objects
             return fogBox;
         }
 
-        protected override void UpdateValues()
+        private void UpdateValues()
         {
+            if (!shouldUpdateValues) return;
+            shouldUpdateValues = false;
+
+            print("HELLO");
             var mesh = meshFilter.sharedMesh;
 
             var t = transform;
@@ -96,7 +101,7 @@ namespace Objects
 
                 sides[i] = rect;
             }
-            
+
             fogBox.sideX1 = sides[0];
             fogBox.sideX2 = sides[1];
             fogBox.sideY1 = sides[2];
@@ -115,7 +120,7 @@ namespace Objects
             // ReSharper disable once ValueRangeAttributeViolation
             fogBox.material.type = 3;
         }
-        
+
         public override RayTracingMaterial GetMaterial()
         {
             return fogBox.material;
@@ -125,7 +130,7 @@ namespace Objects
         {
             fogBox.material = material;
         }
-        
+
         private static (Vector3 min, Vector3 max) GetTransformedBounds(Vector3 oldMin, Vector3 oldMax,
             Matrix4x4 transformation)
         {

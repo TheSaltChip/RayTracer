@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Objects
 {
+    [ExecuteAlways]
     public class SphereObject : BaseObject
     {
         [SerializeField] private Sphere sphere;
@@ -15,8 +16,11 @@ namespace Objects
             return sphere;
         }
 
-        protected override void UpdateValues()
+        private void UpdateValues()
         {
+            if (!shouldUpdateValues) return;
+            shouldUpdateValues = false;
+            
             var t = transform;
             sphere.center = t.position;
             sphere.radius = t.lossyScale.x / 2;

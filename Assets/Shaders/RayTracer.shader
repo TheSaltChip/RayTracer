@@ -13,6 +13,7 @@ Shader "Unlit/RayTracer"
             #include "Assets/Resources/common/Random.hlsl"
             #include "Assets/Resources/structs/BoxInfo.hlsl"
             #include "Assets/Resources/structs/BoxSide.hlsl"
+            #include "Assets/Resources/structs/BoundingBox.hlsl"
             #include "Assets/Resources/structs/FogBox.hlsl"
             #include "Assets/Resources/structs/FogSphere.hlsl"
             #include "Assets/Resources/structs/MeshInfo.hlsl"
@@ -61,6 +62,9 @@ Shader "Unlit/RayTracer"
             StructuredBuffer<Triangle> Triangles;
             StructuredBuffer<MeshInfo> AllMeshInfo;
             int NumMeshes;
+
+            StructuredBuffer<BoundingBox> BoundingBoxes;
+            int NumBoundingBoxes;
 
             struct Appdata
             {
@@ -180,7 +184,7 @@ Shader "Unlit/RayTracer"
 
                 HitRecord tempRecord = (HitRecord)0;
 
-                for (int j = 0; j < meshInfo.numTriangles; ++j)
+                for (uint j = 0; j < meshInfo.numTriangles; ++j)
                 {
                     Triangle tri = Triangles[meshInfo.firstTriangleIndex + j];
 
@@ -193,12 +197,88 @@ Shader "Unlit/RayTracer"
                 }
             }
 
-            HitRecord CalculateRayCollision(const Ray ray)
+            HitRecord CalculateRayCollision(Ray ray)
             {
                 float closestSoFar = FLOAT_MAX;
                 const float minDist = MIN_DIST;
                 HitRecord closestHitRecord = (HitRecord)0;
 
+                BoundingBox box = BoundingBoxes[0];
+
+                BoundingBox stack[32];
+
+                int pointer = 0;
+
+                while(true)
+                {
+                    if (box.isLeafNode)
+                    {
+                        switch (box.typeofElement)
+                        {
+                        case ELEMENT_TYPES.sphere:
+                            CalculateSphereCollision(ray, box.indexOfElement, closestHitRecord, minDist, closestSoFar);
+                            break;
+                        case ELEMENT_TYPES.rect:
+                            CalculateRectCollision(ray, box.indexOfElement, closestHitRecord, minDist, closestSoFar);
+                            break;
+                        case ELEMENT_TYPES.box:
+                            CalculateBoxCollision(ray, box.indexOfElement, closestHitRecord, minDist, closestSoFar);
+                            break;
+                        case ELEMENT_TYPES.fogSphere:
+                            CalculateFogSphereCollision(ray, box.indexOfElement, closestHitRecord, minDist,
+                                                        closestSoFar);
+                            break;
+                        case ELEMENT_TYPES.fogBox:
+                            CalculateFogBoxCollision(ray, box.indexOfElement, closestHitRecord, minDist, closestSoFar);
+                            break;
+                        case ELEMENT_TYPES.mesh:
+                            CalculateMeshCollision(ray, box.indexOfElement, closestHitRecord, minDist, closestSoFar);
+                            break;
+                        default:
+                            break;
+                        }
+
+                        if (pointer == 0)
+                            break;
+
+                        box = (BoundingBox) stack[--pointer];
+
+                        continue;
+                    }
+
+                    BoundingBox box1 = BoundingBoxes[box.indexOfLeftChild];
+                    BoundingBox box2 = BoundingBoxes[box.indexOfLeftChild + 1];
+
+                    float dist1 = box1.IntersectBox(ray, closestSoFar);
+                    float dist2 = box2.IntersectBox(ray, closestSoFar);
+
+                    if (dist1 > dist2)
+                    {
+                        float d = dist1;
+                        dist1 = dist2;
+                        dist2 = d;
+
+                        BoundingBox b = box1;
+                        box1 = box2;
+                        box2 = b;
+                    }
+
+                    if (dist1 == 1e30f)
+                    {
+                        if (pointer == 0)
+                            break;
+
+                        box = stack[--pointer];
+                    }
+                    else
+                    {
+                        box = box1;
+                        stack[pointer++] = box2;
+                    }
+                }
+
+                return closestHitRecord;
+                
                 const int maxNum =
                     max(NumSpheres,
                         max(NumFogSpheres,

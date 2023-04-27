@@ -266,6 +266,13 @@ Shader "Unlit/RayTracer"
                     incomingLight += emittedLight * rayColor;
 
                     ray.Scatter(hitRecord, rayColor);
+
+                    const float p = max(rayColor.r, max(rayColor.g, rayColor.b));
+
+                    if (Random() >= p)
+                        break;
+
+                    rayColor *= 1.0f / p;
                 }
 
                 return incomingLight;

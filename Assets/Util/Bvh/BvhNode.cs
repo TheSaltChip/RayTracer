@@ -58,7 +58,6 @@ namespace Util.Bvh
 
         private BvhNode(BoundingBox box)
         {
-            box.isLeafNode = 1;
             BoundingBox = box;
         }
 
@@ -71,7 +70,8 @@ namespace Util.Bvh
             new()
             {
                 min = Vector3.Min(a.min, b.min),
-                max = Vector3.Max(a.max, b.max)
+                max = Vector3.Max(a.max, b.max),
+                typeofElement = TypesOfElement.AABB
             };
     }
 }

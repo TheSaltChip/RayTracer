@@ -144,21 +144,18 @@ namespace DataTypes
     [Serializable, StructLayout(LayoutKind.Sequential)]
     public struct BoundingBox
     {
-        
-
         [HideInInspector] public Vector3 min;
         [HideInInspector] public Vector3 max;
-        [HideInInspector] public int isLeafNode;
         [HideInInspector] public TypesOfElement typeofElement;
-        [HideInInspector] public int indexOfElement;
-        [HideInInspector] public int indexOfLeftChild;
-
+        [HideInInspector] public int index;
+        
         public override string ToString()
         {
-            return $"{nameof(min)}: {min}, {nameof(max)}: {max}, {nameof(isLeafNode)}: {isLeafNode}, {nameof(typeofElement)}: {typeofElement}, {nameof(indexOfElement)}: {indexOfElement}";
+            return
+                $"{nameof(min)}: {min}, {nameof(max)}: {max}, {nameof(typeofElement)}: {typeofElement}, {nameof(index)}: {index}";
         }
     }
-    
+
     public enum TypesOfElement
     {
         Sphere,
@@ -166,6 +163,7 @@ namespace DataTypes
         Box,
         FogSphere,
         FogBox,
-        Mesh
+        Mesh,
+        AABB
     }
 }

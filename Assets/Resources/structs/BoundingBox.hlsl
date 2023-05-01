@@ -9,18 +9,17 @@ struct ElementTypes
     uint fogSphere;
     uint fogBox;
     uint mesh;
+    uint aabb;
 };
 
-static const ElementTypes ELEMENT_TYPES = {0, 1, 2, 3, 4, 5};
+static const ElementTypes ELEMENT_TYPES = {0, 1, 2, 3, 4, 5,6};
 
 struct BoundingBox
 {
     float3 minPos;
     float3 maxPos;
-    bool isLeafNode;
     int typeofElement;
-    int indexOfElement;
-    int indexOfLeftChild;
+    int index;
     
     float IntersectBox( const Ray ray, const float t)
     {

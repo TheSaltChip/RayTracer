@@ -2,8 +2,9 @@
 using UnityEngine;
 using Rect = DataTypes.Rect;
 
-namespace Objects
-{[ExecuteAlways]
+namespace RayTracingObjects
+{
+    [ExecuteAlways]
     public class RectObject : BaseObject
     {
         [SerializeField] private Rect rect;
@@ -15,7 +16,7 @@ namespace Objects
         public Rect GetRect()
         {
             UpdateValues();
-            
+
             return rect;
         }
 
@@ -23,7 +24,7 @@ namespace Objects
         {
             if (!shouldUpdateValues) return;
             shouldUpdateValues = false;
-            
+
             _mesh = meshFilter.sharedMesh;
 
             Vector3 min = _mesh.bounds.min, max = _mesh.bounds.max;
@@ -34,11 +35,19 @@ namespace Objects
             min.Scale(lossyScale);
             max.Scale(lossyScale);
 
-            rect.rotation = Matrix4x4.Transpose(Matrix4x4.Rotate(t.rotation));
+            var rotation = t.rotation;
+            rect.rotation = Matrix4x4.Transpose(Matrix4x4.Rotate(rotation));
             rect.offset = t.position;
 
             rect.minPos = min;
             rect.maxPos = max;
+
+            (boundingBox.min, boundingBox.max) =
+                GetTransformedBounds(_mesh.bounds.min, _mesh.bounds.max, t.localToWorldMatrix);
+            var padding = new Vector3(0, 0, 0.01f);
+            boundingBox.min += padding;
+            boundingBox.max += padding;
+            boundingBox.typeofElement = TypesOfElement.Rect;
         }
 
         public override RayTracingMaterial GetMaterial()

@@ -8,11 +8,13 @@ Shader "Unlit/RayTracer"
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag
+            #pragma multi_compile __ USE_BVH_COLLISION_CALCULATION
 
             #include "UnityCG.cginc"
             #include "Assets/Resources/common/Random.hlsl"
             #include "Assets/Resources/structs/BoxInfo.hlsl"
             #include "Assets/Resources/structs/BoxSide.hlsl"
+            #include "Assets/Resources/structs/BoundingBox.hlsl"
             #include "Assets/Resources/structs/FogBox.hlsl"
             #include "Assets/Resources/structs/FogSphere.hlsl"
             #include "Assets/Resources/structs/MeshInfo.hlsl"
@@ -61,6 +63,9 @@ Shader "Unlit/RayTracer"
             StructuredBuffer<Triangle> Triangles;
             StructuredBuffer<MeshInfo> AllMeshInfo;
             int NumMeshes;
+
+            StructuredBuffer<BoundingBox> BoundingBoxes;
+            int NumBoundingBoxes;
 
             struct Appdata
             {
@@ -180,7 +185,7 @@ Shader "Unlit/RayTracer"
 
                 HitRecord tempRecord = (HitRecord)0;
 
-                for (int j = 0; j < meshInfo.numTriangles; ++j)
+                for (uint j = 0; j < meshInfo.numTriangles; ++j)
                 {
                     Triangle tri = Triangles[meshInfo.firstTriangleIndex + j];
 
@@ -193,7 +198,92 @@ Shader "Unlit/RayTracer"
                 }
             }
 
-            HitRecord CalculateRayCollision(const Ray ray)
+            #ifdef USE_BVH_COLLISION_CALCULATION
+            HitRecord CalculateRayCollision(Ray ray)
+            {
+                float closestSoFar = FLOAT_MAX;
+                const float minDist = MIN_DIST;
+                HitRecord closestHitRecord = (HitRecord)0;
+
+                BoundingBox box = BoundingBoxes[0];
+
+                BoundingBox stack[32];
+
+                int pointer = 0;
+
+                while (true)
+                {
+                    if (box.typeofElement != ELEMENT_TYPES.aabb)
+                    {
+                        switch (box.typeofElement)
+                        {
+                        case ELEMENT_TYPES.sphere:
+                            CalculateSphereCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
+                            break;
+                        case ELEMENT_TYPES.rect:
+                            CalculateRectCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
+                            break;
+                        case ELEMENT_TYPES.box:
+                            CalculateBoxCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
+                            break;
+                        case ELEMENT_TYPES.fogSphere:
+                            CalculateFogSphereCollision(ray, box.index, closestHitRecord, minDist,
+                                                        closestSoFar);
+                            break;
+                        case ELEMENT_TYPES.fogBox:
+                            CalculateFogBoxCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
+                            break;
+                        case ELEMENT_TYPES.mesh:
+                            CalculateMeshCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
+                            break;
+                        default:
+                            break;
+                        }
+
+                        if (pointer == 0)
+                            break;
+
+                        box = (BoundingBox)stack[--pointer];
+
+                        continue;
+                    }
+
+                    BoundingBox box1 = BoundingBoxes[box.index];
+                    BoundingBox box2 = BoundingBoxes[box.index + 1];
+
+                    float dist1 = box1.IntersectBox(ray, closestSoFar);
+                    float dist2 = box2.IntersectBox(ray, closestSoFar);
+
+                    if (dist1 > dist2)
+                    {
+                        float d = dist1;
+                        dist1 = dist2;
+                        dist2 = d;
+
+                        BoundingBox b = box1;
+                        box1 = box2;
+                        box2 = b;
+                    }
+
+                    if (dist1 == 1e30f)
+                    {
+                        if (pointer == 0)
+                            break;
+
+                        box = stack[--pointer];
+                    }
+                    else
+                    {
+                        box = box1;
+                        stack[pointer++] = box2;
+                    }
+                }
+
+                return closestHitRecord;
+            }
+            
+            #else
+            HitRecord CalculateRayCollision(Ray ray)
             {
                 float closestSoFar = FLOAT_MAX;
                 const float minDist = MIN_DIST;
@@ -229,9 +319,13 @@ Shader "Unlit/RayTracer"
 
                 return closestHitRecord;
             }
+            #endif
+
 
             float3 GetEnvironmentLight(Ray ray)
             {
+                if (!EnvironmentEnabled) return 0;
+
                 const float skyGradientT = pow(smoothstep(0, 0.4, ray.dir.y), 0.35);
                 const float3 skyGradient = lerp(SkyColorHorizon, SkyColorZenith, skyGradientT);
                 // Doesnt work yet
@@ -253,8 +347,7 @@ Shader "Unlit/RayTracer"
 
                     if (!hitRecord.didHit)
                     {
-                        if (EnvironmentEnabled)
-                            incomingLight += GetEnvironmentLight(ray) * rayColor;
+                        incomingLight += GetEnvironmentLight(ray) * rayColor;
                         break;
                     }
 
@@ -265,6 +358,13 @@ Shader "Unlit/RayTracer"
                     incomingLight += emittedLight * rayColor;
 
                     ray.Scatter(hitRecord, rayColor);
+
+                    const float p = max(rayColor.r, max(rayColor.g, rayColor.b));
+
+                    if (Random() >= p)
+                        break;
+
+                    rayColor *= 1.0f / p;
                 }
 
                 return incomingLight;
@@ -299,6 +399,7 @@ Shader "Unlit/RayTracer"
                 }
 
                 const float3 pixelCol = totalIncomingLight / NumRaysPerPixel;
+
                 return float4(pixelCol, 1);
             }
             ENDHLSL

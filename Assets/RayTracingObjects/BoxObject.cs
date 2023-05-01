@@ -2,8 +2,9 @@
 using DataTypes;
 using UnityEngine;
 
-namespace Objects
-{[ExecuteAlways]
+namespace RayTracingObjects
+{
+    [ExecuteAlways]
     public class BoxObject : BaseObject
     {
         [SerializeField] private MeshFilter meshFilter;
@@ -16,7 +17,7 @@ namespace Objects
         {
             if (!shouldUpdateValues) return;
             shouldUpdateValues = false;
-            
+
             var mesh = meshFilter.sharedMesh;
 
             var t = transform;
@@ -96,12 +97,12 @@ namespace Objects
                 _sides[i] = rect;
             }
 
-            var localToWorldMatrix = Matrix4x4.TRS(position, rotation, scale);
+            (boxInfo.boundsMin, boxInfo.boundsMax) =
+                GetTransformedBounds(bounds.min, bounds.max, t.localToWorldMatrix);
 
-            boxInfo.boundsMin = localToWorldMatrix.MultiplyPoint3x4(bounds.min);
-            boxInfo.boundsMax = localToWorldMatrix.MultiplyPoint3x4(bounds.max);
-
-            (boxInfo.boundsMin, boxInfo.boundsMax) = GetTransformedBounds(bounds.min, bounds.max, localToWorldMatrix);
+            boundingBox.min = boxInfo.boundsMin;
+            boundingBox.max = boxInfo.boundsMax;
+            boundingBox.typeofElement = TypesOfElement.Box;
         }
 
         public BoxInfo GetBoxInfo()
@@ -126,35 +127,6 @@ namespace Objects
         public override void SetMaterial(RayTracingMaterial material)
         {
             boxInfo.material = material;
-        }
-
-        // Compute a new axis-aligned bounding box that will contain whatever the original
-        // bounds did, after an affine transformation. (Note this is a lossy operation)
-        private static (Vector3 min, Vector3 max) GetTransformedBounds(Vector3 oldMin, Vector3 oldMax,
-            Matrix4x4 transformation)
-        {
-            var corners = new Vector3[8];
-
-            corners[0] = oldMin;
-            corners[1] = new Vector3(oldMin.x, oldMin.y, oldMax.z);
-            corners[2] = new Vector3(oldMin.x, oldMax.y, oldMin.z);
-            corners[3] = new Vector3(oldMax.x, oldMin.y, oldMin.z);
-            corners[4] = new Vector3(oldMin.x, oldMax.y, oldMax.z);
-            corners[5] = new Vector3(oldMax.x, oldMin.y, oldMax.z);
-            corners[6] = new Vector3(oldMax.x, oldMax.y, oldMin.z);
-            corners[7] = oldMax;
-
-            var min = Vector3.positiveInfinity;
-            var max = Vector3.negativeInfinity;
-
-            for (var i = 0; i < 8; i++)
-            {
-                var transformed = transformation.MultiplyPoint3x4(corners[i]);
-                min = Vector3.Min(min, transformed);
-                max = Vector3.Max(max, transformed);
-            }
-
-            return (min, max);
         }
     }
 }

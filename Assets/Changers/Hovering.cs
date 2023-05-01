@@ -1,4 +1,4 @@
-﻿using Objects;
+﻿using RayTracingObjects;
 using UnityEngine;
 
 namespace Changers

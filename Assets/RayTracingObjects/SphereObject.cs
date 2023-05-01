@@ -1,8 +1,7 @@
 using DataTypes;
 using UnityEngine;
 
-
-namespace Objects
+namespace RayTracingObjects
 {
     [ExecuteAlways]
     public class SphereObject : BaseObject
@@ -23,7 +22,13 @@ namespace Objects
             
             var t = transform;
             sphere.center = t.position;
-            sphere.radius = t.lossyScale.x / 2;
+            var lossyScale = t.lossyScale;
+            sphere.radius = lossyScale.x / 2;
+            
+            var bounds = new Bounds(sphere.center, lossyScale);
+            boundingBox.min = bounds.min;
+            boundingBox.max = bounds.max;
+            boundingBox.typeofElement = TypesOfElement.Sphere;
         }
         
         public override RayTracingMaterial GetMaterial()

@@ -2,7 +2,7 @@
 using DataTypes;
 using UnityEngine;
 
-namespace Objects
+namespace RayTracingObjects
 {
     [ExecuteAlways]
     public class MeshObject : BaseObject
@@ -60,6 +60,10 @@ namespace Objects
             info.boundsMax = max;
             info.boundsMin = min;
             info.numTriangles = _triangles.Count;
+            
+            boundingBox.min = min;
+            boundingBox.max = max;
+            boundingBox.typeofElement = TypesOfElement.Mesh;
         }
 
         public override RayTracingMaterial GetMaterial()

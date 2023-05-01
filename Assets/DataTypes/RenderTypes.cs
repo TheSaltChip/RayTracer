@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace DataTypes
 {
@@ -122,7 +123,7 @@ namespace DataTypes
         [HideInInspector] public BoxSide sideZ1;
         [HideInInspector] public BoxSide sideZ2;
 
-        [Range(0,2)] public float density;
+        [Range(0, 2)] public float density;
         [HideInInspector] public float negInvDensity;
 
         public RayTracingMaterial material;
@@ -134,9 +135,35 @@ namespace DataTypes
         [HideInInspector] public Vector3 center;
         [HideInInspector] public float radius;
 
-        [Range(0,2)] public float density;
+        [Range(0, 2)] public float density;
         [HideInInspector] public float negInvDensity;
 
         public RayTracingMaterial material;
+    }
+
+    [Serializable, StructLayout(LayoutKind.Sequential)]
+    public struct BoundingBox
+    {
+        [HideInInspector] public Vector3 min;
+        [HideInInspector] public Vector3 max;
+        [HideInInspector] public TypesOfElement typeofElement;
+        [HideInInspector] public int index;
+        
+        public override string ToString()
+        {
+            return
+                $"{nameof(min)}: {min}, {nameof(max)}: {max}, {nameof(typeofElement)}: {typeofElement}, {nameof(index)}: {index}";
+        }
+    }
+
+    public enum TypesOfElement
+    {
+        Sphere,
+        Rect,
+        Box,
+        FogSphere,
+        FogBox,
+        Mesh,
+        AABB
     }
 }

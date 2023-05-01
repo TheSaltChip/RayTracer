@@ -7,9 +7,13 @@ using System.Linq;
 using Attributes;
 using DataTypes;
 using Helpers;
-using Objects;
+using RayTracingObjects;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
+using Util;
+using Util.Bvh;
+using Debug = UnityEngine.Debug;
 using Rect = DataTypes.Rect;
 
 namespace Manager
@@ -18,6 +22,8 @@ namespace Manager
     public class RayTracingManager : MonoBehaviour
     {
         private const float Deg2Rad = Mathf.PI / 180f;
+
+        #region SHADER_PROPERTIES
 
         // @formatter:off
         private static readonly int Frame = Shader.PropertyToID("Frame");
@@ -40,17 +46,21 @@ namespace Manager
         private static readonly int NumBoxInfos = Shader.PropertyToID("NumBoxInfos");
         private static readonly int NumBoxSides = Shader.PropertyToID("NumBoxSides");
         private static readonly int NumFogBoxes = Shader.PropertyToID("NumFogBoxes");
+        private static readonly int BoundingBoxes = Shader.PropertyToID("BoundingBoxes");
         private static readonly int NumFogSpheres = Shader.PropertyToID("NumFogSpheres");
         private static readonly int MaxBounceCount = Shader.PropertyToID("MaxBounceCount");
         private static readonly int SkyColorZenith = Shader.PropertyToID("SkyColorZenith");
         private static readonly int DivergeStrength = Shader.PropertyToID("DivergeStrength");
         private static readonly int NumRaysPerPixel = Shader.PropertyToID("NumRaysPerPixel");
         private static readonly int SkyColorHorizon = Shader.PropertyToID("SkyColorHorizon");
-        //private static readonly int SunLightDirection = Shader.PropertyToID("SunLightDirection");
+        private static readonly int NumBoundingBoxes = Shader.PropertyToID("NumBoundingBoxes");
         private static readonly int NumRenderedFrames = Shader.PropertyToID("NumRenderedFrames");
+        //private static readonly int SunLightDirection = Shader.PropertyToID("SunLightDirection");
         private static readonly int EnvironmentEnabled = Shader.PropertyToID("EnvironmentEnabled");
         private static readonly int CamLocalToWorldMatrix = Shader.PropertyToID("CamLocalToWorldMatrix");
         // @formatter:on
+
+        #endregion
 
         [Header("Info"), SerializeField, ReadOnly]
         private int frameCount;
@@ -72,6 +82,10 @@ namespace Manager
 
         [Space, Header("Setup Settings"), SerializeField]
         private bool useShaderInSceneView;
+
+        [SerializeField] private bool drawBvh;
+        [SerializeField] private bool createBvh;
+        [SerializeField] private bool useBvh;
 
         //[SerializeField] private Light sun;
         [SerializeField] private Shader rayTracingShader;
@@ -97,6 +111,7 @@ namespace Manager
         private GraphicsBuffer _boxInfoBuffer;
         private GraphicsBuffer _triangleBuffer;
         private GraphicsBuffer _meshInfoBuffer;
+        private GraphicsBuffer _boundingBoxes;
 
         private RenderTexture _resultTexture;
         private bool _wasLastFrameRayTraced;
@@ -106,13 +121,18 @@ namespace Manager
         private List<MeshInfo> _allMeshInfo;
         private List<BoxInfo> _boxInfos;
         private List<BoxSide> _sides;
+        private List<BaseObject> _baseObjects;
 
         private Stopwatch _stopwatch;
         private List<TimeSpan> _renderTimes;
 
+        private BoundingVolumeHierarchy _bvh;
+
         private void Start()
         {
             frameCount = 0;
+            _bvh = new BoundingVolumeHierarchy();
+            _baseObjects?.Clear();
         }
 
         private void OnEnable()
@@ -127,6 +147,19 @@ namespace Manager
 
         private void Update()
         {
+            if (drawBvh)
+                _bvh?.DrawArray(Color.green, Color.blue, Color.red);
+
+            switch (useBvh)
+            {
+                case true:
+                    Shader.EnableKeyword("USE_BVH_COLLISION_CALCULATION");
+                    break;
+                case false:
+                    Shader.DisableKeyword("USE_BVH_COLLISION_CALCULATION");
+                    break;
+            }
+
             if (saveThisFrame)
             {
                 StartCoroutine(SaveThisFrame());
@@ -220,6 +253,10 @@ namespace Manager
                 ShaderHelper.RGBA_SFloat, "Result");
 
             UpdateCameraParams(Camera.current);
+
+            _baseObjects ??= new List<BaseObject>();
+            _baseObjects.Clear();
+
             CreateSpheres();
             CreateFogSpheres();
             CreateRects();
@@ -227,8 +264,26 @@ namespace Manager
             CreateFogBoxes();
             CreateMeshes();
             SetShaderVariables();
+            
+            if (!createBvh) return;
+            
+            createBvh = false;
+            CreateBVH();
         }
 
+        // ReSharper disable once InconsistentNaming
+        private void CreateBVH()
+        {
+            if (_bvh == null) return;
+            
+            _bvh.CreateBVH(_baseObjects);
+
+            var boundingBoxes = _bvh.Boxes;
+
+            ShaderHelper.CreateStructuredBuffer(ref _boundingBoxes, boundingBoxes);
+            _rayTracingMaterial.SetBuffer(BoundingBoxes, _boundingBoxes);
+            _rayTracingMaterial.SetInteger(NumBoundingBoxes, boundingBoxes.Length);
+        }
 
         private void UpdateCameraParams(Camera cam)
         {
@@ -247,12 +302,16 @@ namespace Manager
 
             for (var i = 0; i < sphereObjects.Length; i++)
             {
-                spheres[i] = sphereObjects[i].GetSphere();
+                var sphereObject = sphereObjects[i];
+                sphereObject.Index(i);
+                spheres[i] = sphereObject.GetSphere();
             }
 
             ShaderHelper.CreateStructuredBuffer(ref _sphereBuffer, spheres);
             _rayTracingMaterial.SetBuffer(Spheres, _sphereBuffer);
             _rayTracingMaterial.SetInteger(NumSpheres, sphereObjects.Length);
+
+            AddToBaseObjects(sphereObjects);
         }
 
         private void CreateFogSpheres()
@@ -263,12 +322,16 @@ namespace Manager
 
             for (var i = 0; i < fogSphereObjects.Length; i++)
             {
-                fogSpheres[i] = fogSphereObjects[i].GetFogSphere();
+                var fogSphereObject = fogSphereObjects[i];
+                fogSphereObject.Index(i);
+                fogSpheres[i] = fogSphereObject.GetFogSphere();
             }
 
             ShaderHelper.CreateStructuredBuffer(ref _fogSphereBuffer, fogSpheres);
             _rayTracingMaterial.SetBuffer(FogSpheres, _fogSphereBuffer);
             _rayTracingMaterial.SetInteger(NumFogSpheres, fogSphereObjects.Length);
+
+            AddToBaseObjects(fogSphereObjects);
         }
 
         private void CreateRects()
@@ -279,12 +342,16 @@ namespace Manager
 
             for (var i = 0; i < rectObjects.Length; i++)
             {
-                rects[i] = rectObjects[i].GetRect();
+                var rectObject = rectObjects[i];
+                rectObject.Index(i);
+                rects[i] = rectObject.GetRect();
             }
 
             ShaderHelper.CreateStructuredBuffer(ref _rectBuffer, rects);
             _rayTracingMaterial.SetBuffer(Rects, _rectBuffer);
             _rayTracingMaterial.SetInteger(NumRects, rectObjects.Length);
+
+            AddToBaseObjects(rectObjects);
         }
 
         private void CreateBoxes()
@@ -301,11 +368,14 @@ namespace Manager
 
             for (var i = 0; i < boxObjectsLength; i++)
             {
-                var info = boxObjects[i].GetBoxInfo();
+                var boxObject = boxObjects[i];
+                boxObject.Index(i);
+
+                var info = boxObject.GetBoxInfo();
                 info.firstSideIndex = _sides.Count;
                 _boxInfos.Add(info);
 
-                var tempSides = boxObjects[i].GetSides();
+                var tempSides = boxObject.GetSides();
 
                 _sides.AddRange(tempSides);
             }
@@ -317,6 +387,8 @@ namespace Manager
             ShaderHelper.CreateStructuredBuffer(ref _boxSideBuffer, _sides);
             _rayTracingMaterial.SetBuffer(BoxSides, _boxSideBuffer);
             _rayTracingMaterial.SetInteger(NumBoxSides, _sides.Count);
+
+            AddToBaseObjects(boxObjects);
         }
 
         private void CreateFogBoxes()
@@ -327,12 +399,16 @@ namespace Manager
 
             for (var i = 0; i < fogBoxObjects.Length; i++)
             {
-                fogBoxes[i] = fogBoxObjects[i].GetFogBox();
+                var fogBoxObject = fogBoxObjects[i];
+                fogBoxObject.Index(i);
+                fogBoxes[i] = fogBoxObject.GetFogBox();
             }
 
             ShaderHelper.CreateStructuredBuffer(ref _fogBoxBuffer, fogBoxes);
             _rayTracingMaterial.SetBuffer(FogBoxes, _fogBoxBuffer);
             _rayTracingMaterial.SetInteger(NumFogBoxes, fogBoxObjects.Length);
+
+            AddToBaseObjects(fogBoxObjects);
         }
 
         private void CreateMeshes()
@@ -345,10 +421,12 @@ namespace Manager
             _allTriangles.Clear();
             _allMeshInfo.Clear();
 
-            foreach (var t in meshObjects)
+            for (var i = 0; i < meshObjects.Length; i++)
             {
-                var (meshInfo, triangles) = t.GetInfoAndList();
+                var t = meshObjects[i];
+                t.Index(i);
 
+                var (meshInfo, triangles) = t.GetInfoAndList();
                 meshInfo.firstTriangleIndex = _allTriangles.Count;
                 _allTriangles.AddRange(triangles);
                 _allMeshInfo.Add(meshInfo);
@@ -360,6 +438,13 @@ namespace Manager
             _rayTracingMaterial.SetBuffer(Triangles, _triangleBuffer);
             _rayTracingMaterial.SetBuffer(AllMeshInfo, _meshInfoBuffer);
             _rayTracingMaterial.SetInteger(NumMeshes, _allMeshInfo.Count);
+
+            AddToBaseObjects(meshObjects);
+        }
+
+        private void AddToBaseObjects(IEnumerable<BaseObject> baseObjects)
+        {
+            _baseObjects.AddRange(baseObjects);
         }
 
         private void SetShaderVariables()
@@ -397,11 +482,6 @@ namespace Manager
  * ffmpeg -v warning -i "input.mp4" -i "tmp/palette.png" -lavfi "fps=36,scale=1080:-1:flags=lanczos [x]; [x][1:v] paletteuse" -y "out.gif"
  */
             path += changer.FileName();
-            /*
-             * TODO Whenever a change has been done by the ChangerManager, it should mark the changed object
-             * TODO as needed to be recalculated, otherwise it should fetch cached values
-             * Should save processing power, if done correctly
-             */
             changer.Increment();
             amountOfPictures = changer.NumberOfImages;
 
@@ -456,7 +536,7 @@ namespace Manager
         private void OnDisable()
         {
             ShaderHelper.Release(_sphereBuffer, _triangleBuffer, _meshInfoBuffer, _rectBuffer, _boxSideBuffer,
-                _boxInfoBuffer, _fogBoxBuffer, _fogSphereBuffer);
+                _boxInfoBuffer, _fogBoxBuffer, _fogSphereBuffer, _boundingBoxes);
             ShaderHelper.Release(_resultTexture);
         }
 

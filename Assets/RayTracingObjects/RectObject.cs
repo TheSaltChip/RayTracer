@@ -1,9 +1,8 @@
-﻿using System;
-using DataTypes;
+﻿using DataTypes;
 using UnityEngine;
 using Rect = DataTypes.Rect;
 
-namespace Objects
+namespace RayTracingObjects
 {
     [ExecuteAlways]
     public class RectObject : BaseObject
@@ -45,7 +44,7 @@ namespace Objects
 
             (boundingBox.min, boundingBox.max) =
                 GetTransformedBounds(_mesh.bounds.min, _mesh.bounds.max, t.localToWorldMatrix);
-            var padding = new Vector3(0, 0, 0.001f);
+            var padding = new Vector3(0, 0, 0.01f);
             boundingBox.min += padding;
             boundingBox.max += padding;
             boundingBox.typeofElement = TypesOfElement.Rect;

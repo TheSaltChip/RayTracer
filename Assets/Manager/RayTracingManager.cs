@@ -7,7 +7,7 @@ using System.Linq;
 using Attributes;
 using DataTypes;
 using Helpers;
-using Objects;
+using RayTracingObjects;
 using UnityEditor;
 using UnityEngine;
 using Util;

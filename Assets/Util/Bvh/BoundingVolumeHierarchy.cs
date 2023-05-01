@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DataTypes;
-using Objects;
+using RayTracingObjects;
 using UnityEngine;
 
 // ReSharper disable InconsistentNaming

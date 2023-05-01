@@ -1,7 +1,7 @@
 ﻿using DataTypes;
 using UnityEngine;
 
-namespace Objects
+namespace RayTracingObjects
 {
     [ExecuteAlways]
     public abstract class BaseObject : MonoBehaviour
@@ -9,9 +9,9 @@ namespace Objects
         private Matrix4x4 _oldMatrix;
         protected bool shouldUpdateValues;
 
-        protected BoundingBox boundingBox = new();
+        protected BoundingBox boundingBox;
 
-        public void Index(int index) => boundingBox.indexOfElement = index;
+        public void Index(int index) => boundingBox.index = index;
 
         public void ShouldUpdateValues()
         {

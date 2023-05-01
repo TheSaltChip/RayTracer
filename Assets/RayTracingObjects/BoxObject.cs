@@ -1,21 +1,17 @@
+﻿using System.Collections.Generic;
 using DataTypes;
 using UnityEngine;
 
-namespace Objects
+namespace RayTracingObjects
 {
     [ExecuteAlways]
-    public class FogBoxObject : BaseObject
+    public class BoxObject : BaseObject
     {
         [SerializeField] private MeshFilter meshFilter;
 
-        [SerializeField] private FogBox fogBox;
+        [SerializeField] private BoxInfo boxInfo;
 
-        public FogBox GetFogBox()
-        {
-            UpdateValues();
-
-            return fogBox;
-        }
+        private BoxSide[] _sides;
 
         private void UpdateValues()
         {
@@ -43,9 +39,9 @@ namespace Objects
 
             var rotationMatrix = Matrix4x4.Rotate(rotation);
 
-            var sides = new BoxSide[6];
+            _sides = new BoxSide[6];
 
-            for (var i = 0; i < sides.Length; i++)
+            for (var i = 0; i < _sides.Length; i++)
             {
                 var offset = position;
                 var tMin = Vector3.zero;
@@ -98,42 +94,39 @@ namespace Objects
                     rotation = Matrix4x4.Transpose(Matrix4x4.Rotate(rot))
                 };
 
-                sides[i] = rect;
+                _sides[i] = rect;
             }
 
-            fogBox.sideX1 = sides[0];
-            fogBox.sideX2 = sides[1];
-            fogBox.sideY1 = sides[2];
-            fogBox.sideY2 = sides[3];
-            fogBox.sideZ1 = sides[4];
-            fogBox.sideZ2 = sides[5];
+            (boxInfo.boundsMin, boxInfo.boundsMax) =
+                GetTransformedBounds(bounds.min, bounds.max, t.localToWorldMatrix);
 
-            var localToWorldMatrix = t.localToWorldMatrix;
+            boundingBox.min = boxInfo.boundsMin;
+            boundingBox.max = boxInfo.boundsMax;
+            boundingBox.typeofElement = TypesOfElement.Box;
+        }
 
-            fogBox.boundsMin = localToWorldMatrix.MultiplyPoint3x4(bounds.min);
-            fogBox.boundsMax = localToWorldMatrix.MultiplyPoint3x4(bounds.max);
+        public BoxInfo GetBoxInfo()
+        {
+            UpdateValues();
 
-            (fogBox.boundsMin, fogBox.boundsMax) = GetTransformedBounds(bounds.min, bounds.max, localToWorldMatrix);
-            
-            boundingBox.min = fogBox.boundsMin;
-            boundingBox.max = fogBox.boundsMax;
-            boundingBox.typeofElement = TypesOfElement.FogBox;
-            
-            fogBox.negInvDensity = -1 / fogBox.density;
-            // ReSharper disable once ValueRangeAttributeViolation
-            fogBox.material.type = 3;
+            return boxInfo;
+        }
+
+        public IEnumerable<BoxSide> GetSides()
+        {
+            UpdateValues();
+
+            return _sides;
         }
 
         public override RayTracingMaterial GetMaterial()
         {
-            return fogBox.material;
+            return boxInfo.material;
         }
 
         public override void SetMaterial(RayTracingMaterial material)
         {
-            fogBox.material = material;
+            boxInfo.material = material;
         }
-
-        
     }
 }

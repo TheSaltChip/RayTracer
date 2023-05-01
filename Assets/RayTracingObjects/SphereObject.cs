@@ -1,8 +1,7 @@
 using DataTypes;
 using UnityEngine;
 
-
-namespace Objects
+namespace RayTracingObjects
 {
     [ExecuteAlways]
     public class SphereObject : BaseObject

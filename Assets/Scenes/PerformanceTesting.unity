@@ -668,7 +668,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1134112474}
   m_LocalRotation: {x: 0.21802902, y: -0.41261366, z: 0.12536429, w: 0.87549824}
-  m_LocalPosition: {x: 0.06400002, y: 2.014, z: -2.924}
+  m_LocalPosition: {x: 15.51, y: 10.31, z: 8.79}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -701,6 +701,7 @@ MonoBehaviour:
   divergeStrength: 0
   useShaderInSceneView: 1
   drawBvh: 1
+  createBvh: 0
   rayTracingShader: {fileID: 4800000, guid: edfdd0279b046b343be4f388b606d350, type: 3}
   combineShader: {fileID: 4800000, guid: ec839f71fcd548988f58c7849a623233, type: 3}
   changer: {fileID: 468687823}

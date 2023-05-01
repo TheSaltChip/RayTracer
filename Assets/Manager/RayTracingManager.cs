@@ -10,6 +10,7 @@ using Helpers;
 using RayTracingObjects;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Util;
 using Util.Bvh;
 using Debug = UnityEngine.Debug;
@@ -83,6 +84,8 @@ namespace Manager
         private bool useShaderInSceneView;
 
         [SerializeField] private bool drawBvh;
+        [SerializeField] private bool createBvh;
+        [SerializeField] private bool useBvh;
 
         //[SerializeField] private Light sun;
         [SerializeField] private Shader rayTracingShader;
@@ -124,7 +127,6 @@ namespace Manager
         private List<TimeSpan> _renderTimes;
 
         private BoundingVolumeHierarchy _bvh;
-        private bool _addedOnce;
 
         private void Start()
         {
@@ -147,6 +149,16 @@ namespace Manager
         {
             if (drawBvh)
                 _bvh?.DrawArray(Color.green, Color.blue, Color.red);
+
+            switch (useBvh)
+            {
+                case true:
+                    Shader.EnableKeyword("USE_BVH_COLLISION_CALCULATION");
+                    break;
+                case false:
+                    Shader.DisableKeyword("USE_BVH_COLLISION_CALCULATION");
+                    break;
+            }
 
             if (saveThisFrame)
             {
@@ -252,9 +264,11 @@ namespace Manager
             CreateFogBoxes();
             CreateMeshes();
             SetShaderVariables();
-            if (!_addedOnce)
-                CreateBVH();
             
+            if (!createBvh) return;
+            
+            createBvh = false;
+            CreateBVH();
         }
 
         // ReSharper disable once InconsistentNaming
@@ -262,7 +276,6 @@ namespace Manager
         {
             if (_bvh == null) return;
             
-            _addedOnce = true;
             _bvh.CreateBVH(_baseObjects);
 
             var boundingBoxes = _bvh.Boxes;
@@ -469,11 +482,6 @@ namespace Manager
  * ffmpeg -v warning -i "input.mp4" -i "tmp/palette.png" -lavfi "fps=36,scale=1080:-1:flags=lanczos [x]; [x][1:v] paletteuse" -y "out.gif"
  */
             path += changer.FileName();
-            /*
-             * TODO Whenever a change has been done by the ChangerManager, it should mark the changed object
-             * TODO as needed to be recalculated, otherwise it should fetch cached values
-             * Should save processing power, if done correctly
-             */
             changer.Increment();
             amountOfPictures = changer.NumberOfImages;
 

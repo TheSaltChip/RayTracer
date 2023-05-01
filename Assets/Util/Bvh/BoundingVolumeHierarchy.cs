@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DataTypes;
@@ -11,16 +12,23 @@ namespace Util.Bvh
     public class BoundingVolumeHierarchy
     {
         private BoundingBox[] _boxes;
+        private int largestIndex;
 
         public BoundingVolumeHierarchy()
         {
             _boxes = new BoundingBox[10];
         }
 
-        public BvhNode BVHRoot { get; private set; }
+        private BvhNode BVHRoot { get; set; }
 
-        public BoundingBox[] Boxes => _boxes;
-
+        public BoundingBox[] Boxes
+        {
+            get
+            {
+                Array.Resize(ref _boxes, largestIndex + 1);
+                return _boxes;
+            }
+        }
 
         public void CreateBVH(List<BaseObject> baseObjects)
         {
@@ -119,9 +127,12 @@ namespace Util.Bvh
                 if (node == null || index == -1 || index >= _boxes.Length) return;
 
                 _boxes[index] = node.BoundingBox;
+                largestIndex = index;
 
                 var leftIndex = GetLeftIndex(index);
-                _boxes[index].indexOfLeftChild = leftIndex;
+
+                if (node.BoundingBox.typeofElement == TypesOfElement.AABB)
+                    _boxes[index].index = leftIndex;
 
                 TreeToList(node.Left, leftIndex);
                 node = node.Right;

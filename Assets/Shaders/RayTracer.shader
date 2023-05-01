@@ -8,6 +8,7 @@ Shader "Unlit/RayTracer"
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag
+            #pragma multi_compile __ USE_BVH_COLLISION_CALCULATION
 
             #include "UnityCG.cginc"
             #include "Assets/Resources/common/Random.hlsl"
@@ -197,6 +198,7 @@ Shader "Unlit/RayTracer"
                 }
             }
 
+            #ifdef USE_BVH_COLLISION_CALCULATION
             HitRecord CalculateRayCollision(Ray ray)
             {
                 float closestSoFar = FLOAT_MAX;
@@ -209,30 +211,30 @@ Shader "Unlit/RayTracer"
 
                 int pointer = 0;
 
-                while(true)
+                while (true)
                 {
-                    if (box.isLeafNode)
+                    if (box.typeofElement != ELEMENT_TYPES.aabb)
                     {
                         switch (box.typeofElement)
                         {
                         case ELEMENT_TYPES.sphere:
-                            CalculateSphereCollision(ray, box.indexOfElement, closestHitRecord, minDist, closestSoFar);
+                            CalculateSphereCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
                             break;
                         case ELEMENT_TYPES.rect:
-                            CalculateRectCollision(ray, box.indexOfElement, closestHitRecord, minDist, closestSoFar);
+                            CalculateRectCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
                             break;
                         case ELEMENT_TYPES.box:
-                            CalculateBoxCollision(ray, box.indexOfElement, closestHitRecord, minDist, closestSoFar);
+                            CalculateBoxCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
                             break;
                         case ELEMENT_TYPES.fogSphere:
-                            CalculateFogSphereCollision(ray, box.indexOfElement, closestHitRecord, minDist,
+                            CalculateFogSphereCollision(ray, box.index, closestHitRecord, minDist,
                                                         closestSoFar);
                             break;
                         case ELEMENT_TYPES.fogBox:
-                            CalculateFogBoxCollision(ray, box.indexOfElement, closestHitRecord, minDist, closestSoFar);
+                            CalculateFogBoxCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
                             break;
                         case ELEMENT_TYPES.mesh:
-                            CalculateMeshCollision(ray, box.indexOfElement, closestHitRecord, minDist, closestSoFar);
+                            CalculateMeshCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
                             break;
                         default:
                             break;
@@ -241,13 +243,13 @@ Shader "Unlit/RayTracer"
                         if (pointer == 0)
                             break;
 
-                        box = (BoundingBox) stack[--pointer];
+                        box = (BoundingBox)stack[--pointer];
 
                         continue;
                     }
 
-                    BoundingBox box1 = BoundingBoxes[box.indexOfLeftChild];
-                    BoundingBox box2 = BoundingBoxes[box.indexOfLeftChild + 1];
+                    BoundingBox box1 = BoundingBoxes[box.index];
+                    BoundingBox box2 = BoundingBoxes[box.index + 1];
 
                     float dist1 = box1.IntersectBox(ray, closestSoFar);
                     float dist2 = box2.IntersectBox(ray, closestSoFar);
@@ -278,7 +280,15 @@ Shader "Unlit/RayTracer"
                 }
 
                 return closestHitRecord;
-                
+            }
+            
+            #else
+            HitRecord CalculateRayCollision(Ray ray)
+            {
+                float closestSoFar = FLOAT_MAX;
+                const float minDist = MIN_DIST;
+                HitRecord closestHitRecord = (HitRecord)0;
+
                 const int maxNum =
                     max(NumSpheres,
                         max(NumFogSpheres,
@@ -309,6 +319,8 @@ Shader "Unlit/RayTracer"
 
                 return closestHitRecord;
             }
+            #endif
+
 
             float3 GetEnvironmentLight(Ray ray)
             {

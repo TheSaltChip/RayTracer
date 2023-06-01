@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Attributes;
 using DataTypes;
 using Helpers;
@@ -14,7 +13,7 @@ using UnityEngine;
 using Util.Bvh;
 using Rect = DataTypes.Rect;
 
-namespace Manager
+namespace Managers
 {
     [ExecuteAlways, ImageEffectAllowedInSceneView]
     public class RayTracingManager : MonoBehaviour
@@ -105,7 +104,6 @@ namespace Manager
         [SerializeField] private BVHStatus bvhStatus;
         [SerializeField] private BVHTypes bvhType;
 
-        //[SerializeField] private Light sun;
         [SerializeField] private Shader rayTracingShader;
         [SerializeField] private Shader combineShader;
         [SerializeField] private ChangerManager changer;

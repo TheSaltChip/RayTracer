@@ -452,17 +452,18 @@ MonoBehaviour:
   saveThisFrame: 0
   stopRender: 0
   restartRender: 0
-  maxBounceCount: 20
+  maxBounceCount: 10
   numRaysPerPixel: 10
-  divergeStrength: 0.25
+  divergeStrength: 0
   useShaderInSceneView: 1
-  drawBvh: 0
+  drawBvh: 1
   createBvh: 0
-  useBvh: 0
+  bvhStatus: 2
+  bvhType: 0
   rayTracingShader: {fileID: 4800000, guid: edfdd0279b046b343be4f388b606d350, type: 3}
   combineShader: {fileID: 4800000, guid: ec839f71fcd548988f58c7849a623233, type: 3}
   changer: {fileID: 584869891}
-  environmentEnabled: 0
+  environmentEnabled: 1
   skyColorHorizon: {r: 0.9292453, g: 0.982146, b: 1, a: 0}
   skyColorZenith: {r: 0.3254717, g: 0.50365984, b: 1, a: 0}
   groundColor: {r: 0.2924528, g: 0.2924528, b: 0.2924528, a: 0}

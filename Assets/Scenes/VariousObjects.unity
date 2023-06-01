@@ -2605,11 +2605,12 @@ MonoBehaviour:
   restartRender: 0
   maxBounceCount: 15
   numRaysPerPixel: 10
-  divergeStrength: 0.3
-  useShaderInSceneView: 1
+  divergeStrength: 0
+  useShaderInSceneView: 0
   drawBvh: 1
-  createBvh: 1
-  useBvh: 0
+  createBvh: 0
+  bvhStatus: 2
+  bvhType: 2
   rayTracingShader: {fileID: 4800000, guid: edfdd0279b046b343be4f388b606d350, type: 3}
   combineShader: {fileID: 4800000, guid: ec839f71fcd548988f58c7849a623233, type: 3}
   changer: {fileID: 1836331782}

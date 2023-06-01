@@ -142,7 +142,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &31427435
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -701,7 +701,9 @@ MonoBehaviour:
   divergeStrength: 0
   useShaderInSceneView: 1
   drawBvh: 1
-  createBvh: 0
+  createBvh: 1
+  bvhStatus: 2
+  bvhType: 3
   rayTracingShader: {fileID: 4800000, guid: edfdd0279b046b343be4f388b606d350, type: 3}
   combineShader: {fileID: 4800000, guid: ec839f71fcd548988f58c7849a623233, type: 3}
   changer: {fileID: 468687823}

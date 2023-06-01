@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18360597, g: 0.22911084, b: 0.30536896, a: 1}
+  m_IndirectSpecularColor: {r: 0.15147348, g: 0.1711268, b: 0.17894225, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -220,25 +220,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fae5f12eaf754545b0d752a1216ac925, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxBounceCount: 8
+  frameCount: 0
+  totalAmountOfRaysPerPixel: 0
+  amountOfPictures: 0
+  folderName: 
+  raysPerPixelPerImage: 100000
+  saveImageSequence: 0
+  saveThisFrame: 0
+  stopRender: 0
+  restartRender: 0
+  maxBounceCount: 20
   numRaysPerPixel: 20
-  divergeStrength: 0.5
+  divergeStrength: 0.1
   useShaderInSceneView: 1
-  rayTracingMaterial: {fileID: 2100000, guid: 6e30e82e3f8782c4895b584ace2e80ad, type: 2}
-  combiningMaterial: {fileID: 2100000, guid: 835b22bfb93396d4b85210ea62340e4d, type: 2}
+  drawBvh: 1
+  createBvh: 1
+  bvhStatus: 0
+  bvhType: 0
+  rayTracingShader: {fileID: 4800000, guid: edfdd0279b046b343be4f388b606d350, type: 3}
+  combineShader: {fileID: 4800000, guid: ec839f71fcd548988f58c7849a623233, type: 3}
+  changer: {fileID: 701797108}
   environmentEnabled: 1
   skyColorHorizon: {r: 0.9292453, g: 0.982146, b: 1, a: 0}
   skyColorZenith: {r: 0.3254717, g: 0.50365984, b: 1, a: 0}
   groundColor: {r: 0.2924528, g: 0.2924528, b: 0.2924528, a: 0}
-  sunFocus: 1.85
-  meshes: []
-  spheres:
-  - {fileID: 697830271}
-  - {fileID: 1571482597}
-  - {fileID: 1358707618}
-  - {fileID: 639984109}
-  - {fileID: 709398174}
-  - {fileID: 1169087242}
+  sunFocus: 4.46
+  sunIntensity: 0.82
 --- !u!1 &111990720
 GameObject:
   m_ObjectHideFlags: 0
@@ -325,14 +332,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 111990720}
-  m_LocalRotation: {x: -0.16633832, y: -0.6150805, z: 0.2556354, w: -0.7270888}
-  m_LocalPosition: {x: -0.9, y: 0, z: 0}
+  m_LocalRotation: {x: 0.2226743, y: -0.8575357, z: -0.08136576, w: 0.45653942}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 33.804, y: 76.923, z: -371.602}
+  m_LocalEulerAnglesHint: {x: 3.656, y: -124.825, z: -27.202}
 --- !u!1 &456763486
 GameObject:
   m_ObjectHideFlags: 0
@@ -417,13 +424,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1c89d7ffa122840a100db194628ef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material:
-    type: 0
-    color: {r: 0, g: 0, b: 0, a: 0}
-    fuzz: 0
-    ref_idx: 0
-    emissionColor: {r: 1, g: 1, b: 1, a: 0}
-    emissionStrength: 9.11
+  sphere:
+    center: {x: 209.5502, y: 115.3746, z: 344.25577}
+    radius: 177.9822
+    material:
+      type: 0
+      color: {r: 0.118147045, g: 0.5566038, b: 0.3238916, a: 0}
+      fuzz: 0
+      refIdx: 0
+      emissionColor: {r: 0, g: 0, b: 0, a: 0}
+      emissionStrength: 0
 --- !u!135 &639984110
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -597,13 +607,66 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1c89d7ffa122840a100db194628ef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material:
-    type: 0
-    color: {r: 1, g: 1, b: 1, a: 0}
-    fuzz: 0
-    ref_idx: 0
-    emissionColor: {r: 0, g: 0, b: 0, a: 0}
-    emissionStrength: 0
+  sphere:
+    center: {x: -10.829801, y: -3.9014, z: -17.91823}
+    radius: 1
+    material:
+      type: 0
+      color: {r: 0.23267008, g: 0.6226415, b: 0.17915626, a: 0}
+      fuzz: 0
+      refIdx: 0
+      emissionColor: {r: 0, g: 0, b: 0, a: 0}
+      emissionStrength: 0
+--- !u!1 &701797107
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 701797109}
+  - component: {fileID: 701797108}
+  m_Layer: 0
+  m_Name: ChangerManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &701797108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 701797107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2d384f16b0c4ff99b1de08169322fa0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  changers:
+  - {fileID: 0}
+  maxNumberOfImages: 0
+  increment: 0
+  reset: 0
+  numOfIterations: 0
+--- !u!4 &701797109
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 701797107}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -24.2542, y: 23.161804, z: -55.589764}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &709398172
 GameObject:
   m_ObjectHideFlags: 0
@@ -651,13 +714,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1c89d7ffa122840a100db194628ef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material:
-    type: 0
-    color: {r: 1, g: 0, b: 0.90096474, a: 0}
-    fuzz: 0
-    ref_idx: 0
-    emissionColor: {r: 0, g: 0, b: 0, a: 0}
-    emissionStrength: 0
+  sphere:
+    center: {x: -5.3697996, y: -85.0254, z: -18.40423}
+    radius: 80.46608
+    material:
+      type: 0
+      color: {r: 0.6415094, g: 0.12406549, b: 0.12406549, a: 0}
+      fuzz: 0
+      refIdx: 0
+      emissionColor: {r: 0, g: 0, b: 0, a: 0}
+      emissionStrength: 0
 --- !u!135 &709398175
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -768,13 +834,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1c89d7ffa122840a100db194628ef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material:
-    type: 0
-    color: {r: 1, g: 1, b: 1, a: 0}
-    fuzz: 0
-    ref_idx: 0
-    emissionColor: {r: 0, g: 0, b: 0, a: 0}
-    emissionStrength: 0
+  sphere:
+    center: {x: -5.8877997, y: 1.2346001, z: -17.194231}
+    radius: 1
+    material:
+      type: 1
+      color: {r: 0.18859975, g: 0.15979885, b: 0.5943396, a: 0}
+      fuzz: 0
+      refIdx: 0
+      emissionColor: {r: 0, g: 0, b: 0, a: 0}
+      emissionStrength: 0
 --- !u!135 &1169087243
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -948,13 +1017,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1c89d7ffa122840a100db194628ef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material:
-    type: 2
-    color: {r: 1, g: 0.909655, b: 0, a: 0}
-    fuzz: 0
-    ref_idx: 1.43
-    emissionColor: {r: 0, g: 0, b: 0, a: 0}
-    emissionStrength: 0
+  sphere:
+    center: {x: -6.4698, y: -2.1054, z: -17.68423}
+    radius: 2.714066
+    material:
+      type: 0
+      color: {r: 0.4930607, g: 0.096698105, b: 0.5, a: 0}
+      fuzz: 0
+      refIdx: 0
+      emissionColor: {r: 0, g: 0, b: 0, a: 0}
+      emissionStrength: 0
 --- !u!1 &1571482592
 GameObject:
   m_ObjectHideFlags: 0
@@ -982,14 +1054,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1571482592}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.12, y: 3.79, z: -9.77}
+  m_LocalRotation: {x: -0.0011333984, y: 0.0006013754, z: -0.0013005605, w: 0.99999833}
+  m_LocalPosition: {x: -0.120000005, y: 3.79, z: -9.77}
   m_LocalScale: {x: 4.8803, y: 4.8803, z: 4.8803}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 456763487}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -0.13, y: 0.069, z: -0.149}
 --- !u!135 &1571482594
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1065,10 +1137,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1c89d7ffa122840a100db194628ef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material:
-    type: 0
-    color: {r: 1, g: 0, b: 0, a: 1}
-    fuzz: 0
-    ref_idx: 0
-    emissionColor: {r: 0, g: 0, b: 0, a: 0}
-    emissionStrength: 0
+  sphere:
+    center: {x: 1.1102, y: -0.44540024, z: -19.284231}
+    radius: 4.8803
+    material:
+      type: 0
+      color: {r: 0.26637593, g: 0.7735849, b: 0.7290019, a: 0}
+      fuzz: 0
+      refIdx: 0
+      emissionColor: {r: 0, g: 0, b: 0, a: 0}
+      emissionStrength: 0

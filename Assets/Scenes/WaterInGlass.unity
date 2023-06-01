@@ -233,13 +233,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1c89d7ffa122840a100db194628ef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material:
-    type: 1
-    color: {r: 0.801, g: 0.159399, b: 0.53482527, a: 0}
-    fuzz: 0.8
-    refIdx: 0
-    emissionColor: {r: 0, g: 0, b: 0, a: 0}
-    emissionStrength: 0
+  sphere:
+    center: {x: 0, y: 0, z: 0}
+    radius: 0
+    material:
+      type: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
+      fuzz: 0
+      refIdx: 0
+      emissionColor: {r: 0, g: 0, b: 0, a: 0}
+      emissionStrength: 0
 --- !u!1 &454065060
 GameObject:
   m_ObjectHideFlags: 0
@@ -281,9 +284,13 @@ MonoBehaviour:
   stopRender: 0
   restartRender: 0
   maxBounceCount: 10
-  numRaysPerPixel: 20
+  numRaysPerPixel: 10
   divergeStrength: 0.3
-  useShaderInSceneView: 0
+  useShaderInSceneView: 1
+  drawBvh: 0
+  createBvh: 1
+  bvhStatus: 0
+  bvhType: 0
   rayTracingShader: {fileID: 4800000, guid: edfdd0279b046b343be4f388b606d350, type: 3}
   combineShader: {fileID: 4800000, guid: ec839f71fcd548988f58c7849a623233, type: 3}
   changer: {fileID: 1055149709}
@@ -467,13 +474,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1c89d7ffa122840a100db194628ef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material:
-    type: 1
-    color: {r: 0.163404, g: 0.801, b: 0.68410736, a: 0}
-    fuzz: 0.6
-    refIdx: 0
-    emissionColor: {r: 0, g: 0, b: 0, a: 0}
-    emissionStrength: 0
+  sphere:
+    center: {x: 0, y: 0, z: 0}
+    radius: 0
+    material:
+      type: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
+      fuzz: 0
+      refIdx: 0
+      emissionColor: {r: 0, g: 0, b: 0, a: 0}
+      emissionStrength: 0
 --- !u!1 &545855896
 GameObject:
   m_ObjectHideFlags: 0
@@ -644,13 +654,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1c89d7ffa122840a100db194628ef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material:
-    type: 1
-    color: {r: 0.19824673, g: 0.764151, b: 0.32085934, a: 0}
-    fuzz: 0.2
-    refIdx: 0
-    emissionColor: {r: 0, g: 0, b: 0, a: 0}
-    emissionStrength: 0
+  sphere:
+    center: {x: 0, y: 0, z: 0}
+    radius: 0
+    material:
+      type: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
+      fuzz: 0
+      refIdx: 0
+      emissionColor: {r: 0, g: 0, b: 0, a: 0}
+      emissionStrength: 0
 --- !u!135 &691944640
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -824,13 +837,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1c89d7ffa122840a100db194628ef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material:
-    type: 1
-    color: {r: 0.37647036, g: 0.16470586, b: 0.8, a: 0}
-    fuzz: 0.4
-    refIdx: 0
-    emissionColor: {r: 0, g: 0, b: 0, a: 0}
-    emissionStrength: 0
+  sphere:
+    center: {x: 0, y: 0, z: 0}
+    radius: 0
+    material:
+      type: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
+      fuzz: 0
+      refIdx: 0
+      emissionColor: {r: 0, g: 0, b: 0, a: 0}
+      emissionStrength: 0
 --- !u!1 &797049876
 GameObject:
   m_ObjectHideFlags: 0
@@ -859,7 +875,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 797049876}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.82100004, y: -0.95, z: -0.321}
+  m_LocalPosition: {x: 0.82100004, y: -0.95, z: -0.325}
   m_LocalScale: {x: 0.2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -962,7 +978,7 @@ MonoBehaviour:
       e31: 0
       e32: 0
       e33: 1
-    offset: {x: 2.0525, y: -2.375, z: -0.8025}
+    offset: {x: 2.0525, y: -2.375, z: -0.8125}
     material:
       type: 0
       color: {r: 0, g: 0, b: 0, a: 0}
@@ -1157,7 +1173,6 @@ GameObject:
   m_Component:
   - component: {fileID: 992740833}
   - component: {fileID: 992740837}
-  - component: {fileID: 992740838}
   - component: {fileID: 992740836}
   - component: {fileID: 992740835}
   - component: {fileID: 992740834}
@@ -1288,31 +1303,6 @@ MonoBehaviour:
       emissionColor: {r: 1, g: 1, b: 1, a: 0}
       emissionStrength: 0
   meshFilter: {fileID: 992740836}
---- !u!114 &992740838
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 992740832}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38b5c6e0858045a4953ee47d953c9956, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  meshFilter: {fileID: 992740836}
-  info:
-    firstTriangleIndex: 0
-    numTriangles: 2
-    boundsMin: {x: -0.79521, y: -5, z: -5.0541296}
-    boundsMax: {x: 4.9452105, y: 5, z: 8.80413}
-    material:
-      type: 1
-      color: {r: 0.78431374, g: 0.30980393, b: 0.08627451, a: 0}
-      fuzz: 0
-      refIdx: 0
-      emissionColor: {r: 0, g: 0, b: 0, a: 0}
-      emissionStrength: 0
 --- !u!1 &1002612662
 GameObject:
   m_ObjectHideFlags: 0
@@ -1361,13 +1351,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1c89d7ffa122840a100db194628ef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material:
-    type: 2
-    color: {r: 1, g: 1, b: 1, a: 0}
-    fuzz: 0
-    refIdx: 0
-    emissionColor: {r: 0, g: 0, b: 0, a: 0}
-    emissionStrength: 0
+  sphere:
+    center: {x: 0, y: 0, z: 0}
+    radius: 0
+    material:
+      type: 0
+      color: {r: 0, g: 0, b: 0, a: 0}
+      fuzz: 0
+      refIdx: 0
+      emissionColor: {r: 0, g: 0, b: 0, a: 0}
+      emissionStrength: 0
 --- !u!135 &1002612665
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1885,7 +1878,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1222631668}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.82100004, y: -0.95, z: -0.321}
+  m_LocalPosition: {x: -0.82100004, y: -0.95, z: -0.325}
   m_LocalScale: {x: 0.2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1988,7 +1981,7 @@ MonoBehaviour:
       e31: 0
       e32: 0
       e33: 1
-    offset: {x: -2.0525, y: -2.375, z: -0.8025}
+    offset: {x: -2.0525, y: -2.375, z: -0.8125}
     material:
       type: 0
       color: {r: 0, g: 0, b: 0, a: 0}
@@ -2097,8 +2090,8 @@ MonoBehaviour:
   info:
     firstTriangleIndex: 0
     numTriangles: 2
-    boundsMin: {x: -5, y: -5, z: -4.975}
-    boundsMax: {x: 5, y: 5, z: -4.975}
+    boundsMin: {x: -5, y: -4.9725, z: -4.975}
+    boundsMax: {x: 5, y: 5.0274997, z: -4.975}
     material:
       type: 0
       color: {r: 1, g: 1, b: 1, a: 0}
@@ -2114,7 +2107,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1237546063}
   m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: -1.99}
+  m_LocalPosition: {x: 0, y: 0.011, z: -1.99}
   m_LocalScale: {x: 4, y: 4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2254,7 +2247,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1503588885}
   - component: {fileID: 1503588884}
-  - component: {fileID: 1503588886}
   - component: {fileID: 1503588883}
   - component: {fileID: 1503588882}
   - component: {fileID: 1503588881}
@@ -2385,31 +2377,6 @@ Transform:
   m_Father: {fileID: 2005059119}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1503588886
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1503588880}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38b5c6e0858045a4953ee47d953c9956, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  meshFilter: {fileID: 1503588883}
-  info:
-    firstTriangleIndex: 0
-    numTriangles: 2
-    boundsMin: {x: -5, y: -5, z: -0.79999995}
-    boundsMax: {x: 5, y: 5, z: -0.79999995}
-    material:
-      type: 1
-      color: {r: 1, g: 1, b: 1, a: 0}
-      fuzz: 0
-      refIdx: 0
-      emissionColor: {r: 0, g: 0, b: 0, a: 0}
-      emissionStrength: 0
 --- !u!1 &1551043106
 GameObject:
   m_ObjectHideFlags: 0
@@ -2808,7 +2775,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1834705338}
   - component: {fileID: 1834705342}
-  - component: {fileID: 1834705343}
   - component: {fileID: 1834705341}
   - component: {fileID: 1834705340}
   - component: {fileID: 1834705339}
@@ -2939,31 +2905,6 @@ MonoBehaviour:
       emissionColor: {r: 1, g: 1, b: 1, a: 0}
       emissionStrength: 0
   meshFilter: {fileID: 1834705341}
---- !u!114 &1834705343
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1834705337}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38b5c6e0858045a4953ee47d953c9956, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  meshFilter: {fileID: 1834705341}
-  info:
-    firstTriangleIndex: 0
-    numTriangles: 2
-    boundsMin: {x: -4.945126, y: -5, z: -5.054096}
-    boundsMax: {x: 0.79512566, y: 5, z: 8.804096}
-    material:
-      type: 1
-      color: {r: 0.15873085, g: 0.7743233, b: 0.8207547, a: 0}
-      fuzz: 0
-      refIdx: 0
-      emissionColor: {r: 0, g: 0, b: 0, a: 0}
-      emissionStrength: 0
 --- !u!1 &2005059118
 GameObject:
   m_ObjectHideFlags: 0

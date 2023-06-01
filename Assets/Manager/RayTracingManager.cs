@@ -33,14 +33,14 @@ namespace Manager
         private static readonly int BoxSides = Shader.PropertyToID("BoxSides");
         private static readonly int FogBoxes = Shader.PropertyToID("FogBoxes");
         private static readonly int NumRects = Shader.PropertyToID("NumRects");
-        //private static readonly int SunFocus = Shader.PropertyToID("SunFocus");
+        private static readonly int SunFocus = Shader.PropertyToID("SunFocus");
         private static readonly int NumMeshes = Shader.PropertyToID("NumMeshes");
         private static readonly int Triangles = Shader.PropertyToID("Triangles");
         private static readonly int FogSpheres = Shader.PropertyToID("FogSpheres");
         private static readonly int MainOldTex = Shader.PropertyToID("MainOldTex");
         private static readonly int NumSpheres = Shader.PropertyToID("NumSpheres");
         private static readonly int ViewParams = Shader.PropertyToID("ViewParams");
-        //private static readonly int SunIntensity = Shader.PropertyToID("SunIntensity");
+        private static readonly int SunIntensity = Shader.PropertyToID("SunIntensity");
         private static readonly int AllMeshInfo = Shader.PropertyToID("AllMeshInfo");
         private static readonly int GroundColor = Shader.PropertyToID("GroundColor");
         private static readonly int NumBoxInfos = Shader.PropertyToID("NumBoxInfos");
@@ -55,12 +55,14 @@ namespace Manager
         private static readonly int SkyColorHorizon = Shader.PropertyToID("SkyColorHorizon");
         private static readonly int NumBoundingBoxes = Shader.PropertyToID("NumBoundingBoxes");
         private static readonly int NumRenderedFrames = Shader.PropertyToID("NumRenderedFrames");
-        //private static readonly int SunLightDirection = Shader.PropertyToID("SunLightDirection");
+        private static readonly int BoundingBoxIndices = Shader.PropertyToID("BoundingBoxIndices");
         private static readonly int EnvironmentEnabled = Shader.PropertyToID("EnvironmentEnabled");
         private static readonly int CamLocalToWorldMatrix = Shader.PropertyToID("CamLocalToWorldMatrix");
         // @formatter:on
 
         #endregion
+
+        #region Serialized fields
 
         [Header("Info"), SerializeField, ReadOnly]
         private int frameCount;
@@ -97,8 +99,12 @@ namespace Manager
         [SerializeField] private Color skyColorZenith;
 
         [SerializeField] private Color groundColor;
-        //[SerializeField,Range(1, 10)] private float sunFocus = 1;
-        //[SerializeField,Range(0, 10)] private float sunIntensity = 1;
+        [SerializeField,Range(1, 50)] private float sunFocus = 1;
+        [SerializeField,Range(0, 10)] private float sunIntensity = 1;
+
+        #endregion
+
+        #region Private fields
 
         private Material _rayTracingMaterial;
         private Material _combiningMaterial;
@@ -127,6 +133,9 @@ namespace Manager
         private List<TimeSpan> _renderTimes;
 
         private BoundingVolumeHierarchy _bvh;
+        #endregion
+
+        #region Unity event functions
 
         private void Start()
         {
@@ -243,6 +252,9 @@ namespace Manager
 
             frameCount += Application.isPlaying ? 1 : 0;
         }
+
+
+        #endregion
 
         private void InitFrame()
         {
@@ -461,9 +473,7 @@ namespace Manager
             _rayTracingMaterial.SetInteger(EnvironmentEnabled, environmentEnabled ? 1 : 0);
             _rayTracingMaterial.SetVector(SkyColorHorizon, skyColorHorizon);
             _rayTracingMaterial.SetVector(SkyColorZenith, skyColorZenith);
-            //rayTracingMaterial.SetVector(SunLightDirection, sun.transform.rotation.eulerAngles.normalized);
-            //rayTracingMaterial.SetFloat(SunFocus, sunFocus);
-            //rayTracingMaterial.SetFloat(SunIntensity, sun.intensity);
+            _rayTracingMaterial.SetFloat(SunFocus, sunFocus);
             _rayTracingMaterial.SetVector(GroundColor, groundColor);
         }
 

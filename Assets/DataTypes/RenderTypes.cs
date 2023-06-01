@@ -148,11 +148,10 @@ namespace DataTypes
         [HideInInspector] public Vector3 max;
         [HideInInspector] public TypesOfElement typeofElement;
         [HideInInspector] public int index;
-        
+
         public override string ToString()
         {
-            return
-                $"{nameof(min)}: {min}, {nameof(max)}: {max}, {nameof(typeofElement)}: {typeofElement}, {nameof(index)}: {index}";
+            return $"{nameof(typeofElement)}: {typeofElement}, {nameof(index)}: {index}";
         }
     }
 

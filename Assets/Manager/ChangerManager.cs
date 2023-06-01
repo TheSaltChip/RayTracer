@@ -15,11 +15,6 @@ namespace Manager
 
         public int NumberOfImages => numOfIterations + 1;
 
-        private void Start()
-        {
-            changers = new List<Changer>();
-        }
-
         private void OnValidate()
         {
             if (reset)
@@ -39,7 +34,7 @@ namespace Manager
         public void Initialize()
         {
             numOfIterations = 0;
-            foreach (var changer in changers) changer.Initialize();
+            foreach (var changer in changers) changer?.Initialize();
         }
 
         public void Increment()

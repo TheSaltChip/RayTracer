@@ -4,16 +4,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Attributes;
 using DataTypes;
 using Helpers;
 using RayTracingObjects;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Rendering;
-using Util;
 using Util.Bvh;
-using Debug = UnityEngine.Debug;
 using Rect = DataTypes.Rect;
 
 namespace Manager
@@ -21,7 +19,24 @@ namespace Manager
     [ExecuteAlways, ImageEffectAllowedInSceneView]
     public class RayTracingManager : MonoBehaviour
     {
-        private const float Deg2Rad = Mathf.PI / 180f;
+        // ReSharper disable once InconsistentNaming
+        private enum BVHStatus
+        {
+            Disabled,
+            AllInOne,
+            OneForEach
+        }
+
+        // ReSharper disable once InconsistentNaming
+        private enum BVHTypes
+        {
+            Sphere,
+            FogSphere,
+            Rect,
+            Box,
+            FogBox,
+            Mesh
+        }
 
         #region SHADER_PROPERTIES
 
@@ -87,7 +102,8 @@ namespace Manager
 
         [SerializeField] private bool drawBvh;
         [SerializeField] private bool createBvh;
-        [SerializeField] private bool useBvh;
+        [SerializeField] private BVHStatus bvhStatus;
+        [SerializeField] private BVHTypes bvhType;
 
         //[SerializeField] private Light sun;
         [SerializeField] private Shader rayTracingShader;
@@ -118,6 +134,7 @@ namespace Manager
         private GraphicsBuffer _triangleBuffer;
         private GraphicsBuffer _meshInfoBuffer;
         private GraphicsBuffer _boundingBoxes;
+        private GraphicsBuffer _boundingBoxIndices;
 
         private RenderTexture _resultTexture;
         private bool _wasLastFrameRayTraced;
@@ -133,6 +150,15 @@ namespace Manager
         private List<TimeSpan> _renderTimes;
 
         private BoundingVolumeHierarchy _bvh;
+        private MeshObject[] _meshObjects;
+        private FogBoxObject[] _fogBoxObjects;
+        private BoxObject[] _boxObjects;
+        private RectObject[] _rectObjects;
+        private FogSphereObject[] _fogSphereObjects;
+        private SphereObject[] _sphereObjects;
+        private List<int> _indices;
+        private List<BoundingBox> _boundingBoxArray;
+
         #endregion
 
         #region Unity event functions
@@ -157,16 +183,67 @@ namespace Manager
         private void Update()
         {
             if (drawBvh)
-                _bvh?.DrawArray(Color.green, Color.blue, Color.red);
-
-            switch (useBvh)
             {
-                case true:
-                    Shader.EnableKeyword("USE_BVH_COLLISION_CALCULATION");
+                //print(new StringBuilder().AppendJoin(",", _indices).ToString());
+                //print(new StringBuilder().AppendJoin(",\n", _boundingBoxArray).ToString());
+                switch (bvhStatus)
+                {
+                    case BVHStatus.Disabled:
+                    case BVHStatus.AllInOne:
+                        _bvh?.DrawArray(Color.green, Color.blue, Color.red);
+                        break;
+                    case BVHStatus.OneForEach:
+                        if (_boundingBoxArray == null || _bvh == null)
+                        {
+                            break;
+                        }
+
+                        switch (bvhType)
+                        {
+                            case BVHTypes.Sphere:
+                                VisualizeBoundingBoxes(_indices[0], _sphereObjects.Length);
+                                break;
+                            case BVHTypes.FogSphere:
+                                VisualizeBoundingBoxes(_indices[1], _fogSphereObjects.Length);
+                                break;
+                            case BVHTypes.Rect:
+                                VisualizeBoundingBoxes(_indices[2], _rectObjects.Length);
+                                break;
+                            case BVHTypes.Box:
+                                VisualizeBoundingBoxes(_indices[3], _boxObjects.Length);
+                                break;
+                            case BVHTypes.FogBox:
+                                VisualizeBoundingBoxes(_indices[4], _fogBoxObjects.Length);
+                                break;
+                            case BVHTypes.Mesh:
+                                VisualizeBoundingBoxes(_indices[5], _meshObjects.Length);
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            switch (bvhStatus)
+            {
+                case BVHStatus.Disabled:
+                    Shader.DisableKeyword("USE_1FE_BVH_COLLISION_CALCULATION");
+                    Shader.DisableKeyword("USE_AI1_BVH_COLLISION_CALCULATION");
                     break;
-                case false:
-                    Shader.DisableKeyword("USE_BVH_COLLISION_CALCULATION");
+                case BVHStatus.AllInOne:
+                    Shader.DisableKeyword("USE_1FE_BVH_COLLISION_CALCULATION");
+                    Shader.EnableKeyword("USE_AI1_BVH_COLLISION_CALCULATION");
                     break;
+                case BVHStatus.OneForEach:
+                    Shader.DisableKeyword("USE_AI1_BVH_COLLISION_CALCULATION");
+                    Shader.EnableKeyword("USE_1FE_BVH_COLLISION_CALCULATION");
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             if (saveThisFrame)
@@ -195,12 +272,21 @@ namespace Manager
 
             if (!stopRender)
             {
-                var accumulated = _renderTimes.Aggregate(new TimeSpan(), (acc, timeSpan) => acc.Add(timeSpan));
+                var accumulated = _renderTimes.Aggregate((acc, timeSpan) => acc.Add(timeSpan));
                 print($"Total time: {accumulated:g}" +
                       $"\nAverage time per frame: {accumulated.Divide(_renderTimes.Count):g}");
             }
 
             stopRender = true;
+        }
+
+        private void VisualizeBoundingBoxes(int index, int count)
+        {
+            if (index == -1) return;
+
+            VisualizeBVH.DrawArray(
+                _boundingBoxArray.GetRange(index, count).ToArray(),
+                Color.green, Color.blue, Color.red);
         }
 
         private void OnRenderImage(RenderTexture src, RenderTexture dest)
@@ -253,6 +339,19 @@ namespace Manager
             frameCount += Application.isPlaying ? 1 : 0;
         }
 
+        private void OnDisable()
+        {
+            ShaderHelper.Release(_sphereBuffer, _triangleBuffer, _meshInfoBuffer, _rectBuffer, _boxSideBuffer,
+                _boxInfoBuffer, _fogBoxBuffer, _fogSphereBuffer, _boundingBoxes, _boundingBoxIndices);
+            ShaderHelper.Release(_resultTexture);
+        }
+
+        private void OnValidate()
+        {
+            if (Application.isPlaying) return;
+
+            OnEnable();
+        }
 
         #endregion
 
@@ -275,31 +374,13 @@ namespace Manager
             CreateBoxes();
             CreateFogBoxes();
             CreateMeshes();
-            SetShaderVariables();
-            
-            if (!createBvh) return;
-            
-            createBvh = false;
             CreateBVH();
-        }
-
-        // ReSharper disable once InconsistentNaming
-        private void CreateBVH()
-        {
-            if (_bvh == null) return;
-            
-            _bvh.CreateBVH(_baseObjects);
-
-            var boundingBoxes = _bvh.Boxes;
-
-            ShaderHelper.CreateStructuredBuffer(ref _boundingBoxes, boundingBoxes);
-            _rayTracingMaterial.SetBuffer(BoundingBoxes, _boundingBoxes);
-            _rayTracingMaterial.SetInteger(NumBoundingBoxes, boundingBoxes.Length);
+            SetShaderVariables();
         }
 
         private void UpdateCameraParams(Camera cam)
         {
-            var planeHeight = cam.nearClipPlane * Mathf.Tan(cam.fieldOfView * 0.5f * Deg2Rad) * 2;
+            var planeHeight = cam.nearClipPlane * Mathf.Tan(cam.fieldOfView * 0.5f * (Mathf.PI / 180f)) * 2;
             var planeWidth = planeHeight * cam.aspect;
 
             _rayTracingMaterial.SetVector(ViewParams, new Vector4(planeWidth, planeHeight, cam.nearClipPlane, 0));
@@ -308,69 +389,69 @@ namespace Manager
 
         private void CreateSpheres()
         {
-            var sphereObjects = FindObjectsOfType<SphereObject>();
+            _sphereObjects = FindObjectsOfType<SphereObject>();
 
-            var spheres = new Sphere[sphereObjects.Length];
+            var spheres = new Sphere[_sphereObjects.Length];
 
-            for (var i = 0; i < sphereObjects.Length; i++)
+            for (var i = 0; i < _sphereObjects.Length; i++)
             {
-                var sphereObject = sphereObjects[i];
+                var sphereObject = _sphereObjects[i];
                 sphereObject.Index(i);
                 spheres[i] = sphereObject.GetSphere();
             }
 
             ShaderHelper.CreateStructuredBuffer(ref _sphereBuffer, spheres);
             _rayTracingMaterial.SetBuffer(Spheres, _sphereBuffer);
-            _rayTracingMaterial.SetInteger(NumSpheres, sphereObjects.Length);
+            _rayTracingMaterial.SetInteger(NumSpheres, _sphereObjects.Length);
 
-            AddToBaseObjects(sphereObjects);
+            AddToBaseObjects(_sphereObjects);
         }
 
         private void CreateFogSpheres()
         {
-            var fogSphereObjects = FindObjectsOfType<FogSphereObject>();
+            _fogSphereObjects = FindObjectsOfType<FogSphereObject>();
 
-            var fogSpheres = new FogSphere[fogSphereObjects.Length];
+            var fogSpheres = new FogSphere[_fogSphereObjects.Length];
 
-            for (var i = 0; i < fogSphereObjects.Length; i++)
+            for (var i = 0; i < _fogSphereObjects.Length; i++)
             {
-                var fogSphereObject = fogSphereObjects[i];
+                var fogSphereObject = _fogSphereObjects[i];
                 fogSphereObject.Index(i);
                 fogSpheres[i] = fogSphereObject.GetFogSphere();
             }
 
             ShaderHelper.CreateStructuredBuffer(ref _fogSphereBuffer, fogSpheres);
             _rayTracingMaterial.SetBuffer(FogSpheres, _fogSphereBuffer);
-            _rayTracingMaterial.SetInteger(NumFogSpheres, fogSphereObjects.Length);
+            _rayTracingMaterial.SetInteger(NumFogSpheres, _fogSphereObjects.Length);
 
-            AddToBaseObjects(fogSphereObjects);
+            AddToBaseObjects(_fogSphereObjects);
         }
 
         private void CreateRects()
         {
-            var rectObjects = FindObjectsOfType<RectObject>();
+            _rectObjects = FindObjectsOfType<RectObject>();
 
-            var rects = new Rect[rectObjects.Length];
+            var rects = new Rect[_rectObjects.Length];
 
-            for (var i = 0; i < rectObjects.Length; i++)
+            for (var i = 0; i < _rectObjects.Length; i++)
             {
-                var rectObject = rectObjects[i];
+                var rectObject = _rectObjects[i];
                 rectObject.Index(i);
                 rects[i] = rectObject.GetRect();
             }
 
             ShaderHelper.CreateStructuredBuffer(ref _rectBuffer, rects);
             _rayTracingMaterial.SetBuffer(Rects, _rectBuffer);
-            _rayTracingMaterial.SetInteger(NumRects, rectObjects.Length);
+            _rayTracingMaterial.SetInteger(NumRects, _rectObjects.Length);
 
-            AddToBaseObjects(rectObjects);
+            AddToBaseObjects(_rectObjects);
         }
 
         private void CreateBoxes()
         {
-            var boxObjects = FindObjectsOfType<BoxObject>();
+            _boxObjects = FindObjectsOfType<BoxObject>();
 
-            var boxObjectsLength = boxObjects.Length;
+            var boxObjectsLength = _boxObjects.Length;
 
             _boxInfos ??= new List<BoxInfo>(boxObjectsLength);
             _sides ??= new List<BoxSide>(boxObjectsLength * 6);
@@ -380,7 +461,7 @@ namespace Manager
 
             for (var i = 0; i < boxObjectsLength; i++)
             {
-                var boxObject = boxObjects[i];
+                var boxObject = _boxObjects[i];
                 boxObject.Index(i);
 
                 var info = boxObject.GetBoxInfo();
@@ -400,32 +481,32 @@ namespace Manager
             _rayTracingMaterial.SetBuffer(BoxSides, _boxSideBuffer);
             _rayTracingMaterial.SetInteger(NumBoxSides, _sides.Count);
 
-            AddToBaseObjects(boxObjects);
+            AddToBaseObjects(_boxObjects);
         }
 
         private void CreateFogBoxes()
         {
-            var fogBoxObjects = FindObjectsOfType<FogBoxObject>();
+            _fogBoxObjects = FindObjectsOfType<FogBoxObject>();
 
-            var fogBoxes = new FogBox[fogBoxObjects.Length];
+            var fogBoxes = new FogBox[_fogBoxObjects.Length];
 
-            for (var i = 0; i < fogBoxObjects.Length; i++)
+            for (var i = 0; i < _fogBoxObjects.Length; i++)
             {
-                var fogBoxObject = fogBoxObjects[i];
+                var fogBoxObject = _fogBoxObjects[i];
                 fogBoxObject.Index(i);
                 fogBoxes[i] = fogBoxObject.GetFogBox();
             }
 
             ShaderHelper.CreateStructuredBuffer(ref _fogBoxBuffer, fogBoxes);
             _rayTracingMaterial.SetBuffer(FogBoxes, _fogBoxBuffer);
-            _rayTracingMaterial.SetInteger(NumFogBoxes, fogBoxObjects.Length);
+            _rayTracingMaterial.SetInteger(NumFogBoxes, _fogBoxObjects.Length);
 
-            AddToBaseObjects(fogBoxObjects);
+            AddToBaseObjects(_fogBoxObjects);
         }
 
         private void CreateMeshes()
         {
-            var meshObjects = FindObjectsOfType<MeshObject>();
+            _meshObjects = FindObjectsOfType<MeshObject>();
 
             _allTriangles ??= new List<Triangle>();
             _allMeshInfo ??= new List<MeshInfo>();
@@ -433,9 +514,9 @@ namespace Manager
             _allTriangles.Clear();
             _allMeshInfo.Clear();
 
-            for (var i = 0; i < meshObjects.Length; i++)
+            for (var i = 0; i < _meshObjects.Length; i++)
             {
-                var t = meshObjects[i];
+                var t = _meshObjects[i];
                 t.Index(i);
 
                 var (meshInfo, triangles) = t.GetInfoAndList();
@@ -451,12 +532,105 @@ namespace Manager
             _rayTracingMaterial.SetBuffer(AllMeshInfo, _meshInfoBuffer);
             _rayTracingMaterial.SetInteger(NumMeshes, _allMeshInfo.Count);
 
-            AddToBaseObjects(meshObjects);
+            AddToBaseObjects(_meshObjects);
         }
 
         private void AddToBaseObjects(IEnumerable<BaseObject> baseObjects)
         {
             _baseObjects.AddRange(baseObjects);
+        }
+
+        // ReSharper disable once InconsistentNaming
+        private void CreateBVH()
+        {
+            if (!createBvh) return;
+
+            createBvh = false;
+
+            if (_bvh == null) return;
+
+            switch
+                (bvhStatus)
+            {
+                case BVHStatus.Disabled:
+                    break;
+                case BVHStatus.AllInOne:
+                    CreateAllInOneBVH();
+                    break;
+                case BVHStatus.OneForEach:
+                    CreateOneForEachBVH();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+
+        private void CreateAllInOneBVH()
+        {
+            _bvh.CreateBVH(_baseObjects);
+            _boundingBoxArray = _bvh.Boxes.ToList();
+
+            ShaderHelper.CreateStructuredBuffer(ref _boundingBoxes, _boundingBoxArray);
+            _rayTracingMaterial.SetBuffer(BoundingBoxes, _boundingBoxes);
+            _rayTracingMaterial.SetInteger(NumBoundingBoxes, _boundingBoxArray.Count);
+        }
+
+        private void CreateOneForEachBVH()
+        {
+            _boundingBoxArray = new List<BoundingBox>();
+            _indices = new List<int>();
+
+            for (var i = 0; i < 6; i++)
+            {
+                _bvh = new BoundingVolumeHierarchy();
+                switch (i)
+                {
+                    case 0:
+                        _bvh.CreateBVH(_sphereObjects);
+                        break;
+                    case 1:
+                        _bvh.CreateBVH(_fogSphereObjects);
+                        break;
+                    case 2:
+                        _bvh.CreateBVH(_rectObjects);
+                        break;
+                    case 3:
+                        _bvh.CreateBVH(_boxObjects);
+                        break;
+                    case 4:
+                        _bvh.CreateBVH(_fogBoxObjects);
+                        break;
+                    case 5:
+                        _bvh.CreateBVH(_meshObjects);
+                        break;
+                }
+
+                var tempBoxes = _bvh.Boxes;
+
+                if (tempBoxes.Length == 0)
+                    _indices.Add(-1);
+
+                for (var j = 0; j < tempBoxes.Length; j++)
+                {
+                    if (j == 0)
+                        _indices.Add(_boundingBoxArray.Count);
+
+                    var box = tempBoxes[j];
+                    if (box.typeofElement == TypesOfElement.AABB)
+                        box.index += _boundingBoxArray.Count;
+                    
+                    tempBoxes[j] = box;
+                }
+
+                _boundingBoxArray.AddRange(tempBoxes);
+            }
+
+            ShaderHelper.CreateStructuredBuffer(ref _boundingBoxes, _boundingBoxArray);
+            _rayTracingMaterial.SetBuffer(BoundingBoxes, _boundingBoxes);
+            _rayTracingMaterial.SetInteger(NumBoundingBoxes, _boundingBoxArray.Count);
+            ShaderHelper.CreateStructuredBuffer(ref _boundingBoxIndices, _indices);
+            _rayTracingMaterial.SetBuffer(BoundingBoxIndices, _boundingBoxIndices);
         }
 
         private void SetShaderVariables()
@@ -474,6 +648,7 @@ namespace Manager
             _rayTracingMaterial.SetVector(SkyColorHorizon, skyColorHorizon);
             _rayTracingMaterial.SetVector(SkyColorZenith, skyColorZenith);
             _rayTracingMaterial.SetFloat(SunFocus, sunFocus);
+            _rayTracingMaterial.SetFloat(SunIntensity, sunIntensity);
             _rayTracingMaterial.SetVector(GroundColor, groundColor);
         }
 
@@ -541,20 +716,6 @@ namespace Manager
             ScreenCapture.CaptureScreenshot(path);
 
             print($"Saved to {path}\n");
-        }
-
-        private void OnDisable()
-        {
-            ShaderHelper.Release(_sphereBuffer, _triangleBuffer, _meshInfoBuffer, _rectBuffer, _boxSideBuffer,
-                _boxInfoBuffer, _fogBoxBuffer, _fogSphereBuffer, _boundingBoxes);
-            ShaderHelper.Release(_resultTexture);
-        }
-
-        private void OnValidate()
-        {
-            if (Application.isPlaying) return;
-
-            OnEnable();
         }
     }
 }

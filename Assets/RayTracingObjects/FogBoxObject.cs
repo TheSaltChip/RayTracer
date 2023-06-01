@@ -6,8 +6,6 @@ namespace RayTracingObjects
     [ExecuteAlways]
     public class FogBoxObject : BaseObject
     {
-        [SerializeField] private MeshFilter meshFilter;
-
         [SerializeField] private FogBox fogBox;
 
         public FogBox GetFogBox()

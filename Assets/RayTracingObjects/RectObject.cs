@@ -9,8 +9,6 @@ namespace RayTracingObjects
     {
         [SerializeField] private Rect rect;
 
-        [SerializeField] private MeshFilter meshFilter;
-
         private Mesh _mesh;
 
         public Rect GetRect()

@@ -7,8 +7,6 @@ namespace RayTracingObjects
     [ExecuteAlways]
     public class MeshObject : BaseObject
     {
-        [SerializeField] private MeshFilter meshFilter;
-
         public MeshInfo info;
 
         private Mesh _mesh;

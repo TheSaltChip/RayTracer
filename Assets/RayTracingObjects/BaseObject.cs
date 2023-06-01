@@ -1,4 +1,5 @@
 ﻿using DataTypes;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace RayTracingObjects
@@ -6,6 +7,12 @@ namespace RayTracingObjects
     [ExecuteAlways]
     public abstract class BaseObject : MonoBehaviour
     {
+        [Header("Info")]
+        public MeshRenderer meshRenderer;
+        public MeshFilter meshFilter;
+        
+        [SerializeField, HideInInspector] private int materialObjectID;
+        
         private Matrix4x4 _oldMatrix;
         protected bool shouldUpdateValues;
 
@@ -30,6 +37,7 @@ namespace RayTracingObjects
         {
             shouldUpdateValues = true;
             _oldMatrix = transform.localToWorldMatrix;
+            meshFilter = GetComponent<MeshFilter>();
         }
         
         // private void OnDrawGizmos()
@@ -50,9 +58,43 @@ namespace RayTracingObjects
         private void OnValidate()
         {
             shouldUpdateValues = true;
+
+            if (meshRenderer == null || meshFilter == null)
+            {
+                meshRenderer = GetComponent<MeshRenderer>();
+                meshFilter = GetComponent<MeshFilter>();
+            }
+
+            SetUpMaterialDisplay();
         }
 
-        private bool CheckIfMatricesAreEqual(Matrix4x4 a, Matrix4x4 b)
+        private void SetUpMaterialDisplay()
+        {
+            if (gameObject.GetInstanceID() != materialObjectID)
+            {
+                materialObjectID = gameObject.GetInstanceID();
+                var originalMaterials = meshRenderer.sharedMaterials;
+                var newMaterials = new Material[originalMaterials.Length];
+                var shader = Shader.Find("Standard");
+                for (var i = 0; i < meshRenderer.sharedMaterials.Length; i++)
+                {
+                    newMaterials[i] = new Material(shader);
+                }
+                meshRenderer.sharedMaterials = newMaterials;
+            }
+
+            var mat = GetMaterial();
+            
+            foreach (var material in meshRenderer.sharedMaterials)
+            {
+                var displayEmissiveCol = mat.color.maxColorComponent < mat.emissionColor.maxColorComponent * mat.emissionStrength;
+                var displayCol = displayEmissiveCol ? mat.emissionColor * mat.emissionStrength : mat.color;
+                material.color = displayCol;
+            }
+        }
+        
+
+        private static bool CheckIfMatricesAreEqual(Matrix4x4 a, Matrix4x4 b)
         {
             for (var i = 0; i < 4; i++)
             {

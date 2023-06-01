@@ -7,8 +7,6 @@ namespace RayTracingObjects
     [ExecuteAlways]
     public class BoxObject : BaseObject
     {
-        [SerializeField] private MeshFilter meshFilter;
-
         [SerializeField] private BoxInfo boxInfo;
 
         private BoxSide[] _sides;

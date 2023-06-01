@@ -17,6 +17,7 @@ namespace Util.Bvh
         public BoundingVolumeHierarchy()
         {
             _boxes = new BoundingBox[10];
+            largestIndex = -1;
         }
 
         private BvhNode BVHRoot { get; set; }
@@ -38,6 +39,17 @@ namespace Util.Bvh
 
             BVHRoot = new BvhNode(nodes, 0, nodes.Count);
             _boxes = new BoundingBox[baseObjects.Count * 3];
+            SetupList();
+        }
+
+        public void CreateBVH<T>(T[] baseObjects) where T : BaseObject
+        {
+            if (baseObjects.Length == 0) return;
+
+            var nodes = baseObjects.Select(bo => bo.GetBoundingBox()).ToList();
+
+            BVHRoot = new BvhNode(nodes, 0, nodes.Count);
+            _boxes = new BoundingBox[baseObjects.Length * 3];
             SetupList();
         }
 

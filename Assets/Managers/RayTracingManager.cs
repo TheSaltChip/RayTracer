@@ -700,7 +700,7 @@ namespace Managers
             saveThisFrame = false;
             var current = Camera.current;
             path +=
-                $"/Screenshot_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}" +
+                $"Screenshot_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}" +
                 $"_{current.pixelWidth}x{current.pixelHeight}" +
                 $"_{totalAmountOfRaysPerPixel}rays" +
                 $"_{maxBounceCount}bounces.png";

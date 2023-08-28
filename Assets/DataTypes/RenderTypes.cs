@@ -25,6 +25,7 @@ namespace DataTypes
     {
         [HideInInspector] public Vector3 posA, posB, posC;
         [HideInInspector] public Vector3 normalA, normalB, normalC;
+        [HideInInspector] public Vector3 centroid;
 
         public Triangle(Vector3 posA, Vector3 posB, Vector3 posC, Vector3 normalA, Vector3 normalB, Vector3 normalC)
         {
@@ -34,6 +35,8 @@ namespace DataTypes
             this.normalA = normalA;
             this.normalB = normalB;
             this.normalC = normalC;
+            centroid = (posA+posB+posC) * 0.33333f; //new Vector3((posA.x + posB.x + posC.x) / 3f, (posA.y + posB.y + posC.y) / 3f,
+            //(posA.z + posB.z + posC.z) / 3f);
         }
     }
 
@@ -148,6 +151,24 @@ namespace DataTypes
         [HideInInspector] public Vector3 max;
         [HideInInspector] public TypesOfElement typeofElement;
         [HideInInspector] public int index;
+
+        public void Grow(Vector3 p)
+        {
+            min = Vector3.Min(min, p);
+            max = Vector3.Max(max, p);
+        }
+
+        public void Grow(BoundingBox b)
+        {
+            Grow(b.min);
+            Grow(b.max);
+        }
+
+        public float Area()
+        {
+            var e = max - min; // box extent
+            return e.x * e.y + e.y * e.z + e.z * e.x;
+        }
 
         public override string ToString()
         {

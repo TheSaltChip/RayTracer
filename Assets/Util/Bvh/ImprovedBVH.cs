@@ -22,7 +22,7 @@ namespace Util.Bvh
     {
         private const int BINS = 8;
 
-        private BVHNode[] _bvhNodes;
+        public BVHNode[] _bvhNodes { private set;  get; }
         private int rootNodeIndex;
         private int nodesUsed;
 
@@ -46,7 +46,7 @@ namespace Util.Bvh
             }
 
             _bvhNodes[rootNodeIndex].leftFirst = 0;
-            _bvhNodes[rootNodeIndex].triCount = _bvhNodes.Length;
+            _bvhNodes[rootNodeIndex].triCount = _triangles.Length;
 
             UpdateNodeBounds(rootNodeIndex);
             Subdivide(rootNodeIndex);
@@ -59,7 +59,7 @@ namespace Util.Bvh
             node.aabbMin = Vector3.positiveInfinity;
             node.aabbMax = Vector3.negativeInfinity;
 
-            for (int first = node.leftFirst, i = 0; first < node.triCount; i++)
+            for (int first = node.leftFirst, i = 0; i < node.triCount; i++)
             {
                 var leafTriIndex = _triIndex[first + i];
                 var leafTri = _triangles[leafTriIndex];
@@ -133,8 +133,8 @@ namespace Util.Bvh
 
             for (int a = 0; a < 3; a++)
             {
-                var boundsMin = node.aabbMin[a];
-                var boundsMax = node.aabbMax[a];
+                var boundsMin = float.MaxValue;
+                var boundsMax = float.MinValue;
 
                 for (int i = 0; i < node.triCount; i++)
                 {

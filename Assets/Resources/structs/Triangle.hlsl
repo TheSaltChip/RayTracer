@@ -8,6 +8,7 @@ struct Triangle
 {
     float3 posA, posB, posC;
     float3 normalA, normalB, normalC;
+    float3 c;
 
     bool Hit(const Ray ray, const float minDist, float maxDist, out HitRecord rec)
     {

@@ -8,7 +8,7 @@ Shader "Unlit/RayTracer"
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag
-            #pragma multi_compile __ USE_AI1_BVH_COLLISION_CALCULATION USE_1FE_BVH_COLLISION_CALCULATION
+            #pragma multi_compile __ USE_AI1_BVH_COLLISION_CALCULATION
 
             #include "UnityCG.cginc"
             #include "Assets/Resources/common/Random.hlsl"
@@ -288,95 +288,6 @@ Shader "Unlit/RayTracer"
 
                 return closestHitRecord;
             }
-            #elif defined(USE_1FE_BVH_COLLISION_CALCULATION)
-
-            HitRecord CalculateRayCollision(Ray ray)
-            {
-                float closestSoFar = FLOAT_MAX;
-                const float minDist = MIN_DIST;
-                HitRecord closestHitRecord = (HitRecord)0;
-                
-                for (int i = 0; i < 6; ++i)
-                {
-                    int j = BoundingBoxIndices[i];
-
-                    if (j == -1) continue;
-                    
-                    BoundingBox box = BoundingBoxes[j];
-                    BoundingBox stack[32];  
-                    int pointer = 0;
-
-                    while (true)
-                    {
-                        if (box.typeofElement != ELEMENT_TYPES.aabb)
-                        {
-                            switch (box.typeofElement)
-                            {
-                            case ELEMENT_TYPES.sphere:
-                                CalculateSphereCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
-                                break;
-                            case ELEMENT_TYPES.rect:
-                                CalculateRectCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
-                                break;
-                            case ELEMENT_TYPES.box:
-                                CalculateBoxCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
-                                break;
-                            case ELEMENT_TYPES.fogSphere:
-                                CalculateFogSphereCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
-                                break;
-                            case ELEMENT_TYPES.fogBox:
-                                CalculateFogBoxCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
-                                break;
-                            case ELEMENT_TYPES.mesh:
-                                CalculateMeshCollision(ray, box.index, closestHitRecord, minDist, closestSoFar);
-                                break;
-                            default:
-                                break;
-                            }
-
-                            if (pointer == 0)
-                                break;
-
-                            box = (BoundingBox)stack[--pointer];
-
-                            continue;
-                        }
-
-                        BoundingBox box1 = BoundingBoxes[box.index];
-                        BoundingBox box2 = BoundingBoxes[box.index + 1];
-
-                        float dist1 = box1.IntersectBox(ray, closestSoFar);
-                        float dist2 = box2.IntersectBox(ray, closestSoFar);
-
-                        if (dist1 > dist2)
-                        {
-                            float d = dist1;
-                            dist1 = dist2;
-                            dist2 = d;
-
-                            BoundingBox b = box1;
-                            box1 = box2;
-                            box2 = b;
-                        }
-
-                        if (dist1 == 1e30f)
-                        {
-                            if (pointer == 0)
-                                break;
-
-                            box = stack[--pointer];
-                        }
-                        else
-                        {
-                            box = box1;
-                            stack[pointer++] = box2;
-                        }
-                    }
-                }
-
-                return closestHitRecord;
-            }
-
             #else
             HitRecord CalculateRayCollision(Ray ray)
             {

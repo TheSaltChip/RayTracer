@@ -23,18 +23,7 @@ namespace Managers
         {
             Disabled,
             AllInOne,
-            OneForEach
-        }
-
-        // ReSharper disable once InconsistentNaming
-        private enum BVHTypes
-        {
-            Sphere,
-            FogSphere,
-            Rect,
-            Box,
-            FogBox,
-            Mesh
+            Improved
         }
 
         #region SHADER_PROPERTIES
@@ -102,9 +91,9 @@ namespace Managers
         [SerializeField] private bool drawBvh;
         [SerializeField] private bool createBvh;
         [SerializeField] private BVHStatus bvhStatus;
-        [SerializeField] private BVHTypes bvhType;
 
         [SerializeField] private Shader rayTracingShader;
+        [SerializeField] private Shader improvedRayTracingShader;
         [SerializeField] private Shader combineShader;
         [SerializeField] private ChangerManager changer;
 
@@ -113,8 +102,8 @@ namespace Managers
         [SerializeField] private Color skyColorZenith;
 
         [SerializeField] private Color groundColor;
-        [SerializeField,Range(1, 50)] private float sunFocus = 1;
-        [SerializeField,Range(0, 10)] private float sunIntensity = 1;
+        [SerializeField, Range(1, 50)] private float sunFocus = 1;
+        [SerializeField, Range(0, 10)] private float sunIntensity = 1;
 
         #endregion
 
@@ -190,36 +179,7 @@ namespace Managers
                     case BVHStatus.AllInOne:
                         _bvh?.DrawArray(Color.green, Color.blue, Color.red);
                         break;
-                    case BVHStatus.OneForEach:
-                        if (_boundingBoxArray == null || _bvh == null)
-                        {
-                            break;
-                        }
-
-                        switch (bvhType)
-                        {
-                            case BVHTypes.Sphere:
-                                VisualizeBoundingBoxes(_indices[0], _sphereObjects.Length);
-                                break;
-                            case BVHTypes.FogSphere:
-                                VisualizeBoundingBoxes(_indices[1], _fogSphereObjects.Length);
-                                break;
-                            case BVHTypes.Rect:
-                                VisualizeBoundingBoxes(_indices[2], _rectObjects.Length);
-                                break;
-                            case BVHTypes.Box:
-                                VisualizeBoundingBoxes(_indices[3], _boxObjects.Length);
-                                break;
-                            case BVHTypes.FogBox:
-                                VisualizeBoundingBoxes(_indices[4], _fogBoxObjects.Length);
-                                break;
-                            case BVHTypes.Mesh:
-                                VisualizeBoundingBoxes(_indices[5], _meshObjects.Length);
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException();
-                        }
-
+                    case BVHStatus.Improved:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -229,16 +189,16 @@ namespace Managers
             switch (bvhStatus)
             {
                 case BVHStatus.Disabled:
-                    Shader.DisableKeyword("USE_1FE_BVH_COLLISION_CALCULATION");
+                    Shader.DisableKeyword("USE_IMPROVED_BVH");
                     Shader.DisableKeyword("USE_AI1_BVH_COLLISION_CALCULATION");
                     break;
                 case BVHStatus.AllInOne:
-                    Shader.DisableKeyword("USE_1FE_BVH_COLLISION_CALCULATION");
+                    Shader.DisableKeyword("USE_IMPROVED_BVH");
                     Shader.EnableKeyword("USE_AI1_BVH_COLLISION_CALCULATION");
                     break;
-                case BVHStatus.OneForEach:
+                case BVHStatus.Improved:
                     Shader.DisableKeyword("USE_AI1_BVH_COLLISION_CALCULATION");
-                    Shader.EnableKeyword("USE_1FE_BVH_COLLISION_CALCULATION");
+                    Shader.EnableKeyword("USE_IMPROVED_BVH");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -355,7 +315,7 @@ namespace Managers
 
         private void InitFrame()
         {
-            ShaderHelper.InitMaterial(rayTracingShader, ref _rayTracingMaterial);
+            ShaderHelper.InitMaterial(BVHStatus.Improved.Equals(bvhStatus) ? improvedRayTracingShader : rayTracingShader, ref _rayTracingMaterial);
             ShaderHelper.InitMaterial(combineShader, ref _combiningMaterial);
 
             ShaderHelper.CreateRenderTexture(ref _resultTexture, Screen.width, Screen.height, FilterMode.Bilinear,
@@ -555,8 +515,8 @@ namespace Managers
                 case BVHStatus.AllInOne:
                     CreateAllInOneBVH();
                     break;
-                case BVHStatus.OneForEach:
-                    CreateOneForEachBVH();
+                case BVHStatus.Improved:
+                    CreateImprovedBVH();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -573,62 +533,14 @@ namespace Managers
             _rayTracingMaterial.SetBuffer(BoundingBoxes, _boundingBoxes);
             _rayTracingMaterial.SetInteger(NumBoundingBoxes, _boundingBoxArray.Count);
         }
-
-        private void CreateOneForEachBVH()
+        
+        private void CreateImprovedBVH()
         {
-            _boundingBoxArray = new List<BoundingBox>();
-            _indices = new List<int>();
+            var bvh = new ImprovedBVH(_allTriangles.ToArray());
 
-            for (var i = 0; i < 6; i++)
-            {
-                _bvh = new BoundingVolumeHierarchy();
-                switch (i)
-                {
-                    case 0:
-                        _bvh.CreateBVH(_sphereObjects);
-                        break;
-                    case 1:
-                        _bvh.CreateBVH(_fogSphereObjects);
-                        break;
-                    case 2:
-                        _bvh.CreateBVH(_rectObjects);
-                        break;
-                    case 3:
-                        _bvh.CreateBVH(_boxObjects);
-                        break;
-                    case 4:
-                        _bvh.CreateBVH(_fogBoxObjects);
-                        break;
-                    case 5:
-                        _bvh.CreateBVH(_meshObjects);
-                        break;
-                }
+            bvh.Build();
 
-                var tempBoxes = _bvh.Boxes;
-
-                if (tempBoxes.Length == 0)
-                    _indices.Add(-1);
-
-                for (var j = 0; j < tempBoxes.Length; j++)
-                {
-                    if (j == 0)
-                        _indices.Add(_boundingBoxArray.Count);
-
-                    var box = tempBoxes[j];
-                    if (box.typeofElement == TypesOfElement.AABB)
-                        box.index += _boundingBoxArray.Count;
-                    
-                    tempBoxes[j] = box;
-                }
-
-                _boundingBoxArray.AddRange(tempBoxes);
-            }
-
-            ShaderHelper.CreateStructuredBuffer(ref _boundingBoxes, _boundingBoxArray);
-            _rayTracingMaterial.SetBuffer(BoundingBoxes, _boundingBoxes);
-            _rayTracingMaterial.SetInteger(NumBoundingBoxes, _boundingBoxArray.Count);
-            ShaderHelper.CreateStructuredBuffer(ref _boundingBoxIndices, _indices);
-            _rayTracingMaterial.SetBuffer(BoundingBoxIndices, _boundingBoxIndices);
+            VisualizeBVH.DrawArray(bvh._bvhNodes, Color.green, Color.red, Color.blue);
         }
 
         private void SetShaderVariables()

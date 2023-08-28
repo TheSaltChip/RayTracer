@@ -7,6 +7,34 @@ namespace Util.Bvh
     public static class VisualizeBVH
     {
         private static BoundingBox[] _boxes;
+        private static BVHNode[] _nodes;
+
+        public static void DrawArray(BVHNode[] nodes, Color rootColor, Color leftChildrenColor,
+            Color rightChildrenColor)
+        {
+            var root = nodes[0];
+            
+            DebugVisualizer.DrawBox(root.aabbMin, root.aabbMax, rootColor);
+
+            _nodes = nodes;
+
+            DrawArrayChildrenNode(root.leftFirst,leftChildrenColor);
+            DrawArrayChildrenNode(root.leftFirst+1,rightChildrenColor);
+        }
+
+        private static void DrawArrayChildrenNode(int index, Color color)
+        {
+            if(index > _nodes.Length) return;
+            
+            var node = _nodes[index];
+            
+            if(node.Equals(default(BVHNode)) || node.triCount != 0) return;
+            
+            DebugVisualizer.DrawBox(node.aabbMin, node.aabbMax, color);
+            
+            DrawArrayChildrenNode(node.leftFirst, color);
+            DrawArrayChildrenNode(node.leftFirst+1, color);
+        }
 
         public static void DrawArray(BoundingBox[] boxes, Color rootColor, Color leftChildrenColor,
             Color rightChildrenColor)

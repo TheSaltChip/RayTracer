@@ -16,7 +16,6 @@ namespace RayTracingObjects
         public (MeshInfo, List<Triangle>) GetInfoAndList()
         {
             UpdateValues();
-
             return (info, _triangles);
         }
 

@@ -34,6 +34,7 @@ namespace Managers
         private static readonly int Spheres = Shader.PropertyToID("Spheres");
         private static readonly int BoxInfos = Shader.PropertyToID("BoxInfos");
         private static readonly int BoxSides = Shader.PropertyToID("BoxSides");
+        private static readonly int BvhNodes = Shader.PropertyToID("BvhNodes");
         private static readonly int FogBoxes = Shader.PropertyToID("FogBoxes");
         private static readonly int NumRects = Shader.PropertyToID("NumRects");
         private static readonly int SunFocus = Shader.PropertyToID("SunFocus");
@@ -56,6 +57,7 @@ namespace Managers
         private static readonly int DivergeStrength = Shader.PropertyToID("DivergeStrength");
         private static readonly int NumRaysPerPixel = Shader.PropertyToID("NumRaysPerPixel");
         private static readonly int SkyColorHorizon = Shader.PropertyToID("SkyColorHorizon");
+        private static readonly int TriangleIndices = Shader.PropertyToID("TriangleIndices");
         private static readonly int NumBoundingBoxes = Shader.PropertyToID("NumBoundingBoxes");
         private static readonly int NumRenderedFrames = Shader.PropertyToID("NumRenderedFrames");
         private static readonly int BoundingBoxIndices = Shader.PropertyToID("BoundingBoxIndices");
@@ -119,6 +121,8 @@ namespace Managers
         private GraphicsBuffer _boxSideBuffer;
         private GraphicsBuffer _boxInfoBuffer;
         private GraphicsBuffer _triangleBuffer;
+        private GraphicsBuffer _triangleIndexBuffer;
+        private GraphicsBuffer _bvhBuffer;
         private GraphicsBuffer _meshInfoBuffer;
         private GraphicsBuffer _boundingBoxes;
         private GraphicsBuffer _boundingBoxIndices;
@@ -145,6 +149,8 @@ namespace Managers
         private SphereObject[] _sphereObjects;
         private List<int> _indices;
         private List<BoundingBox> _boundingBoxArray;
+
+        private ImprovedBVH _improvedBvh;
 
         #endregion
 
@@ -315,7 +321,9 @@ namespace Managers
 
         private void InitFrame()
         {
-            ShaderHelper.InitMaterial(BVHStatus.Improved.Equals(bvhStatus) ? improvedRayTracingShader : rayTracingShader, ref _rayTracingMaterial);
+            ShaderHelper.InitMaterial(
+                BVHStatus.Improved.Equals(bvhStatus) ? improvedRayTracingShader : rayTracingShader,
+                ref _rayTracingMaterial);
             ShaderHelper.InitMaterial(combineShader, ref _combiningMaterial);
 
             ShaderHelper.CreateRenderTexture(ref _resultTexture, Screen.width, Screen.height, FilterMode.Bilinear,
@@ -533,14 +541,25 @@ namespace Managers
             _rayTracingMaterial.SetBuffer(BoundingBoxes, _boundingBoxes);
             _rayTracingMaterial.SetInteger(NumBoundingBoxes, _boundingBoxArray.Count);
         }
-        
+
         private void CreateImprovedBVH()
         {
-            var bvh = new ImprovedBVH(_allTriangles.ToArray());
+            if (_improvedBvh == null || Application.isEditor)
+            {
+                _improvedBvh = new ImprovedBVH(_allTriangles.ToArray(), _allMeshInfo[0].material);
 
-            bvh.Build();
+                _improvedBvh.Build();
+            }
 
-            VisualizeBVH.DrawArray(bvh._bvhNodes, Color.green, Color.red, Color.blue);
+            VisualizeBVH.DrawArray(_improvedBvh.bvhNodes, Color.green, Color.red, Color.blue);
+
+            ShaderHelper.CreateStructuredBuffer(ref _bvhBuffer, _improvedBvh.bvhNodes);
+            ShaderHelper.CreateStructuredBuffer(ref _triangleBuffer, _improvedBvh.triangles);
+            ShaderHelper.CreateStructuredBuffer(ref _triangleIndexBuffer, _improvedBvh._triIndex);
+
+            _rayTracingMaterial.SetBuffer(BvhNodes, _bvhBuffer);
+            _rayTracingMaterial.SetBuffer(Triangles, _triangleBuffer);
+            _rayTracingMaterial.SetBuffer(TriangleIndices, _triangleIndexBuffer);
         }
 
         private void SetShaderVariables()

@@ -40,32 +40,17 @@ Shader "Unlit/RayTracer"
             float SunIntensity;
             float3 GroundColor;
 
-            StructuredBuffer<Sphere> Spheres;
-            int NumSpheres;
+            struct BVHNode
+            {
+                float3 aabbMin, aabbMax;
+                int leftFirst, triCount;
+                float4x4 invTransform;
+                Material mat;
+            };
 
-            StructuredBuffer<FogSphere> FogSpheres;
-            int NumFogSpheres;
-
-            StructuredBuffer<FogBox> FogBoxes;
-            int NumFogBoxes;
-
-            StructuredBuffer<Rect> Rects;
-            int NumRects;
-
-            StructuredBuffer<BoxInfo> BoxInfos;
-            int NumBoxInfos;
-
-            StructuredBuffer<BoxSide> BoxSides;
-            int NumBoxSides;
-
+            StructuredBuffer<BVHNode> BvhNodes;
             StructuredBuffer<Triangle> Triangles;
-            StructuredBuffer<MeshInfo> AllMeshInfo;
-            int NumMeshes;
-
-            StructuredBuffer<BoundingBox> BoundingBoxes;
-            int NumBoundingBoxes;
-
-            StructuredBuffer<int> BoundingBoxIndices;
+            StructuredBuffer<int> TriangleIndices;
 
             struct Appdata
             {
@@ -87,133 +72,93 @@ Shader "Unlit/RayTracer"
                 return o;
             }
 
-            void CalculateSphereCollision(const Ray ray, const int index, inout HitRecord closestHitRecord,
-                                          const float minDist,
-                                          inout float closestSoFar)
+            float IntersectNode(const Ray ray, const float t, const BVHNode node)
             {
-                Sphere s = Spheres[index];
+                float tMin = 0.0, tMax = t;
 
-                HitRecord tempRecord = (HitRecord)0;
-
-                if (s.Hit(ray, minDist, closestSoFar, tempRecord))
+                UNITY_UNROLL
+                for (int d = 0; d < 3; ++d)
                 {
-                    closestSoFar = tempRecord.dist;
-                    closestHitRecord = tempRecord;
+                    const float t1 = (node.aabbMin[d] - ray.origin[d]) * ray.invDir[d];
+                    const float t2 = (node.aabbMax[d] - ray.origin[d]) * ray.invDir[d];
+
+                    tMin = min(max(t1, tMin), max(t2, tMin));
+                    tMax = max(min(t1, tMax), min(t2, tMax));
                 }
+
+                if (tMax >= tMin && tMin < t && tMax > 0)
+                {
+                    return tMin;
+                }
+
+                return 1e30f;
             }
 
-            void CalculateFogSphereCollision(const Ray ray, const int index, inout HitRecord closestHitRecord,
-                                             const float minDist,
-                                             inout float closestSoFar)
-            {
-                FogSphere fs = FogSpheres[index];
 
-                HitRecord tempRecord = (HitRecord)0;
-
-                if (fs.Hit(ray, minDist, closestSoFar, tempRecord))
-                {
-                    closestSoFar = tempRecord.dist;
-                    closestHitRecord = tempRecord;
-                }
-            }
-
-            void CalculateRectCollision(const Ray ray, const int index, inout HitRecord closestHitRecord,
-                                        const float minDist,
-                                        inout float closestSoFar)
-            {
-                Rect r = Rects[index];
-
-                HitRecord tempRecord = (HitRecord)0;
-
-                if (r.Hit(ray, minDist, closestSoFar, tempRecord))
-                {
-                    closestSoFar = tempRecord.dist;
-                    closestHitRecord = tempRecord;
-                }
-            }
-
-            void CalculateFogBoxCollision(Ray ray, const int index, inout HitRecord closestHitRecord,
-                                          const float minDist,
-                                          inout float closestSoFar)
-            {
-                FogBox fg = FogBoxes[index];
-
-                if (!ray.Intersection(fg.min, fg.max, closestSoFar))
-                    return;
-
-                HitRecord tempRecord = (HitRecord)0;
-
-                if (fg.Hit(ray, minDist, closestSoFar, tempRecord))
-                {
-                    closestSoFar = tempRecord.dist;
-                    closestHitRecord = tempRecord;
-                }
-            }
-
-            void CalculateBoxCollision(Ray ray, const int index, inout HitRecord closestHitRecord,
-                                       const float minDist,
-                                       inout float closestSoFar)
-            {
-                const BoxInfo boxInfo = BoxInfos[index];
-
-                if (!ray.Intersection(boxInfo.min, boxInfo.max, closestSoFar))
-                    return;
-
-                HitRecord tempRecord = (HitRecord)0;
-
-                for (int j = 0; j < 6; ++j)
-                {
-                    BoxSide side = BoxSides[boxInfo.firstBoxIndex + j];
-
-                    if (side.Hit(ray, minDist, closestSoFar, tempRecord))
-                    {
-                        closestSoFar = tempRecord.dist;
-                        closestHitRecord = tempRecord;
-                        closestHitRecord.material = boxInfo.material;
-                    }
-                }
-            }
-
-            void CalculateMeshCollision(Ray ray, const int index, inout HitRecord closestHitRecord,
-                                        const float minDist,
-                                        inout float closestSoFar)
-            {
-                const MeshInfo meshInfo = AllMeshInfo[index];
-
-                if (!ray.Intersection(meshInfo.boundsMin, meshInfo.boundsMax, closestSoFar))
-                    return;
-
-                HitRecord tempRecord = (HitRecord)0;
-
-                for (uint j = 0; j < meshInfo.numTriangles; ++j)
-                {
-                    Triangle tri = Triangles[meshInfo.firstTriangleIndex + j];
-
-                    if (tri.Hit(ray, minDist, closestSoFar, tempRecord))
-                    {
-                        closestSoFar = tempRecord.dist;
-                        closestHitRecord = tempRecord;
-                        closestHitRecord.material = meshInfo.material;
-                    }
-                }
-            }
-
-            
             HitRecord CalculateRayCollision(Ray ray)
             {
                 float closestSoFar = FLOAT_MAX;
                 const float minDist = MIN_DIST;
                 HitRecord closestHitRecord = (HitRecord)0;
-                
-                for (int i = 0; i < 6; ++i)
-                {
-                    int j = BoundingBoxIndices[i];
 
-                    if (j == -1) continue;
-                    
-                    BoundingBox box = BoundingBoxes[j];
-                    BoundingBox stack[32];  
-                    int pointer = 0;
+                BVHNode node = (BVHNode)BvhNodes[0];
+                BVHNode stack[32];
+
+                uint stackPtr = 0;
+                HitRecord tempRecord = (HitRecord)0;
+
+                while (true)
+                {
+                    if (node.triCount > 0)
+                    {
+                        for (uint i = 0; i < node.triCount; i++)
+                        {
+                            uint instPrim = TriangleIndices[node.leftFirst + i];
+                            Triangle tri = Triangles[instPrim];
+                            if (tri.Hit(ray, minDist, closestSoFar, tempRecord))
+                            {
+                                closestSoFar = tempRecord.dist;
+                                closestHitRecord = tempRecord;
+                                closestHitRecord.material = node.mat;
+                            }
+                        }
+                        if (stackPtr == 0) break;
+
+                        node = (BVHNode)stack[--stackPtr];
+                        continue;
+                    }
+
+                    BVHNode child1 = BvhNodes[node.leftFirst];
+                    BVHNode child2 = BvhNodes[node.leftFirst + 1];
+
+                    float dist1 = IntersectNode(ray, closestSoFar, child1);
+                    float dist2 = IntersectNode(ray, closestSoFar, child2);
+
+                    if (dist1 > dist2)
+                    {
+                        float d = dist1;
+                        dist1 = dist2;
+                        dist2 = d;
+
+                        BVHNode c = child1;
+                        child1 = child2;
+                        child2 = c;
+                    }
+
+                    if (dist1 == 1e30f)
+                    {
+                        if (stackPtr == 0) break;
+
+                        node = stack[--stackPtr];
+                    }
+                    else
+                    {
+                        node = child1;
+                        if (dist2 != 1e30f)
+                        {
+                            stack[stackPtr++] = child2;
+                        }
+                    }
                 }
 
                 return closestHitRecord;
@@ -225,11 +170,11 @@ Shader "Unlit/RayTracer"
 
                 const float skyGradientT = pow(smoothstep(0, 0.4, ray.dir.y), 0.35);
                 const float3 skyGradient = lerp(SkyColorHorizon, SkyColorZenith, skyGradientT);
-                
+
                 const float sun = pow(max(0, dot(ray.dir, _WorldSpaceLightPos0.xyz)), SunFocus) * SunIntensity;
 
                 const float groundToSkyT = smoothstep(-0.01, 0, ray.dir.y);
-                
+
                 return lerp(GroundColor, skyGradient, groundToSkyT) + sun * (groundToSkyT >= 1);
             }
 

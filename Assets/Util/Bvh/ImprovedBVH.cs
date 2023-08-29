@@ -10,6 +10,8 @@ namespace Util.Bvh
     {
         public Vector3 aabbMin, aabbMax;
         public int leftFirst, triCount;
+        public Matrix4x4 invTransform;
+        public RayTracingMaterial material;
     }
 
     public struct Bin
@@ -22,31 +24,34 @@ namespace Util.Bvh
     {
         private const int BINS = 8;
 
-        public BVHNode[] _bvhNodes { private set;  get; }
+        public BVHNode[] bvhNodes { get; }
+        public Triangle[] triangles { get; }
+        public int[] _triIndex { get; }
+
         private int rootNodeIndex;
         private int nodesUsed;
 
-        private Triangle[] _triangles;
-        private int[] _triIndex;
+        private RayTracingMaterial _material;
 
-        public ImprovedBVH(Triangle[] triangles)
+        public ImprovedBVH(Triangle[] triangles, RayTracingMaterial material)
         {
-            _bvhNodes = new BVHNode[2 * triangles.Length - 1];
+            bvhNodes = new BVHNode[2 * triangles.Length - 1];
             rootNodeIndex = 0;
             nodesUsed = 1;
-            _triangles = triangles;
+            this.triangles = triangles;
             _triIndex = new int[triangles.Length];
+            _material = material;
         }
 
         public void Build()
         {
-            for (var i = 0; i < _triangles.Length; i++)
+            for (var i = 0; i < triangles.Length; i++)
             {
                 _triIndex[i] = i;
             }
 
-            _bvhNodes[rootNodeIndex].leftFirst = 0;
-            _bvhNodes[rootNodeIndex].triCount = _triangles.Length;
+            bvhNodes[rootNodeIndex].leftFirst = 0;
+            bvhNodes[rootNodeIndex].triCount = triangles.Length;
 
             UpdateNodeBounds(rootNodeIndex);
             Subdivide(rootNodeIndex);
@@ -54,15 +59,16 @@ namespace Util.Bvh
 
         private void UpdateNodeBounds(int nodeIndex)
         {
-            ref var node = ref _bvhNodes[nodeIndex];
+            ref var node = ref bvhNodes[nodeIndex];
 
             node.aabbMin = Vector3.positiveInfinity;
             node.aabbMax = Vector3.negativeInfinity;
+            node.material = _material;
 
             for (int first = node.leftFirst, i = 0; i < node.triCount; i++)
             {
                 var leafTriIndex = _triIndex[first + i];
-                var leafTri = _triangles[leafTriIndex];
+                var leafTri = triangles[leafTriIndex];
 
                 node.aabbMin = Vector3.Min(node.aabbMin, leafTri.posA);
                 node.aabbMin = Vector3.Min(node.aabbMin, leafTri.posB);
@@ -75,13 +81,13 @@ namespace Util.Bvh
 
         private void Subdivide(int nodeIndex)
         {
-            ref var node = ref _bvhNodes[nodeIndex];
+            ref var node = ref bvhNodes[nodeIndex];
 
             var axis = 0;
             var splitPos = 0f;
             var splitCost = FindBestSplitPlane(node, ref axis, ref splitPos);
             var noSplitCost = CalculateNodeCost(node);
-
+            Debug.Log($"Split cost: {splitCost}; No split cost {noSplitCost}");
             if (splitCost >= noSplitCost) return;
 
             var i = node.leftFirst;
@@ -89,7 +95,7 @@ namespace Util.Bvh
 
             while (i <= j)
             {
-                if (_triangles[_triIndex[i]].centroid[axis] < splitPos)
+                if (triangles[_triIndex[i]].centroid[axis] < splitPos)
                 {
                     i++;
                     continue;
@@ -105,10 +111,10 @@ namespace Util.Bvh
             var leftChildIdx = nodesUsed++;
             var rightChildIdx = nodesUsed++;
 
-            _bvhNodes[leftChildIdx].leftFirst = node.leftFirst;
-            _bvhNodes[leftChildIdx].triCount = leftCount;
-            _bvhNodes[rightChildIdx].leftFirst = i;
-            _bvhNodes[rightChildIdx].triCount = node.triCount - leftCount;
+            bvhNodes[leftChildIdx].leftFirst = node.leftFirst;
+            bvhNodes[leftChildIdx].triCount = leftCount;
+            bvhNodes[rightChildIdx].leftFirst = i;
+            bvhNodes[rightChildIdx].triCount = node.triCount - leftCount;
 
             node.leftFirst = leftChildIdx;
             node.triCount = 0;
@@ -138,7 +144,7 @@ namespace Util.Bvh
 
                 for (int i = 0; i < node.triCount; i++)
                 {
-                    var triangle = _triangles[_triIndex[node.leftFirst + i]];
+                    var triangle = triangles[_triIndex[node.leftFirst + i]];
                     boundsMin = Mathf.Min(triangle.centroid[a], boundsMin);
                     boundsMax = Mathf.Max(triangle.centroid[a], boundsMax);
                 }
@@ -150,7 +156,7 @@ namespace Util.Bvh
 
                 for (int i = 0; i < node.triCount; i++)
                 {
-                    var triangle = _triangles[_triIndex[node.leftFirst + i]];
+                    var triangle = triangles[_triIndex[node.leftFirst + i]];
                     var binIndex = Mathf.Min(BINS - 1, (int)((triangle.centroid[a] - boundsMin) * scale));
                     bin[binIndex].triCount++;
                     bin[binIndex].bounds.Grow(triangle.posA);

@@ -243,7 +243,7 @@ MonoBehaviour:
   restartRender: 0
   maxBounceCount: 3
   numRaysPerPixel: 10
-  divergeStrength: 0.2
+  divergeStrength: 0
   useShaderInSceneView: 1
   drawBvh: 1
   createBvh: 1
@@ -434,7 +434,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshRenderer: {fileID: 906405155}
   meshFilter: {fileID: 906405156}
-  materialObjectID: -1684
+  materialObjectID: 23066
   info:
     firstTriangleIndex: 0
     numTriangles: 466
@@ -480,15 +480,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshRenderer: {fileID: 986029313}
   meshFilter: {fileID: 986029314}
-  materialObjectID: 23064
+  materialObjectID: 23074
   info:
     firstTriangleIndex: 0
     numTriangles: 2172
-    boundsMin: {x: -2.2600005, y: -2, z: -4}
-    boundsMax: {x: 1.74, y: 2.0000005, z: 0.00000047683716}
+    boundsMin: {x: -0.0050000004, y: -3.7069207e-19, z: 0}
+    boundsMax: {x: 2.3344555e-11, y: 0.0050000004, z: 0.0050000004}
     material:
-      type: 1
-      color: {r: 1, g: 1, b: 1, a: 0}
+      type: 0
+      color: {r: 0.7264151, g: 0.2706924, b: 0.2706924, a: 0}
       fuzz: 0.4
       refIdx: 0
       emissionColor: {r: 0, g: 0, b: 0, a: 0}
@@ -513,7 +513,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1995315850}
+  - {fileID: 1672561774}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -551,7 +551,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 986029311}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.74, y: -2, z: -4}
+  m_LocalPosition: {x: 4.38, y: -2, z: 1.62}
   m_LocalScale: {x: 800, y: 800, z: 800}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -607,6 +607,84 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!21 &1672561774
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Standard
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _GlossMapScale: 1
+    - _Glossiness: 0.5
+    - _GlossyReflections: 1
+    - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _UVSec: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _Color: {r: 0.7264151, g: 0.2706924, b: 0.2706924, a: 0}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+  m_BuildTextureStacks: []
 --- !u!1 &1685877102
 GameObject:
   m_ObjectHideFlags: 0
@@ -701,7 +779,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 28.287, y: 17.139, z: 27.052}
---- !u!21 &1995315850
+--- !u!21 &1782487073
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -776,6 +854,6 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 0}
+    - _Color: {r: 0.9433962, g: 0.40494838, b: 0.40494838, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

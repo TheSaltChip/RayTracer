@@ -6,6 +6,98 @@ using UnityEngine;
 
 namespace Util.Bvh
 {
+    public struct TLASNode
+    {
+        public Vector3 aabbMin;
+        public Vector3 aabbMax;
+        public int leftRight;
+        public int BLAS;
+    }
+
+    public class TLAS
+    {
+        public TLASNode[] _tlasNodes { get; }
+        private ImprovedBVH[] _blas;
+        private int nodesUsed, blasCount;
+
+        public TLAS(ImprovedBVH[] bvhList)
+        {
+            _blas = bvhList;
+            blasCount = bvhList.Length;
+
+            _tlasNodes = new TLASNode[2 * bvhList.Length];
+        }
+
+        public void Build()
+        {
+            var nodeIdx = new int[256];
+            var nodeIndices = blasCount;
+
+            nodesUsed = 1;
+
+            for (var i = 0; i < blasCount; i++)
+            {
+                nodeIdx[i] = nodesUsed;
+                _tlasNodes[nodesUsed].aabbMin = _blas[i].bounds.min;
+                _tlasNodes[nodesUsed].aabbMax = _blas[i].bounds.max;
+                _tlasNodes[nodesUsed].BLAS = i;
+                _tlasNodes[nodesUsed++].leftRight = 0;
+            }
+
+            int a = 0, b = FindBestMatch(nodeIdx, nodeIndices, a);
+
+            while (nodeIndices > 1)
+            {
+                var c = FindBestMatch(nodeIdx, nodeIndices, b);
+
+                if (a != c)
+                {
+                    a = b;
+                    b = c;
+                    continue;
+                }
+
+                int nodeIdxA = nodeIdx[a], nodeIdxB = nodeIdx[b];
+
+                var nodeA = _tlasNodes[nodeIdxA];
+                var nodeB = _tlasNodes[nodeIdxB];
+                ref var newNode = ref _tlasNodes[nodesUsed];
+
+                newNode.leftRight = nodeIdxA + (nodeIdxB << 16);
+                newNode.aabbMin = Vector3.Min(nodeA.aabbMin, nodeB.aabbMin);
+                newNode.aabbMax = Vector3.Max(nodeA.aabbMax, nodeB.aabbMax);
+                nodeIdx[a] = nodesUsed++;
+                nodeIdx[b] = nodeIdx[nodeIndices - 1];
+                b = FindBestMatch(nodeIdx, --nodeIndices, a);
+            }
+
+            _tlasNodes[0] = _tlasNodes[nodeIdx[a]];
+        }
+
+        private int FindBestMatch(int[] list, int n, int a)
+        {
+            var smallest = float.MaxValue;
+            var bestB = -1;
+
+            for (var i = 0; i < n; i++)
+            {
+                if (i == a) continue;
+                
+                var bMax = Vector3.Max(_tlasNodes[list[a]].aabbMax, _tlasNodes[list[i]].aabbMax);
+                var bMin = Vector3.Min(_tlasNodes[list[a]].aabbMin, _tlasNodes[list[i]].aabbMin);
+                var e = bMax - bMin;
+
+                var surfaceArea = e.x * e.y + e.y * e.z + e.z * e.x;
+                if (!(surfaceArea < smallest)) continue;
+                
+                smallest = surfaceArea;
+                bestB = i;
+            }
+
+            return bestB;
+        }
+    }
+
     public struct BVHNode
     {
         public Vector3 aabbMin, aabbMax;
@@ -33,6 +125,8 @@ namespace Util.Bvh
 
         private RayTracingMaterial _material;
 
+        public BoundingBox bounds { private set; get; }
+
         public ImprovedBVH(Triangle[] triangles, RayTracingMaterial material)
         {
             bvhNodes = new BVHNode[2 * triangles.Length - 1];
@@ -41,6 +135,24 @@ namespace Util.Bvh
             this.triangles = triangles;
             _triIndex = new int[triangles.Length];
             _material = material;
+        }
+
+        public void SetTransform(Matrix4x4 transform)
+        {
+            bvhNodes[0].invTransform = transform.inverse;
+
+            var bMin = bvhNodes[0].aabbMin;
+            var bMax = bvhNodes[0].aabbMax;
+
+            bounds = new BoundingBox();
+
+            for (var i = 0; i < 8; i++)
+            {
+                bounds.Grow(transform.MultiplyPoint(new Vector3(
+                    (i & 1) != 0 ? bMax.x : bMin.x,
+                    (i & 2) != 0 ? bMax.y : bMin.y,
+                    (i & 4) != 0 ? bMax.z : bMin.z)));
+            }
         }
 
         public void Build()
@@ -54,7 +166,7 @@ namespace Util.Bvh
             bvhNodes[rootNodeIndex].triCount = triangles.Length;
 
             UpdateNodeBounds(rootNodeIndex);
-            Subdivide(rootNodeIndex);
+            Subdivide(rootNodeIndex, 0);
         }
 
         private void UpdateNodeBounds(int nodeIndex)
@@ -79,7 +191,7 @@ namespace Util.Bvh
             }
         }
 
-        private void Subdivide(int nodeIndex)
+        private void Subdivide(int nodeIndex, int n)
         {
             ref var node = ref bvhNodes[nodeIndex];
 
@@ -87,7 +199,7 @@ namespace Util.Bvh
             var splitPos = 0f;
             var splitCost = FindBestSplitPlane(node, ref axis, ref splitPos);
             var noSplitCost = CalculateNodeCost(node);
-            Debug.Log($"Split cost: {splitCost}; No split cost {noSplitCost}");
+            if (n++ == 0) Debug.Log($"Split cost: {splitCost}; No split cost {noSplitCost}");
             if (splitCost >= noSplitCost) return;
 
             var i = node.leftFirst;
@@ -122,8 +234,8 @@ namespace Util.Bvh
             UpdateNodeBounds(leftChildIdx);
             UpdateNodeBounds(rightChildIdx);
             // recurse
-            Subdivide(leftChildIdx);
-            Subdivide(rightChildIdx);
+            Subdivide(leftChildIdx, n);
+            Subdivide(rightChildIdx, n);
         }
 
         private float CalculateNodeCost(BVHNode node)

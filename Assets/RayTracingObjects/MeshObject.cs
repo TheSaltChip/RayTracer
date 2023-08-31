@@ -13,10 +13,10 @@ namespace RayTracingObjects
         private List<Triangle> _triangles;
 
 
-        public (MeshInfo, List<Triangle>) GetInfoAndList()
+        public (MeshInfo, List<Triangle>, Matrix4x4) GetInfoAndList()
         {
             UpdateValues();
-            return (info, _triangles);
+            return (info, _triangles, transform.localToWorldMatrix);
         }
 
         private void UpdateValues()
@@ -32,11 +32,11 @@ namespace RayTracingObjects
             var normals = new Vector3[_mesh.vertexCount];
 
             Vector3 min = Vector3.positiveInfinity, max = Vector3.negativeInfinity;
-
+            
             for (var index = 0; index < _mesh.vertices.Length; index++)
             {
-                vert[index] = transform.TransformPoint(_mesh.vertices[index]);
-                normals[index] = transform.TransformDirection(_mesh.normals[index]);
+                vert[index] = _mesh.vertices[index];
+                normals[index] = Vector3.Normalize(transform.TransformVector(_mesh.normals[index]));
                 for (var n = 0; n < 3; n++)
                 {
                     max = Vector3.Max(vert[index], max);

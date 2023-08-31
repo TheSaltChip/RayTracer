@@ -39,17 +39,18 @@ namespace Managers
         private static readonly int NumRects = Shader.PropertyToID("NumRects");
         private static readonly int SunFocus = Shader.PropertyToID("SunFocus");
         private static readonly int NumMeshes = Shader.PropertyToID("NumMeshes");
+        private static readonly int TlasNodes = Shader.PropertyToID("TlasNodes");
         private static readonly int Triangles = Shader.PropertyToID("Triangles");
         private static readonly int FogSpheres = Shader.PropertyToID("FogSpheres");
         private static readonly int MainOldTex = Shader.PropertyToID("MainOldTex");
         private static readonly int NumSpheres = Shader.PropertyToID("NumSpheres");
         private static readonly int ViewParams = Shader.PropertyToID("ViewParams");
-        private static readonly int SunIntensity = Shader.PropertyToID("SunIntensity");
         private static readonly int AllMeshInfo = Shader.PropertyToID("AllMeshInfo");
         private static readonly int GroundColor = Shader.PropertyToID("GroundColor");
         private static readonly int NumBoxInfos = Shader.PropertyToID("NumBoxInfos");
         private static readonly int NumBoxSides = Shader.PropertyToID("NumBoxSides");
         private static readonly int NumFogBoxes = Shader.PropertyToID("NumFogBoxes");
+        private static readonly int SunIntensity = Shader.PropertyToID("SunIntensity");
         private static readonly int BoundingBoxes = Shader.PropertyToID("BoundingBoxes");
         private static readonly int NumFogSpheres = Shader.PropertyToID("NumFogSpheres");
         private static readonly int MaxBounceCount = Shader.PropertyToID("MaxBounceCount");
@@ -123,6 +124,7 @@ namespace Managers
         private GraphicsBuffer _triangleBuffer;
         private GraphicsBuffer _triangleIndexBuffer;
         private GraphicsBuffer _bvhBuffer;
+        private GraphicsBuffer _tlasBuffer;
         private GraphicsBuffer _meshInfoBuffer;
         private GraphicsBuffer _boundingBoxes;
         private GraphicsBuffer _boundingBoxIndices;
@@ -485,7 +487,7 @@ namespace Managers
                 var t = _meshObjects[i];
                 t.Index(i);
 
-                var (meshInfo, triangles) = t.GetInfoAndList();
+                var (meshInfo, triangles, _) = t.GetInfoAndList();
                 meshInfo.firstTriangleIndex = _allTriangles.Count;
                 _allTriangles.AddRange(triangles);
                 _allMeshInfo.Add(meshInfo);
@@ -544,20 +546,43 @@ namespace Managers
 
         private void CreateImprovedBVH()
         {
+            _meshObjects = FindObjectsOfType<MeshObject>();
+
+            var bvhs = new ImprovedBVH[_meshObjects.Length];
+
             if (_improvedBvh == null || Application.isEditor)
             {
-                _improvedBvh = new ImprovedBVH(_allTriangles.ToArray(), _allMeshInfo[0].material);
+                for (var index = 0; index < _meshObjects.Length; index++)
+                {
+                    var meshObject = _meshObjects[index];
+                    var (meshInfo, triangles, t) = meshObject.GetInfoAndList();
+                    meshInfo.firstTriangleIndex = _allTriangles.Count;
 
-                _improvedBvh.Build();
+                    _improvedBvh = new ImprovedBVH(triangles.ToArray(), meshInfo.material);
+
+                    _improvedBvh.Build();
+
+                    _improvedBvh.SetTransform(t);
+
+                    bvhs[index] = _improvedBvh;
+                }
             }
 
+            var tlas = new TLAS(bvhs);
+
+            tlas.Build();
+
+            if (_improvedBvh == null) return;
+            
             VisualizeBVH.DrawArray(_improvedBvh.bvhNodes, Color.green, Color.red, Color.blue);
 
             ShaderHelper.CreateStructuredBuffer(ref _bvhBuffer, _improvedBvh.bvhNodes);
+            ShaderHelper.CreateStructuredBuffer(ref _tlasBuffer, tlas._tlasNodes);
             ShaderHelper.CreateStructuredBuffer(ref _triangleBuffer, _improvedBvh.triangles);
             ShaderHelper.CreateStructuredBuffer(ref _triangleIndexBuffer, _improvedBvh._triIndex);
 
             _rayTracingMaterial.SetBuffer(BvhNodes, _bvhBuffer);
+            _rayTracingMaterial.SetBuffer(TlasNodes, _tlasBuffer);
             _rayTracingMaterial.SetBuffer(Triangles, _triangleBuffer);
             _rayTracingMaterial.SetBuffer(TriangleIndices, _triangleIndexBuffer);
         }

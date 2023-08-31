@@ -48,6 +48,14 @@ Shader "Unlit/RayTracer"
                 Material mat;
             };
 
+            struct TLASNode
+            {
+                float3 min;
+                float3 max;
+                int leftRight;
+                int BLAS;
+            };
+
             StructuredBuffer<BVHNode> BvhNodes;
             StructuredBuffer<Triangle> Triangles;
             StructuredBuffer<int> TriangleIndices;
@@ -95,6 +103,19 @@ Shader "Unlit/RayTracer"
             }
 
 
+            Ray TransformRay(Ray ray, float4x4 invTransform)
+            {
+                ray.dir = mul(float4(ray.dir, 0), invTransform).xyz;
+                ray.origin = mul(float4(ray.origin,1),  invTransform).xyz;
+
+                return ray;
+            }
+
+            void TLASIntersect(Ray ray)
+            {
+                
+            }
+
             HitRecord CalculateRayCollision(Ray ray)
             {
                 float closestSoFar = FLOAT_MAX;
@@ -103,6 +124,8 @@ Shader "Unlit/RayTracer"
 
                 BVHNode node = (BVHNode)BvhNodes[0];
                 BVHNode stack[32];
+
+                Ray rayCopy = TransformRay(ray, node.invTransform);
 
                 uint stackPtr = 0;
                 HitRecord tempRecord = (HitRecord)0;
@@ -115,7 +138,7 @@ Shader "Unlit/RayTracer"
                         {
                             uint instPrim = TriangleIndices[node.leftFirst + i];
                             Triangle tri = Triangles[instPrim];
-                            if (tri.Hit(ray, minDist, closestSoFar, tempRecord))
+                            if (tri.Hit(rayCopy, minDist, closestSoFar, tempRecord))
                             {
                                 closestSoFar = tempRecord.dist;
                                 closestHitRecord = tempRecord;

@@ -65,7 +65,8 @@ struct Ray
 
     void LambertianScatter(const HitRecord rec, inout float3 attenuation)
     {
-        MakeRay(rec.hitPoint, rec.normal + RandomHemisphereDirection(rec.normal));
+        MakeRay(rec.hitPoint + rec.normal * 1e-4
+, rec.normal + RandomHemisphereDirection(rec.normal));
 
         attenuation *= rec.material.color;
     }

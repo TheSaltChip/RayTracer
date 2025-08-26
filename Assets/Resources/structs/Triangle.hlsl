@@ -8,10 +8,11 @@ struct Triangle
 {
     float3 posA, posB, posC;
     float3 normalA, normalB, normalC;
-    float3 c;
 
     bool Hit(const Ray ray, const float minDist, float maxDist, out HitRecord rec)
     {
+        rec = (HitRecord)0;
+        
         const float3 edgeAB = posB - posA;
         const float3 edgeAC = posC - posA;
         const float3 normalVector = cross(edgeAB, edgeAC);
@@ -19,20 +20,36 @@ struct Triangle
         const float3 dao = cross(ao, ray.dir);
 
         const float determinant = -dot(ray.dir, normalVector);
+
+        if (determinant < 1E-9)
+        {
+            return false;
+        }
+
         const float invDeterminant = 1 / determinant;
 
         //Calculate dist to triangle & barycentric coordinates of intersection point
         const float dist = dot(ao, normalVector) * invDeterminant;
 
-        const float u = dot(edgeAC, dao) * invDeterminant;
-        const float v = -dot(edgeAB, dao) * invDeterminant;
-        const float w = 1 - u - v;
-
-        rec = (HitRecord)0;
-
         if (dist < minDist
             || dist > maxDist
-            || !(determinant >= 1E-6 && dist >= 0 && u >= 0 && v >= 0 && w >= 0))
+            || dist < 0 )
+        {
+            return false; 
+        }
+
+        const float baryEps = 1E-9;
+
+        const float u = dot(edgeAC, dao) * invDeterminant;
+        if (u < -baryEps || u > 1.0 + baryEps) return false;
+
+        const float v = -dot(edgeAB, dao) * invDeterminant;
+        if (v < -baryEps || (u + v) > 1.0 + baryEps) return false;
+
+        const float w = 1 - u - v;
+
+
+        if (w < 0)
             return false;
 
         rec.didHit = true;
@@ -42,6 +59,8 @@ struct Triangle
 
         return true;
     }
+
+    float3 c;
 };
 
 #endif

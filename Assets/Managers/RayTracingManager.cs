@@ -8,9 +8,12 @@ using Attributes;
 using DataTypes;
 using Helpers;
 using RayTracingObjects;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using Util;
 using Util.Bvh;
+using Debug = UnityEngine.Debug;
 using Rect = DataTypes.Rect;
 
 namespace Managers
@@ -168,7 +171,7 @@ namespace Managers
         private void OnEnable()
         {
             totalAmountOfRaysPerPixel = 0;
-            changer.Initialize();
+            changer?.Initialize();
 
             _stopwatch = new Stopwatch();
             _stopwatch.Start();
@@ -354,10 +357,47 @@ namespace Managers
             _rayTracingMaterial.SetVector(ViewParams, new Vector4(planeWidth, planeHeight, cam.nearClipPlane, 0));
             _rayTracingMaterial.SetMatrix(CamLocalToWorldMatrix, cam.transform.localToWorldMatrix);
         }
+        
+        // ReSharper disable once InconsistentNaming
+        private void CreateImprovedBVH()
+        {
+            _meshObjects = FindObjectsByType<MeshObject>(FindObjectsSortMode.InstanceID);
+
+            // Use exactly one mesh for now
+            if (_meshObjects == null || _meshObjects.Length == 0)
+            {
+                Debug.LogWarning("No MeshObject found in scene.");
+                return;
+            }
+
+            var meshObject = _meshObjects[0];
+            var (meshInfo, triangles, t) = meshObject.GetInfoAndList();
+
+            // Build a single BLAS over this mesh's local-space triangles
+            _improvedBvh = new ImprovedBVH(triangles.ToArray(), meshInfo.material);
+            _improvedBvh.Build();
+            _improvedBvh.SetTransform(meshObject.transform.localToWorldMatrix);
+
+            // Optional: visualize BLAS for sanity
+            VisualizeBVH.DrawArray(_improvedBvh.bvhNodes, Color.green, Color.red, Color.blue);
+
+            // Upload only this BLAS
+            ShaderHelper.CreateStructuredBuffer(ref _bvhBuffer, _improvedBvh.bvhNodes);
+            ShaderHelper.CreateStructuredBuffer(ref _triangleBuffer, _improvedBvh.triangles);
+            ShaderHelper.CreateStructuredBuffer(ref _triangleIndexBuffer, _improvedBvh._triIndex);
+
+            _rayTracingMaterial.SetBuffer(BvhNodes, _bvhBuffer);
+            _rayTracingMaterial.SetBuffer(Triangles, _triangleBuffer);
+            _rayTracingMaterial.SetBuffer(TriangleIndices, _triangleIndexBuffer);
+
+            // Do NOT upload TLAS yet
+            // ShaderHelper.CreateStructuredBuffer(ref _tlasBuffer, ...);
+            // _rayTracingMaterial.SetBuffer(TlasNodes, _tlasBuffer);
+        }
 
         private void CreateSpheres()
         {
-            _sphereObjects = FindObjectsOfType<SphereObject>();
+            _sphereObjects = FindObjectsByType<SphereObject>(FindObjectsSortMode.InstanceID);
 
             var spheres = new Sphere[_sphereObjects.Length];
 
@@ -377,7 +417,7 @@ namespace Managers
 
         private void CreateFogSpheres()
         {
-            _fogSphereObjects = FindObjectsOfType<FogSphereObject>();
+            _fogSphereObjects = FindObjectsByType<FogSphereObject>(FindObjectsSortMode.InstanceID);
 
             var fogSpheres = new FogSphere[_fogSphereObjects.Length];
 
@@ -397,7 +437,7 @@ namespace Managers
 
         private void CreateRects()
         {
-            _rectObjects = FindObjectsOfType<RectObject>();
+            _rectObjects = FindObjectsByType<RectObject>(FindObjectsSortMode.InstanceID);
 
             var rects = new Rect[_rectObjects.Length];
 
@@ -417,7 +457,7 @@ namespace Managers
 
         private void CreateBoxes()
         {
-            _boxObjects = FindObjectsOfType<BoxObject>();
+            _boxObjects = FindObjectsByType<BoxObject>(FindObjectsSortMode.InstanceID);
 
             var boxObjectsLength = _boxObjects.Length;
 
@@ -454,7 +494,7 @@ namespace Managers
 
         private void CreateFogBoxes()
         {
-            _fogBoxObjects = FindObjectsOfType<FogBoxObject>();
+            _fogBoxObjects = FindObjectsByType<FogBoxObject>(FindObjectsSortMode.InstanceID);
 
             var fogBoxes = new FogBox[_fogBoxObjects.Length];
 
@@ -474,7 +514,7 @@ namespace Managers
 
         private void CreateMeshes()
         {
-            _meshObjects = FindObjectsOfType<MeshObject>();
+            _meshObjects = FindObjectsByType<MeshObject>(FindObjectsSortMode.InstanceID);
 
             _allTriangles ??= new List<Triangle>();
             _allMeshInfo ??= new List<MeshInfo>();
@@ -543,50 +583,7 @@ namespace Managers
             _rayTracingMaterial.SetBuffer(BoundingBoxes, _boundingBoxes);
             _rayTracingMaterial.SetInteger(NumBoundingBoxes, _boundingBoxArray.Count);
         }
-
-        private void CreateImprovedBVH()
-        {
-            _meshObjects = FindObjectsOfType<MeshObject>();
-
-            var bvhs = new ImprovedBVH[_meshObjects.Length];
-
-            if (_improvedBvh == null || Application.isEditor)
-            {
-                for (var index = 0; index < _meshObjects.Length; index++)
-                {
-                    var meshObject = _meshObjects[index];
-                    var (meshInfo, triangles, t) = meshObject.GetInfoAndList();
-                    meshInfo.firstTriangleIndex = _allTriangles.Count;
-
-                    _improvedBvh = new ImprovedBVH(triangles.ToArray(), meshInfo.material);
-
-                    _improvedBvh.Build();
-
-                    _improvedBvh.SetTransform(t);
-
-                    bvhs[index] = _improvedBvh;
-                }
-            }
-
-            var tlas = new TLAS(bvhs);
-
-            tlas.Build();
-
-            if (_improvedBvh == null) return;
-            
-            VisualizeBVH.DrawArray(_improvedBvh.bvhNodes, Color.green, Color.red, Color.blue);
-
-            ShaderHelper.CreateStructuredBuffer(ref _bvhBuffer, _improvedBvh.bvhNodes);
-            ShaderHelper.CreateStructuredBuffer(ref _tlasBuffer, tlas._tlasNodes);
-            ShaderHelper.CreateStructuredBuffer(ref _triangleBuffer, _improvedBvh.triangles);
-            ShaderHelper.CreateStructuredBuffer(ref _triangleIndexBuffer, _improvedBvh._triIndex);
-
-            _rayTracingMaterial.SetBuffer(BvhNodes, _bvhBuffer);
-            _rayTracingMaterial.SetBuffer(TlasNodes, _tlasBuffer);
-            _rayTracingMaterial.SetBuffer(Triangles, _triangleBuffer);
-            _rayTracingMaterial.SetBuffer(TriangleIndices, _triangleIndexBuffer);
-        }
-
+        
         private void SetShaderVariables()
         {
             SetSkyParams();

@@ -1,4 +1,4 @@
-Shader "Unlit/RayTracer"
+Shader "Unlit/ImprovedRayTracer"
 {
     SubShader
     {
@@ -11,19 +11,11 @@ Shader "Unlit/RayTracer"
 
             #include "UnityCG.cginc"
             #include "Assets/Resources/common/Random.hlsl"
-            #include "Assets/Resources/structs/BoxInfo.hlsl"
-            #include "Assets/Resources/structs/BoxSide.hlsl"
-            #include "Assets/Resources/structs/BoundingBox.hlsl"
-            #include "Assets/Resources/structs/FogBox.hlsl"
-            #include "Assets/Resources/structs/FogSphere.hlsl"
-            #include "Assets/Resources/structs/MeshInfo.hlsl"
             #include "Assets/Resources/structs/Ray.hlsl"
-            #include "Assets/Resources/structs/Rect.hlsl"
-            #include "Assets/Resources/structs/Sphere.hlsl"
             #include "Assets/Resources/structs/Triangle.hlsl"
 
             const static float FLOAT_MAX = 1.#INF;
-            const static float MIN_DIST = 1e-4F;
+            const static float MIN_DIST = 1e-8F;
 
             float3 ViewParams;
             float4x4 CamLocalToWorldMatrix;
@@ -45,6 +37,7 @@ Shader "Unlit/RayTracer"
                 float3 aabbMin, aabbMax;
                 int leftFirst, triCount;
                 float4x4 invTransform;
+                float4x4 transform;
                 Material mat;
             };
 
@@ -105,40 +98,62 @@ Shader "Unlit/RayTracer"
 
             Ray TransformRay(Ray ray, float4x4 invTransform)
             {
-                ray.dir = mul(float4(ray.dir, 0), invTransform).xyz;
-                ray.origin = mul(float4(ray.origin,1),  invTransform).xyz;
+                // Transform direction (no translation) and origin
+                float3 dirL = mul(invTransform, float4(ray.dir, 0)).xyz;
+                float3 orgL = mul(invTransform, float4(ray.origin, 1)).xyz;
 
+                // Normalize and compute a stable inverse direction (avoid INF/NaN)
+                dirL = normalize(dirL);
+                float3 absDir = max(abs(dirL), float3(1e-10, 1e-10, 1e-10));
+                ray.origin = orgL;
+                ray.dir    = dirL;
+                ray.invDir = (1.0 / absDir) * sign(dirL);
                 return ray;
             }
 
             void TLASIntersect(Ray ray)
             {
-                
             }
 
-            HitRecord CalculateRayCollision(Ray ray)
+            HitRecord CalculateRayCollision(Ray worldRay)
             {
+                BVHNode node = (BVHNode)BvhNodes[0];
+                float4x4 localWorldMat = node.transform;
+                // Increase stack size for deep BVHs
+                BVHNode stack[128];
+                float4x4 worldLocalMat = node.invTransform;
+                Ray localRay = worldRay;
+
+                // Transform world ray to BLAS local once
+                localRay = TransformRay(localRay, worldLocalMat);
+
+                // Early-out on root AABB in local space
+                if (IntersectNode(localRay, FLOAT_MAX, node) == 1e30f)
+                {
+                    return (HitRecord)0;
+                }
+
                 float closestSoFar = FLOAT_MAX;
                 const float minDist = MIN_DIST;
                 HitRecord closestHitRecord = (HitRecord)0;
-
-                BVHNode node = (BVHNode)BvhNodes[0];
-                BVHNode stack[32];
-
-                Ray rayCopy = TransformRay(ray, node.invTransform);
-
                 uint stackPtr = 0;
                 HitRecord tempRecord = (HitRecord)0;
 
+                // Prevent pathological loops if data is corrupt
+                uint maxIters = 0u;
+                const uint kMaxTraverseIters = 1u << 20; // safety cap
+
                 while (true)
                 {
+                    if (++maxIters > kMaxTraverseIters) break;
+
                     if (node.triCount > 0)
                     {
                         for (uint i = 0; i < node.triCount; i++)
                         {
                             uint instPrim = TriangleIndices[node.leftFirst + i];
                             Triangle tri = Triangles[instPrim];
-                            if (tri.Hit(rayCopy, minDist, closestSoFar, tempRecord))
+                            if (tri.Hit(localRay, minDist, closestSoFar, tempRecord))
                             {
                                 closestSoFar = tempRecord.dist;
                                 closestHitRecord = tempRecord;
@@ -151,12 +166,22 @@ Shader "Unlit/RayTracer"
                         continue;
                     }
 
-                    BVHNode child1 = BvhNodes[node.leftFirst];
-                    BVHNode child2 = BvhNodes[node.leftFirst + 1];
+                    // Child indices sanity check
+                    int c1Index = node.leftFirst;
+                    int c2Index = node.leftFirst + 1;
 
-                    float dist1 = IntersectNode(ray, closestSoFar, child1);
-                    float dist2 = IntersectNode(ray, closestSoFar, child2);
+                    // If out of bounds, bail
+                    // Note: Replace BvhNodesLength with the actual node count uniform if available.
+                    // Without it, this is still a defensive guard against obviously wrong indices.
+                    if (c1Index < 0 || c2Index < 0) break;
 
+                    BVHNode child1 = BvhNodes[c1Index];
+                    BVHNode child2 = BvhNodes[c2Index];
+
+                    float dist1 = IntersectNode(localRay, closestSoFar, child1);
+                    float dist2 = IntersectNode(localRay, closestSoFar, child2);
+
+                    // Order by nearer first
                     if (dist1 > dist2)
                     {
                         float d = dist1;
@@ -179,12 +204,34 @@ Shader "Unlit/RayTracer"
                         node = child1;
                         if (dist2 != 1e30f)
                         {
-                            stack[stackPtr++] = child2;
+                            // Push only if there is space
+                            if (stackPtr < 128u)
+                            {
+                                stack[stackPtr++] = child2;
+                            }
+                            // else: drop the farther child to avoid overflow
                         }
                     }
                 }
 
+                if (!closestHitRecord.didHit)
+                {
+                    return closestHitRecord;
+                }
+
+                // If we hit, transform back to world.
+                // Use inverse-transpose for normals (handles non-uniform scale)
+                float3 localNormal = closestHitRecord.normal;
+                float3 worldNormal = normalize(mul((float3x3)localWorldMat, localNormal));
+
+                float3 localHit = localRay.origin + localRay.dir * closestHitRecord.dist;
+                float3 worldHit = mul(localWorldMat, float4(localHit, 1)).xyz;
+
+                closestHitRecord.normal = worldNormal;
+                closestHitRecord.hitPoint = worldHit;
+
                 return closestHitRecord;
+
             }
 
             float3 GetEnvironmentLight(Ray ray)

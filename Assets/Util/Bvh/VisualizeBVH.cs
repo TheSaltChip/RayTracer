@@ -9,31 +9,44 @@ namespace Util.Bvh
         private static BoundingBox[] _boxes;
         private static BVHNode[] _nodes;
 
-        public static void DrawArray(BVHNode[] nodes, Color rootColor, Color leftChildrenColor,
+
+        public static void DrawMultipleBVHNodes(BVHNode[][] nodes, Color rootColor,
+            Color leftChildrenColor,
+            Color rightChildrenColor)
+        {
+            foreach (var bvhNode in nodes)
+            {
+                DrawArray(bvhNode, rootColor, leftChildrenColor, rightChildrenColor);
+            }
+        }
+
+        public static void DrawArray(BVHNode[] nodes, Color rootColor,
+            Color leftChildrenColor,
             Color rightChildrenColor)
         {
             var root = nodes[0];
-            
-            DebugVisualizer.DrawBox(root.aabbMin, root.aabbMax, rootColor);
+
+            DebugVisualizer.DrawBox(root.aabbMin,
+                root.aabbMax, rootColor);
 
             _nodes = nodes;
 
-            DrawArrayChildrenNode(root.leftFirst,leftChildrenColor);
-            DrawArrayChildrenNode(root.leftFirst+1,rightChildrenColor);
+            DrawArrayChildrenNode(root.leftFirst, leftChildrenColor, Matrix4x4.identity);
+            DrawArrayChildrenNode(root.leftFirst + 1, rightChildrenColor, Matrix4x4.identity);
         }
 
-        private static void DrawArrayChildrenNode(int index, Color color)
+        private static void DrawArrayChildrenNode(int index, Color color, Matrix4x4 localToWorldMatrix)
         {
-            if(index > _nodes.Length) return;
-            
+            if (index > _nodes.Length) return;
+
             var node = _nodes[index];
-            
-            if(node.Equals(default(BVHNode)) || node.triCount != 0) return;
-            
-            DebugVisualizer.DrawBox(node.aabbMin, node.aabbMax, color);
-            
-            DrawArrayChildrenNode(node.leftFirst, color);
-            DrawArrayChildrenNode(node.leftFirst+1, color);
+
+            if (node.Equals(default(BVHNode)) || node.triCount != 0) return;
+
+            DebugVisualizer.DrawBox(node.aabbMin,node.aabbMax, color);
+
+            DrawArrayChildrenNode(node.leftFirst, color, localToWorldMatrix);
+            DrawArrayChildrenNode(node.leftFirst + 1, color, localToWorldMatrix);
         }
 
         public static void DrawArray(BoundingBox[] boxes, Color rootColor, Color leftChildrenColor,

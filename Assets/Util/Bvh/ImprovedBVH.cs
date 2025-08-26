@@ -82,14 +82,14 @@ namespace Util.Bvh
             for (var i = 0; i < n; i++)
             {
                 if (i == a) continue;
-                
+
                 var bMax = Vector3.Max(_tlasNodes[list[a]].aabbMax, _tlasNodes[list[i]].aabbMax);
                 var bMin = Vector3.Min(_tlasNodes[list[a]].aabbMin, _tlasNodes[list[i]].aabbMin);
                 var e = bMax - bMin;
 
                 var surfaceArea = e.x * e.y + e.y * e.z + e.z * e.x;
                 if (!(surfaceArea < smallest)) continue;
-                
+
                 smallest = surfaceArea;
                 bestB = i;
             }
@@ -98,12 +98,30 @@ namespace Util.Bvh
         }
     }
 
-    public struct BVHNode
+    public struct BVHNode : IEquatable<BVHNode>
     {
         public Vector3 aabbMin, aabbMax;
         public int leftFirst, triCount;
         public Matrix4x4 invTransform;
+        public Matrix4x4 transform;
         public RayTracingMaterial material;
+
+        public bool Equals(BVHNode other)
+        {
+            return aabbMin.Equals(other.aabbMin) && aabbMax.Equals(other.aabbMax) && leftFirst == other.leftFirst &&
+                   triCount == other.triCount && invTransform.Equals(other.invTransform) &&
+                   material.Equals(other.material);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is BVHNode other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(aabbMin, aabbMax, leftFirst, triCount, invTransform, material);
+        }
     }
 
     public struct Bin
@@ -114,7 +132,7 @@ namespace Util.Bvh
 
     public class ImprovedBVH
     {
-        private const int BINS = 8;
+        private const int BINS = 12;
 
         public BVHNode[] bvhNodes { get; }
         public Triangle[] triangles { get; }
@@ -139,6 +157,8 @@ namespace Util.Bvh
 
         public void SetTransform(Matrix4x4 transform)
         {
+            // bvhNodes[0].invTransform = transform.inverse;
+            bvhNodes[0].transform = transform;
             bvhNodes[0].invTransform = transform.inverse;
 
             var bMin = bvhNodes[0].aabbMin;
@@ -238,7 +258,7 @@ namespace Util.Bvh
             Subdivide(rightChildIdx, n);
         }
 
-        private float CalculateNodeCost(BVHNode node)
+        private static float CalculateNodeCost(BVHNode node)
         {
             var e = node.aabbMax - node.aabbMin;
             var surfaceArea = e.x * e.y + e.y * e.z + e.z * e.x;
@@ -261,7 +281,7 @@ namespace Util.Bvh
                     boundsMax = Mathf.Max(triangle.centroid[a], boundsMax);
                 }
 
-                if (boundsMin == boundsMax) continue;
+                if (Mathf.Approximately(boundsMin, boundsMax)) continue;
 
                 var bin = new Bin[BINS];
                 var scale = BINS / (boundsMax - boundsMin);

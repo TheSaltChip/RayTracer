@@ -9,6 +9,7 @@ struct HitRecord
     float dist;
     float3 hitPoint;
     float3 normal;
+    int triIndex;
     bool frontFace;
     Material material;
 

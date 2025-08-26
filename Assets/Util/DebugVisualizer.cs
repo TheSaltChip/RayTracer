@@ -1,3 +1,4 @@
+using DataTypes;
 using UnityEngine;
 
 namespace Util
@@ -34,6 +35,23 @@ namespace Util
             Debug.DrawLine(corners[4], corners[7], color);
             Debug.DrawLine(corners[5], corners[7], color);
             Debug.DrawLine(corners[6], corners[7], color);
+        }
+
+        public static void DrawTriangle(Triangle tri, Color color)
+        {
+
+            var pointA = tri.posA;
+            var pointB = tri.posB;
+            var pointC = tri.posC;
+            
+            // Connect pointA and pointB
+            Debug.DrawLine(pointA, pointB, color);
+
+            // Connect pointB and pointC
+            Debug.DrawLine(pointB, pointC, color);
+
+            // Connect pointC and pointA
+            Debug.DrawLine(pointC, pointA, color);
         }
     }
 }

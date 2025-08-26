@@ -35,13 +35,20 @@ namespace DataTypes
             this.normalA = normalA;
             this.normalB = normalB;
             this.normalC = normalC;
-            centroid = (posA+posB+posC) * 0.33333f; //new Vector3((posA.x + posB.x + posC.x) / 3f, (posA.y + posB.y + posC.y) / 3f,
+            centroid = (posA + posB + posC) *
+                       0.33333f; //new Vector3((posA.x + posB.x + posC.x) / 3f, (posA.y + posB.y + posC.y) / 3f,
             //(posA.z + posB.z + posC.z) / 3f);
+        }
+
+        public override string ToString()
+        {
+            return
+                $"{nameof(posA)}: {posA}, {nameof(posB)}: {posB}, {nameof(posC)}: {posC}, {nameof(normalA)}: {normalA}, {nameof(normalB)}: {normalB}, {nameof(normalC)}: {normalC}, {nameof(centroid)}: {centroid}";
         }
     }
 
     [Serializable, StructLayout(LayoutKind.Sequential)]
-    public struct RayTracingMaterial
+    public struct RayTracingMaterial : IEquatable<RayTracingMaterial>
     {
         [Range(0, 2)] public uint type;
         public Color color;
@@ -49,6 +56,23 @@ namespace DataTypes
         [Min(0)] public float refIdx;
         public Color emissionColor;
         [Min(0)] public float emissionStrength;
+
+        public bool Equals(RayTracingMaterial other)
+        {
+            return type == other.type && color.Equals(other.color) && fuzz.Equals(other.fuzz) &&
+                   refIdx.Equals(other.refIdx) && emissionColor.Equals(other.emissionColor) &&
+                   emissionStrength.Equals(other.emissionStrength);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is RayTracingMaterial other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(type, color, fuzz, refIdx, emissionColor, emissionStrength);
+        }
     }
 
     [Serializable, StructLayout(LayoutKind.Sequential)]
@@ -145,7 +169,7 @@ namespace DataTypes
     }
 
     [Serializable, StructLayout(LayoutKind.Sequential)]
-    public struct BoundingBox
+    public struct BoundingBox : IEquatable<BoundingBox>
     {
         [HideInInspector] public Vector3 min;
         [HideInInspector] public Vector3 max;
@@ -173,6 +197,21 @@ namespace DataTypes
         public override string ToString()
         {
             return $"{nameof(typeofElement)}: {typeofElement}, {nameof(index)}: {index}";
+        }
+
+        public bool Equals(BoundingBox other)
+        {
+            return min.Equals(other.min) && max.Equals(other.max) && typeofElement == other.typeofElement && index == other.index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is BoundingBox other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(min, max, (int)typeofElement, index);
         }
     }
 
